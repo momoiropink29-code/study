@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>そうま 19×19 マスター</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#FFB7C5; --peach:#FFD8A8; --lemon:#FFF3B0;
+  --mint:#B8E8C8; --sky:#A8D8EA; --lavender:#D4B8F0;
+  --ink:#4A4458; --paper:#FFFBF4; --card:#FFFFFF;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%; overflow:hidden;}
+body{
+  font-family:'Zen Maru Gothic','Hiragino Maru Gothic ProN','ヒラギノ丸ゴ ProN',sans-serif;
+  background:var(--paper); color:var(--ink);
+  display:flex; flex-direction:column; align-items:center;
+  height:var(--app-h,100dvh); user-select:none; -webkit-user-select:none;
+  overscroll-behavior:none; overflow:hidden;
+}
+.rainbow-bar{
+  width:100%; height:10px; flex-shrink:0;
+  background:linear-gradient(90deg,var(--pink),var(--peach),var(--lemon),var(--mint),var(--sky),var(--lavender));
+}
+#app{width:100%; max-width:760px; padding:16px 20px 40px; flex:1; min-height:0;
+  display:flex; flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch;}
+.screen{display:none; flex:1; min-height:0; flex-direction:column;}
+.screen.active{display:flex;}
+h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-spacing:2px;}
+.subtitle{text-align:center; font-size:14px; color:#9a92ab; margin-bottom:14px;}
+.streak-box{
+  display:flex; justify-content:center; gap:24px; margin-bottom:18px;
+  font-size:15px; font-weight:700;
+}
+.streak-box span b{font-size:22px;}
+.menu{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.menu button{
+  border:none; border-radius:22px; padding:22px 12px; font-family:inherit;
+  font-size:20px; font-weight:900; color:var(--ink); cursor:pointer;
+  box-shadow:0 4px 0 rgba(74,68,88,.15); transition:transform .08s;
+}
+.menu button:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(74,68,88,.15);}
+.menu button small{display:block; font-size:12px; font-weight:700; margin-top:6px; opacity:.75;}
+.m-bunkai{background:var(--pink);} .m-card{background:var(--peach);}
+.m-ta{background:var(--lemon);} .m-30{background:var(--mint);}
+.m-pi{background:var(--sky);} .m-sq{background:var(--lavender);}
+.m-kiroku{background:#EFEAF6; grid-column:1/-1; padding:14px;}
+.topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.btn-back{
+  border:none; background:#EFEAF6; color:var(--ink); font-family:inherit;
+  font-weight:900; font-size:15px; border-radius:14px; padding:10px 18px; cursor:pointer;
+}
+.mode-title{font-size:20px; font-weight:900;}
+.progress{font-size:16px; font-weight:900; color:#9a92ab;}
+.q-area{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;}
+.q-formula{font-size:64px; font-weight:900; letter-spacing:2px;}
+.q-formula .ans{color:#c9c2d6;}
+.answer-display{
+  min-width:180px; text-align:center; font-size:52px; font-weight:900;
+  border-bottom:6px solid var(--lavender); padding:0 12px 4px; min-height:74px;
+}
+.hint-btn{
+  border:none; background:var(--lemon); font-family:inherit; font-weight:900;
+  font-size:15px; padding:10px 20px; border-radius:16px; cursor:pointer;
+  box-shadow:0 3px 0 rgba(74,68,88,.12);
+}
+.bunkai-visual{
+  display:flex; min-height:64px; align-items:center; gap:8px; font-size:24px; font-weight:900;
+  background:#fff; border-radius:18px; padding:14px 20px;
+  box-shadow:0 3px 10px rgba(74,68,88,.08); margin-top:4px;
+  flex-wrap:wrap; justify-content:center;
+}
+.block10{background:var(--sky); border-radius:10px; padding:6px 14px;}
+.block1{background:var(--pink); border-radius:10px; padding:6px 14px;}
+.numpad{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+  width:100%; max-width:420px; margin:14px auto 0;
+}
+.numpad button{
+  border:none; border-radius:18px; font-family:inherit; font-size:30px;
+  font-weight:900; padding:16px 0; color:var(--ink); background:#fff;
+  box-shadow:0 4px 0 rgba(74,68,88,.12); cursor:pointer;
+}
+.numpad button:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(74,68,88,.12);}
+.numpad .np-clear{background:var(--peach); font-size:20px;}
+.numpad .np-ok{background:var(--mint); font-size:22px;}
+.feedback{font-size:30px; font-weight:900; min-height:44px; text-align:center;}
+.feedback.good{color:#43a566;}
+.feedback.bad{color:#e2708a;}
+.timer-big{min-height:54px; font-size:42px; font-weight:900; color:#9a92ab; text-align:center;}
+.timer-big.warn{color:#e2708a;}
+/* カード */
+.flipcard{
+  width:min(80vw,420px); height:260px; perspective:1000px; cursor:pointer; margin:0 auto;
+}
+.flipcard-inner{
+  position:relative; width:100%; height:100%;
+  transition:transform .45s; transform-style:preserve-3d;
+}
+.flipcard.flipped .flipcard-inner{transform:rotateY(180deg);}
+.face{
+  position:absolute; inset:0; border-radius:26px; backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  display:flex; align-items:center; justify-content:center;
+  font-size:58px; font-weight:900; box-shadow:0 6px 16px rgba(74,68,88,.14);
+}
+.face.front{background:#fff;}
+.face.back{background:var(--lemon); transform:rotateY(180deg);}
+.card-nav{display:flex; gap:14px; justify-content:center; margin-top:22px;}
+.card-nav button{
+  border:none; border-radius:18px; font-family:inherit; font-size:18px; font-weight:900;
+  padding:14px 26px; cursor:pointer; box-shadow:0 4px 0 rgba(74,68,88,.12); color:var(--ink);
+}
+.card-nav .prev{background:#EFEAF6;} .card-nav .next{background:var(--mint);}
+.range-picker{display:flex; flex-direction:column; gap:12px; margin:16px 0;}
+.range-picker label{
+  background:#fff; border-radius:16px; padding:14px 18px; font-size:17px; font-weight:700;
+  display:flex; align-items:center; gap:12px; box-shadow:0 2px 8px rgba(74,68,88,.07);
+}
+.range-picker input{width:24px; height:24px; accent-color:#9b7fd4;}
+.start-btn{
+  border:none; background:var(--mint); font-family:inherit; font-size:22px; font-weight:900;
+  color:var(--ink); border-radius:20px; padding:18px; width:100%; cursor:pointer;
+  box-shadow:0 5px 0 rgba(74,68,88,.15); margin-top:6px;
+}
+.result-box{
+  background:#fff; border-radius:24px; padding:28px; text-align:center;
+  box-shadow:0 6px 16px rgba(74,68,88,.1); margin-top:10px;
+}
+.result-box .big{font-size:48px; font-weight:900; margin:8px 0;}
+.result-box .best{color:#43a566; font-weight:900; font-size:18px; margin-top:6px;}
+.miss-list{margin-top:14px; font-size:17px; font-weight:700; color:#e2708a; line-height:1.9;}
+.kiroku-table{width:100%; border-collapse:collapse; margin-top:12px; font-size:16px;}
+.kiroku-table td{padding:12px 8px; border-bottom:2px dashed #EFEAF6; font-weight:700;}
+.kiroku-table td:last-child{text-align:right; font-weight:900;}
+@media (max-height:700px){ .q-formula{font-size:48px;} .answer-display{font-size:40px; min-height:58px;} }
+/* ===== ごほうび: いきもの ===== */
+.m-pet{background:linear-gradient(120deg,#CFF0DC,#BFE3F5); grid-column:1/-1; padding:18px;}
+.pet-header{display:flex; align-items:center; justify-content:center; gap:18px; margin-bottom:14px; flex-wrap:wrap;}
+.pt-chip{background:var(--lemon); border-radius:16px; padding:10px 20px; font-size:19px; font-weight:900;}
+.shop-row{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+.shop-row button{
+  border:none; border-radius:20px; font-family:inherit; font-size:17px; font-weight:900;
+  color:var(--ink); padding:16px 8px; cursor:pointer; box-shadow:0 4px 0 rgba(74,68,88,.14);
+}
+.shop-row button small{display:block; font-size:12px; margin-top:4px; opacity:.75;}
+.shop-row button:disabled{opacity:.4; box-shadow:none;}
+.egg-n{background:#E8F0F8;} .egg-r{background:linear-gradient(120deg,#FFD8A8,#D4B8F0);}
+.zukan-btn{
+  border:none; border-radius:18px; background:#EFEAF6; font-family:inherit; font-size:16px;
+  font-weight:900; color:var(--ink); padding:14px; width:100%; cursor:pointer;
+  box-shadow:0 3px 0 rgba(74,68,88,.12); margin-bottom:14px;
+}
+.pet-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+.pet-card{
+  background:#fff; border-radius:20px; padding:14px 10px; text-align:center;
+  box-shadow:0 3px 10px rgba(74,68,88,.08);
+}
+.pet-fig{display:inline-block; position:relative; line-height:1.1;}
+.pet-fig.adult::after{
+  content:"✨"; position:absolute; top:-6px; right:-14px; font-size:.42em; filter:none;
+}
+.pet-fig.shine{text-shadow:0 0 14px rgba(255,205,60,.95);}
+.pet-name{
+  font-size:17px; font-weight:900; margin-top:6px; cursor:pointer;
+  border-bottom:2px dashed #D8D0E4; display:inline-block; padding:0 4px;
+}
+.pet-lv{font-size:14px; font-weight:700; color:#9a92ab; margin:4px 0 8px;}
+.lv-bar{height:8px; background:#EFEAF6; border-radius:6px; overflow:hidden; margin:0 10px 8px;}
+.lv-bar i{display:block; height:100%; background:var(--mint);}
+.feed-btn{
+  border:none; border-radius:14px; background:var(--mint); font-family:inherit;
+  font-size:14px; font-weight:900; color:var(--ink); padding:10px 16px; cursor:pointer;
+  box-shadow:0 3px 0 rgba(74,68,88,.12);
+}
+.feed-btn:disabled{background:#EFEAF6; color:#b9b2c6; box-shadow:none;}
+.empty-note{text-align:center; color:#9a92ab; font-weight:700; padding:30px 10px; line-height:1.9;}
+.zukan-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+.z-cell{
+  background:#fff; border-radius:16px; padding:10px 4px; text-align:center;
+  box-shadow:0 2px 8px rgba(74,68,88,.07);
+}
+.z-cell.locked{background:#F4F1F8; box-shadow:none;}
+.z-cell.locked .z-emoji{opacity:.28; filter:grayscale(1);}
+.z-cell.rare{background:linear-gradient(140deg,#FFF6DC,#F3E4FF);}
+.z-emoji{font-size:34px; display:block; line-height:1.2;}
+.z-name{font-size:11px; font-weight:900; margin-top:4px; word-break:break-all;}
+.z-cell.locked .z-name{color:#c3bccf;}
+.z-count{text-align:center; font-size:18px; font-weight:900; margin:6px 0 14px;}
+.data-box{margin-top:22px; border-top:2px dashed #EFEAF6; padding-top:16px;}
+.data-box h3{font-size:15px; font-weight:900; margin-bottom:10px; color:#9a92ab;}
+.data-box textarea{
+  width:100%; height:90px; border:2px solid #EFEAF6; border-radius:14px; padding:10px;
+  font-family:monospace; font-size:11px; resize:none; user-select:text; -webkit-user-select:text;
+}
+.data-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+.data-row button{
+  border:none; border-radius:14px; background:#EFEAF6; font-family:inherit;
+  font-size:14px; font-weight:900; color:var(--ink); padding:12px; cursor:pointer;
+}
+.hatch-stage{text-align:center; padding:20px 0;}
+@media (min-width:560px){ .pet-grid{grid-template-columns:repeat(3,1fr);} .zukan-grid{grid-template-columns:repeat(5,1fr);} }
+</style>
+</head>
+<body>
+<div class="rainbow-bar"></div>
+<div id="app">
+
+<!-- ===== ホーム ===== -->
+<div class="screen active" id="scr-home">
+  <h1>そうまの 19×19 マスター</h1>
+  <div class="subtitle">10のかけ算 ＋ 九九 でとく！</div>
+  <div class="streak-box">
+    <span>🔥 れんぞく <b id="home-streak">0</b> 日</span>
+    <span>⭐ <b class="pt-view">0</b> pt</span>
+    <span>📗 きょう <b id="home-today">0</b> 問</span>
+  </div>
+  <div class="menu">
+    <button class="m-pet" onclick="showPet()">🦎 いきもの<small>ポイントで たまご・えさ・ずかん</small></button>
+    <button class="m-bunkai" onclick="startBunkai()">🧩 分解れんしゅう<small>10のかけ算＋九九のワザ</small></button>
+    <button class="m-card" onclick="startCards()">🃏 カードめくり<small>式を見て答えをいう</small></button>
+    <button class="m-ta" onclick="openSetup('ta')">⏱ タイムアタック<small>10問を何秒でとける？</small></button>
+    <button class="m-30" onclick="openSetup('s30')">⚡ 30秒チャレンジ<small>30秒で何問とける？</small></button>
+    <button class="m-pi" onclick="startPi()">🥧 πのばいすう<small>1π〜6π ぎゃく問題も</small></button>
+    <button class="m-sq" onclick="startSq()">🔲 平方数<small>11×11〜19×19</small></button>
+    <button class="m-kiroku" onclick="showKiroku()">📖 きろく</button>
+  </div>
+</div>
+
+<!-- ===== 出題範囲えらび ===== -->
+<div class="screen" id="scr-setup">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← もどる</button>
+    <div class="mode-title" id="setup-title"></div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="range-picker" id="range-picker">
+    <label><input type="checkbox" value="k19" checked> 19×19 のかけ算（11〜19 × 2〜9）</label>
+    <label><input type="checkbox" value="sq"> 平方数（11×11〜19×19）</label>
+    <label><input type="checkbox" value="pi"> πのばいすう（1π〜6π）</label>
+    <label><input type="checkbox" value="fav"> よく出るかけ算（11×8, 12×9 など）</label>
+  </div>
+  <button class="start-btn" onclick="startFromSetup()">スタート！</button>
+</div>
+
+<!-- ===== クイズ画面(共通) ===== -->
+<div class="screen" id="scr-quiz">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← やめる</button>
+    <div class="mode-title" id="quiz-title"></div>
+    <div class="progress" id="quiz-progress"></div>
+  </div>
+  <div class="timer-big" id="quiz-timer"></div>
+  <div class="q-area">
+    <div class="q-formula" id="q-formula"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="hint-btn" id="hint-btn" onclick="showHint()">💡 ヒント（分解）</button>
+    <div class="bunkai-visual" id="bunkai-visual" style="visibility:hidden"></div>
+    <div class="answer-display" id="answer-display">&nbsp;</div>
+  </div>
+  <div class="numpad">
+    <button onclick="pad('7')">7</button><button onclick="pad('8')">8</button><button onclick="pad('9')">9</button>
+    <button onclick="pad('4')">4</button><button onclick="pad('5')">5</button><button onclick="pad('6')">6</button>
+    <button onclick="pad('1')">1</button><button onclick="pad('2')">2</button><button onclick="pad('3')">3</button>
+    <button class="np-clear" onclick="padClear()">けす</button><button onclick="pad('0')">0</button><button id="np-dot" onclick="pad('.')">.</button>
+  </div>
+  <div class="numpad" style="grid-template-columns:1fr; margin-top:10px;">
+    <button class="np-ok" onclick="submitAnswer()">こたえる！</button>
+  </div>
+</div>
+
+<!-- ===== カードめくり ===== -->
+<div class="screen" id="scr-cards">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← もどる</button>
+    <div class="mode-title">🃏 カードめくり</div>
+    <div class="progress" id="card-progress"></div>
+  </div>
+  <div class="q-area">
+    <div class="flipcard" id="flipcard" onclick="flipCard()">
+      <div class="flipcard-inner">
+        <div class="face front" id="card-front"></div>
+        <div class="face back" id="card-back"></div>
+      </div>
+    </div>
+    <div class="subtitle" style="margin-top:14px">カードをタップすると答えが出るよ</div>
+    <div class="card-nav">
+      <button class="prev" onclick="prevCard()">← まえ</button>
+      <button class="next" onclick="nextCard()">つぎ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 結果 ===== -->
+<div class="screen" id="scr-result">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← ホーム</button>
+    <div class="mode-title" id="result-title"></div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="result-box">
+    <div id="result-main"></div>
+    <div class="best" id="result-best"></div>
+    <div class="miss-list" id="result-miss"></div>
+  </div>
+  <button class="start-btn" onclick="retry()">もういちど！</button>
+</div>
+
+<!-- ===== きろく ===== -->
+<div class="screen" id="scr-kiroku">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← もどる</button>
+    <div class="mode-title">📖 きろく</div>
+    <div style="width:90px"></div>
+  </div>
+  <table class="kiroku-table" id="kiroku-table"></table>
+</div>
+
+<!-- ===== いきもの ===== -->
+<div class="screen" id="scr-pet">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← もどる</button>
+    <div class="mode-title">🦎 いきもの</div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="pet-header">
+    <div class="pt-chip">⭐ <span class="pt-view">0</span> pt</div>
+  </div>
+  <div class="shop-row">
+    <button class="egg-n" id="btn-egg-n" onclick="buyEgg(false)">🥚 ふつうのたまご<small>50 pt</small></button>
+    <button class="egg-r" id="btn-egg-r" onclick="buyEgg(true)">🌟 レアなたまご<small>150 pt</small></button>
+  </div>
+  <button class="zukan-btn" onclick="showZukan()">🐾 いきものずかん <span id="zukan-count">0/30</span></button>
+  <div class="pet-grid" id="pet-grid"></div>
+  <div class="data-box">
+    <h3>💾 データのバックアップ</h3>
+    <textarea id="data-json" placeholder="ここにバックアップの文字が出ます"></textarea>
+    <div class="data-row">
+      <button onclick="exportData()">かきだす</button>
+      <button onclick="importData()">よみこむ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ずかん ===== -->
+<div class="screen" id="scr-zukan">
+  <div class="topbar">
+    <button class="btn-back" onclick="showPet()">← もどる</button>
+    <div class="mode-title">🐾 いきものずかん</div>
+    <div style="width:90px"></div>
+  </div>
+  <div class="z-count">あつめた種類 <span id="z-count-num">0</span>/30</div>
+  <div class="zukan-grid" id="zukan-grid"></div>
+</div>
+
+</div>
+<script>
+/* ================= データ ================= */
+const PI_TABLE = [[1,"3.14"],[2,"6.28"],[3,"9.42"],[4,"12.56"],[5,"15.70"],[6,"18.84"]];
+const FAV = [[11,8],[12,8],[12,9],[13,8],[14,7],[15,6],[16,7],[18,5]];
+
+function poolK19(){ const a=[]; for(let x=11;x<=19;x++)for(let y=2;y<=9;y++)a.push({t:"k",x,y}); return a; }
+function poolSq(){ const a=[]; for(let x=11;x<=19;x++)a.push({t:"k",x,y:x}); return a; }
+function poolPi(){ return PI_TABLE.flatMap(([n,v])=>[{t:"pi",n,v},{t:"pirev",n,v}]); }
+function poolFav(){ return FAV.map(([x,y])=>({t:"k",x,y})); }
+
+function qText(q){
+  if(q.t==="k") return q.x+" × "+q.y+" = ";
+  if(q.t==="pi") return q.n+"π = ";
+  return q.v+" は 何π？ ";
+}
+function qAnswer(q){
+  if(q.t==="k") return String(q.x*q.y);
+  if(q.t==="pi") return q.v;
+  return String(q.n);
+}
+function checkAns(q,input){
+  if(q.t==="pi") return parseFloat(input)===parseFloat(q.v);
+  return input===qAnswer(q);
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ================= 記録 (localStorage) ================= */
+const KEY="kuku19_v1_souma";
+function loadStore(){ try{ return JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ return {}; } }
+function saveStore(s){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){} }
+let store = loadStore();
+store.bests = store.bests||{}; store.today = store.today||{};
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function bumpToday(n){
+  const t=todayStr();
+  if(store.today.date!==t){
+    // 連続日数の更新
+    const y=new Date(); y.setDate(y.getDate()-1);
+    const ys=y.getFullYear()+"-"+String(y.getMonth()+1).padStart(2,"0")+"-"+String(y.getDate()).padStart(2,"0");
+    store.streak = (store.today.date===ys) ? (store.streak||0)+1 : 1;
+    store.today={date:t,count:0};
+  }
+  store.today.count+=n; saveStore(store); refreshHome();
+}
+function refreshHome(){
+  const t=todayStr();
+  document.getElementById("home-streak").textContent = store.streak||0;
+  document.getElementById("home-today").textContent = (store.today.date===t)?(store.today.count||0):0;
+}
+
+/* ================= 画面切替 ================= */
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); document.getElementById(id).classList.add("active"); }
+function goHome(){ stopTimer(); show("scr-home"); refreshHome(); }
+
+/* ================= クイズ共通 ================= */
+let quiz=null, timerInt=null, lastMode=null;
+function stopTimer(){ if(timerInt){clearInterval(timerInt); timerInt=null;} }
+
+function buildPool(kinds){
+  let p=[];
+  if(kinds.includes("k19")) p=p.concat(poolK19());
+  if(kinds.includes("sq")) p=p.concat(poolSq());
+  if(kinds.includes("pi")) p=p.concat(poolPi());
+  if(kinds.includes("fav")) p=p.concat(poolFav());
+  return p.length?p:poolK19();
+}
+
+let setupMode=null;
+function openSetup(mode){
+  setupMode=mode;
+  document.getElementById("setup-title").textContent = mode==="ta" ? "⏱ タイムアタック" : "⚡ 30秒チャレンジ";
+  show("scr-setup");
+}
+function startFromSetup(){
+  const kinds=[...document.querySelectorAll("#range-picker input:checked")].map(i=>i.value);
+  const pool=buildPool(kinds);
+  if(setupMode==="ta") startTA(pool,kinds); else start30(pool,kinds);
+}
+
+function startQuiz(cfg){
+  stopTimer();
+  quiz = Object.assign({idx:0, correct:0, miss:[], input:"", hintUsed:false}, cfg);
+  lastMode = cfg;
+  document.getElementById("quiz-title").textContent = cfg.title;
+  show("scr-quiz");
+  nextQ(true);
+  if(cfg.kind==="s30"){
+    quiz.remain=30;
+    updateTimerLabel();
+    timerInt=setInterval(()=>{
+      quiz.remain--; updateTimerLabel();
+      if(quiz.remain<=0){ finish30(); }
+    },1000);
+  } else if(cfg.kind==="ta"){
+    quiz.start=Date.now();
+    timerInt=setInterval(()=>{
+      const s=((Date.now()-quiz.start)/1000).toFixed(1);
+      document.getElementById("quiz-timer").textContent = s+" 秒";
+    },100);
+  } else {
+    document.getElementById("quiz-timer").textContent="";
+  }
+}
+function updateTimerLabel(){
+  const el=document.getElementById("quiz-timer");
+  el.textContent="のこり "+quiz.remain+" 秒";
+  el.classList.toggle("warn", quiz.remain<=5);
+}
+function currentQ(){ return quiz.queue[quiz.idx % quiz.queue.length]; }
+function nextQ(first){
+  if(!first) quiz.idx++;
+  if(quiz.kind==="ta" && quiz.idx>=quiz.total){ finishTA(); return; }
+  if(quiz.kind==="bunkai" && quiz.idx>=quiz.total){ finishBunkai(); return; }
+  if(quiz.idx % quiz.queue.length===0 && quiz.idx>0) shuffle(quiz.queue);
+  quiz.input=""; quiz.hintUsed=false;
+  const q=currentQ();
+  document.getElementById("q-formula").innerHTML = qText(q)+'<span class="ans">?</span>';
+  document.getElementById("answer-display").innerHTML="&nbsp;";
+  document.getElementById("feedback").textContent=""; document.getElementById("feedback").className="feedback";
+  document.getElementById("bunkai-visual").style.visibility="hidden";
+  document.getElementById("hint-btn").style.visibility = (q.t==="k" && q.x>10 && q.y<10) ? "visible" : "hidden";
+  document.getElementById("np-dot").style.visibility = (q.t==="pi") ? "visible" : "hidden";
+  const total = quiz.total ? "/"+quiz.total : "";
+  document.getElementById("quiz-progress").textContent = quiz.kind==="s30" ? ("せいかい "+quiz.correct) : ((quiz.idx+1)+total);
+}
+function pad(c){
+  if(quiz.locked) return;
+  if(c==="."&&quiz.input.includes("."))return;
+  if(quiz.input.length>=6)return;
+  quiz.input+=c;
+  document.getElementById("answer-display").textContent=quiz.input;
+}
+function padClear(){ if(quiz.locked)return; quiz.input=""; document.getElementById("answer-display").innerHTML="&nbsp;"; }
+function showHint(){
+  const q=currentQ(); if(q.t!=="k")return;
+  quiz.hintUsed=true;
+  const tens=Math.floor(q.x/10)*10, ones=q.x%10;
+  document.getElementById("bunkai-visual").innerHTML =
+    '<span class="block10">'+tens+'×'+q.y+'＝'+(tens*q.y)+'</span> ＋ <span class="block1">'+ones+'×'+q.y+'＝'+(ones*q.y)+'</span>';
+  document.getElementById("bunkai-visual").style.visibility="visible";
+}
+function submitAnswer(){
+  if(quiz.locked || !quiz.input) return;
+  const q=currentQ();
+  const ok=checkAns(q,quiz.input);
+  const fb=document.getElementById("feedback");
+  if(ok){
+    quiz.correct++; bumpToday(1); addPt(PT_Q);
+    fb.textContent="⭕ せいかい！"; fb.className="feedback good";
+    quiz.locked=true;
+    setTimeout(()=>{quiz.locked=false; nextQ();}, quiz.kind==="s30"?350:550);
+  }else{
+    quiz.miss.push(qText(q)+qAnswer(q));
+    fb.textContent="❌ こたえは "+qAnswer(q); fb.className="feedback bad";
+    if(q.t==="k"&&q.x>10&&q.y<10) showHint();
+    quiz.locked=true;
+    setTimeout(()=>{quiz.locked=false; nextQ();}, 1800);
+  }
+}
+
+/* ================= 各モード ================= */
+function startBunkai(){
+  const pool=shuffle(poolK19());
+  startQuiz({kind:"bunkai", title:"🧩 分解れんしゅう", queue:pool, total:10});
+  showHint(); // 最初からワザを見せる
+}
+function startTA(pool,kinds){
+  startQuiz({kind:"ta", title:"⏱ タイムアタック", queue:shuffle(pool), total:10, kinds});
+}
+function start30(pool,kinds){
+  startQuiz({kind:"s30", title:"⚡ 30秒チャレンジ", queue:shuffle(pool), kinds});
+}
+function startPi(){
+  startQuiz({kind:"bunkai", title:"🥧 πのばいすう", queue:shuffle(poolPi()), total:12});
+}
+function startSq(){
+  startQuiz({kind:"bunkai", title:"🔲 平方数", queue:shuffle(poolSq()), total:9});
+}
+
+function finishBunkai(){
+  stopTimer();
+  var bonus = (quiz.miss.length===0) ? perfectBonus() : "";
+  showResult(quiz.title,
+    '<div>せいかい</div><div class="big">'+quiz.correct+' / '+quiz.total+'</div>', bonus, quiz.miss);
+}
+function finishTA(){
+  stopTimer();
+  const sec=((Date.now()-quiz.start)/1000);
+  const key="ta_"+quiz.kinds.sort().join("-");
+  let bestMsg="";
+  if(quiz.miss.length===0){
+    bestMsg=perfectBonus()+"　";
+    if(!store.bests[key] || sec<store.bests[key]){ store.bests[key]=sec; saveStore(store); bestMsg+="🏆 ベスト記録こうしん！"; }
+    else bestMsg+="ベスト: "+store.bests[key].toFixed(1)+" 秒";
+  } else {
+    bestMsg="ぜんぶ正解でベスト記録に挑戦！";
+  }
+  showResult("⏱ タイムアタック",
+    '<div>10問クリア！</div><div class="big">'+sec.toFixed(1)+' 秒</div><div>まちがい '+quiz.miss.length+' 問</div>',
+    bestMsg, quiz.miss);
+}
+function finish30(){
+  stopTimer();
+  const key="s30_"+quiz.kinds.sort().join("-");
+  let bestMsg="";
+  if(!store.bests[key] || quiz.correct>store.bests[key]){ store.bests[key]=quiz.correct; saveStore(store); bestMsg="🏆 ベスト記録こうしん！"; }
+  else bestMsg="ベスト: "+store.bests[key]+" 問";
+  showResult("⚡ 30秒チャレンジ",
+    '<div>30秒で</div><div class="big">'+quiz.correct+' 問</div>', bestMsg, quiz.miss);
+}
+function perfectBonus(){ addPt(PT_PERFECT); return "🎉 ぜんもん正解ボーナス +"+PT_PERFECT+"pt！"; }
+function showResult(title,mainHtml,bestMsg,miss){
+  document.getElementById("result-title").textContent=title;
+  document.getElementById("result-main").innerHTML=mainHtml;
+  document.getElementById("result-best").textContent=bestMsg;
+  document.getElementById("result-miss").innerHTML = miss.length? "もういちど見よう:<br>"+miss.map(m=>"・"+m).join("<br>") : "";
+  show("scr-result");
+}
+function retry(){
+  if(!lastMode) { goHome(); return; }
+  startQuiz(Object.assign({}, lastMode, {queue:shuffle(lastMode.queue.slice())}));
+  if(lastMode.kind==="bunkai" && lastMode.title.includes("分解")) showHint();
+}
+
+/* ================= カードめくり ================= */
+let cards=[], cardIdx=0;
+function startCards(){
+  cards=shuffle(poolK19().concat(poolSq()));
+  cardIdx=0; renderCard(); show("scr-cards");
+}
+function renderCard(){
+  const q=cards[cardIdx];
+  const fc=document.getElementById("flipcard");
+  fc.classList.remove("flipped");
+  setTimeout(()=>{
+    document.getElementById("card-front").textContent=qText(q)+"？";
+    document.getElementById("card-back").textContent=qAnswer(q);
+  }, fc.classList.contains("flipped")?250:0);
+  document.getElementById("card-front").textContent=qText(q)+"？";
+  document.getElementById("card-back").textContent=qAnswer(q);
+  document.getElementById("card-progress").textContent=(cardIdx+1)+"/"+cards.length;
+}
+function flipCard(){
+  const fc=document.getElementById("flipcard");
+  const wasFlipped = fc.classList.contains("flipped");
+  fc.classList.toggle("flipped");
+  if(!wasFlipped) bumpToday(1);
+}
+function nextCard(){ cardIdx=(cardIdx+1)%cards.length; renderCard(); }
+function prevCard(){ cardIdx=(cardIdx-1+cards.length)%cards.length; renderCard(); }
+
+/* ================= きろく ================= */
+const KIND_LABEL={k19:"19×19", sq:"平方数", pi:"π", fav:"よく出る"};
+function showKiroku(){
+  const tbl=document.getElementById("kiroku-table");
+  let rows='<tr><td>🔥 れんぞく日数</td><td>'+(store.streak||0)+' 日</td></tr>';
+  const keys=Object.keys(store.bests).sort();
+  for(const k of keys){
+    const [mode,...kinds]=k.split("_"); const kindTxt=kinds.join("_").split("-").map(x=>KIND_LABEL[x]||x).join("・");
+    if(mode==="ta") rows+='<tr><td>⏱ '+kindTxt+'</td><td>'+store.bests[k].toFixed(1)+' 秒</td></tr>';
+    else rows+='<tr><td>⚡ '+kindTxt+'</td><td>'+store.bests[k]+' 問</td></tr>';
+  }
+  if(keys.length===0) rows+='<tr><td colspan="2">タイムアタックや30秒チャレンジをやると<br>ベスト記録がここに出るよ！</td></tr>';
+  tbl.innerHTML=rows;
+  show("scr-kiroku");
+}
+
+/* ================= ごほうび: いきもの育成 ================= */
+const PKEY="souma_pet_v1";
+const COST_EGG_N=50, COST_EGG_R=150, COST_FEED=30;
+const PT_Q=10, PT_PERFECT=30;
+
+/* n:なまえ / e:ベース絵文字 / f:CSSフィルタ(モルフ) / r:レア / s:きらめき */
+const SPECIES=[
+ {n:"レオパ",    e:"🦎", f:"hue-rotate(-70deg) saturate(1.2)",                r:false},
+ {n:"ハイイエロ",e:"🦎", f:"hue-rotate(-58deg) saturate(2.2) brightness(1.15)",r:false},
+ {n:"マックスノ",e:"🦎", f:"saturate(.15) brightness(1.45)",                  r:false},
+ {n:"タンジェリ",e:"🦎", f:"hue-rotate(-95deg) saturate(1.9) brightness(1.1)", r:false},
+ {n:"ニシアフ",  e:"🦎", f:"hue-rotate(-80deg) saturate(.9) brightness(.72)",  r:false},
+ {n:"クレス",    e:"🦎", f:"hue-rotate(-115deg) saturate(1.4) brightness(.92)",r:false},
+ {n:"ヤモリン",  e:"🦎", f:"saturate(.25) brightness(.95)",                   r:false},
+ {n:"トッケイ",  e:"🦎", f:"hue-rotate(115deg) saturate(1.6)",                r:false},
+ {n:"フトアゴ",  e:"🦎", f:"hue-rotate(-52deg) saturate(.6) brightness(1.28)", r:false},
+ {n:"アオジタ",  e:"🦎", f:"hue-rotate(140deg) saturate(1.5) brightness(.7)",  r:false},
+ {n:"カメレオ",  e:"🦎", f:"saturate(1.1)",                                   r:false},
+ {n:"イグアナ",  e:"🦎", f:"hue-rotate(-30deg) saturate(1.6) brightness(1.12)",r:false},
+ {n:"カメキチ",  e:"🐢", f:"saturate(1.15)",                                  r:false},
+ {n:"リクガメ",  e:"🐢", f:"hue-rotate(-75deg) saturate(.85) brightness(.82)", r:false},
+ {n:"コーンス",  e:"🐍", f:"hue-rotate(-90deg) saturate(1.9)",                r:false},
+ {n:"アオダイ",  e:"🐍", f:"saturate(1.25) brightness(.72)",                  r:false},
+ {n:"アマガエル",e:"🐸", f:"hue-rotate(-25deg) brightness(1.18)",             r:false},
+ {n:"ミニワニ",  e:"🐊", f:"saturate(1.2)",                                   r:false},
+ {n:"アルビノ",  e:"🦎", f:"hue-rotate(-110deg) saturate(.4) brightness(1.5)", r:true},
+ {n:"ブリザド",  e:"🦎", f:"saturate(0) brightness(1.7)",                     r:true},
+ {n:"エニグマ",  e:"🦎", f:"hue-rotate(165deg) saturate(1.6) brightness(.95)", r:true},
+ {n:"ヤドクン",  e:"🐸", f:"hue-rotate(120deg) saturate(3) brightness(1.2)",   r:true},
+ {n:"パンサー",  e:"🦎", f:"hue-rotate(-145deg) saturate(3) brightness(1.15)", r:true, s:true},
+ {n:"シロヘビ",  e:"🐍", f:"saturate(.05) brightness(1.6)",                   r:true},
+ {n:"キングコ",  e:"🐍", f:"hue-rotate(-65deg) saturate(2.3) brightness(.62)", r:true},
+ {n:"ゾウガメ",  e:"🐢", f:"saturate(.2) brightness(.85)",                    r:true},
+ {n:"ワニガメ",  e:"🐊", f:"hue-rotate(-85deg) saturate(.7) brightness(.55)",  r:true},
+ {n:"ディノ",    e:"🦕", f:"saturate(1.35) brightness(.8)",                   r:true},
+ {n:"レックス",  e:"🦖", f:"hue-rotate(-120deg) saturate(1.7) brightness(.85)",r:true},
+ {n:"ドラゴン",  e:"🐉", f:"hue-rotate(-75deg) saturate(2.6) brightness(1.3)", r:true, s:true}
+];
+const STAGE_LABEL=["ベビー","ヤング","アダルト"];
+
+let pet=(function(){ try{ return JSON.parse(localStorage.getItem(PKEY))||{}; }catch(e){ return {}; } })();
+pet.pt=pet.pt||0; pet.list=pet.list||[];
+function savePet(){ try{ localStorage.setItem(PKEY,JSON.stringify(pet)); }catch(e){} }
+function addPt(n){ pet.pt+=n; savePet(); refreshPt(); }
+function refreshPt(){
+  document.querySelectorAll(".pt-view").forEach(function(el){ el.textContent=pet.pt; });
+  const bn=document.getElementById("btn-egg-n"), br=document.getElementById("btn-egg-r");
+  if(bn) bn.disabled = pet.pt<COST_EGG_N;
+  if(br) br.disabled = pet.pt<COST_EGG_R;
+  const zc=document.getElementById("zukan-count");
+  if(zc) zc.textContent=ownedSet().size+"/30";
+}
+function ownedSet(){ const s=new Set(); pet.list.forEach(function(p){ s.add(p.sp); }); return s; }
+function stageOf(lv){ return lv>=7?2 : lv>=4?1 : 0; }
+
+function petFigure(spIdx,lv,size){
+  const s=SPECIES[spIdx], st=stageOf(lv);
+  const scale=[.62,.85,1.05][st];
+  const extra = st===0 ? " saturate(.6) brightness(1.15)" : "";
+  const cls = "pet-fig" + (st===2?" adult":"") + (s.s&&st===2?" shine":"");
+  return '<span class="'+cls+'" style="font-size:'+Math.round(size*scale)+'px;filter:'+s.f+extra+'">'+s.e+'</span>';
+}
+
+/* --- たまご --- */
+function pickSpecies(isRareEgg){
+  const wantRare = Math.random() < (isRareEgg?0.65:0.15);
+  let pool=[];
+  for(let i=0;i<SPECIES.length;i++) if(SPECIES[i].r===wantRare) pool.push(i);
+  const owned=ownedSet();
+  const unowned=pool.filter(function(i){ return !owned.has(i); });
+  if(unowned.length && Math.random()<0.8) pool=unowned;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function buyEgg(isRare){
+  const cost = isRare?COST_EGG_R:COST_EGG_N;
+  if(pet.pt<cost){ alert("ポイントが たりないよ！\nもんだいを といて ポイントを ためよう"); return; }
+  pet.pt-=cost;
+  const sp=pickSpecies(isRare);
+  const same=pet.list.filter(function(p){ return p.sp===sp; }).length;
+  const name = SPECIES[sp].n + (same>0 ? String(same+1) : "");
+  pet.list.push({sp:sp, name:name, lv:1});
+  savePet(); renderPet();
+  alert("たまごが かえった！「"+name+"」が なかまに なったよ");
+}
+
+/* --- えさ --- */
+function feed(idx){
+  const p=pet.list[idx];
+  if(p.lv>=9){ alert("「"+p.name+"」は もう Lv.9 だよ！さいこうレベル！"); return; }
+  if(pet.pt<COST_FEED){ alert("ポイントが たりないよ！\nもんだいを といて ポイントを ためよう"); return; }
+  pet.pt-=COST_FEED;
+  const before=stageOf(p.lv);
+  p.lv++;
+  const after=stageOf(p.lv);
+  savePet(); renderPet();
+  if(after>before){
+    alert("おめでとう！\n「"+p.name+"」が しんかした！\n"+STAGE_LABEL[before]+" → "+STAGE_LABEL[after]);
+  }
+}
+
+/* --- なまえ変更 --- */
+function renamePet(idx){
+  const p=pet.list[idx];
+  const v=prompt("あたらしい なまえ（8文字まで）", p.name);
+  if(v===null) return;
+  const t=v.trim();
+  if(!t){ alert("なまえを いれてね"); return; }
+  if(t.length>8){ alert("8文字までに してね"); return; }
+  p.name=t; savePet(); renderPet();
+}
+
+/* --- 画面 --- */
+function showPet(){ renderPet(); show("scr-pet"); }
+function renderPet(){
+  refreshPt();
+  const g=document.getElementById("pet-grid");
+  if(pet.list.length===0){
+    g.innerHTML='<div class="empty-note" style="grid-column:1/-1">まだ なかまが いないよ。<br>ポイントを ためて たまごを かおう！</div>';
+    return;
+  }
+  let h="";
+  pet.list.forEach(function(p,i){
+    const st=stageOf(p.lv);
+    h+='<div class="pet-card">'
+      + petFigure(p.sp,p.lv,64)
+      + '<div class="pet-name" onclick="renamePet('+i+')">'+p.name+'</div>'
+      + '<div class="pet-lv">Lv.'+p.lv+' ／ '+STAGE_LABEL[st]+'</div>'
+      + '<div class="lv-bar"><i style="width:'+Math.round(p.lv/9*100)+'%"></i></div>'
+      + '<button class="feed-btn" onclick="feed('+i+')"'+(p.lv>=9?' disabled':'')+'>'
+      + (p.lv>=9?'さいこう！':'🍖 えさ 30pt')+'</button></div>';
+  });
+  g.innerHTML=h;
+}
+function showZukan(){
+  const owned=ownedSet();
+  const best={};
+  pet.list.forEach(function(p){ if(!(p.sp in best)||p.lv>best[p.sp]) best[p.sp]=p.lv; });
+  let h="";
+  for(let i=0;i<SPECIES.length;i++){
+    const s=SPECIES[i];
+    if(owned.has(i)){
+      h+='<div class="z-cell'+(s.r?' rare':'')+'"><span class="z-emoji">'
+       + petFigure(i,best[i],34)+'</span><div class="z-name">'+s.n+'</div></div>';
+    }else{
+      h+='<div class="z-cell locked"><span class="z-emoji">❓</span><div class="z-name">???</div></div>';
+    }
+  }
+  document.getElementById("zukan-grid").innerHTML=h;
+  document.getElementById("z-count-num").textContent=owned.size;
+  show("scr-zukan");
+}
+
+/* --- バックアップ --- */
+function exportData(){
+  const dump={v:1, app:"kuku19_souma", pet:pet, quiz:store};
+  document.getElementById("data-json").value=JSON.stringify(dump);
+  alert("バックアップの文字を かきだしたよ。\nぜんぶ コピーして メモに ほぞんしてね");
+}
+function importData(){
+  const t=document.getElementById("data-json").value.trim();
+  if(!t){ alert("バックアップの文字を はりつけてね"); return; }
+  let d;
+  try{ d=JSON.parse(t); }catch(e){ alert("よみこめなかったよ。文字が かけていないか みてね"); return; }
+  if(!d || typeof d!=="object" || !d.pet){ alert("このデータは このアプリのものでは ないみたい"); return; }
+  if(!confirm("いまの データを うわがきするよ。いい？")) return;
+  pet = {pt: d.pet.pt||0, list: Array.isArray(d.pet.list)?d.pet.list:[]};
+  pet.list = pet.list.filter(function(p){
+    return p && typeof p.sp==="number" && p.sp>=0 && p.sp<SPECIES.length;
+  }).map(function(p){
+    return {sp:p.sp, name:String(p.name||SPECIES[p.sp].n).slice(0,8), lv:Math.min(9,Math.max(1,p.lv|0||1))};
+  });
+  savePet();
+  if(d.quiz && typeof d.quiz==="object"){ store=d.quiz; store.bests=store.bests||{}; store.today=store.today||{}; saveStore(store); }
+  renderPet(); refreshHome();
+  alert("よみこんだよ！");
+}
+
+/* ===== 表示エリアの高さに追従（Documents等のアプリ内ブラウザ対策） ===== */
+function setAppH(){
+  var vv = window.visualViewport;
+  var h = vv ? vv.height : window.innerHeight;
+  document.documentElement.style.setProperty('--app-h', h + 'px');
+}
+setAppH();
+window.addEventListener('resize', setAppH);
+window.addEventListener('orientationchange', function(){ setTimeout(setAppH, 300); });
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', setAppH);
+  window.visualViewport.addEventListener('scroll', setAppH);
+}
+setTimeout(setAppH, 300);
+
+refreshHome(); refreshPt();
+</script>
+</body>
+</html>
