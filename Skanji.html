@@ -324,6 +324,7 @@ function renamePet(i){const nm=prompt("なまえをかえる",save.pets[i].n);if
 // ===== クイズ状態 =====
 let screen="menu",mode="kaki",rangeV="today";
 let queue=[],idx=0,phase="ask",lastCorrect=null;
+let isRetry=false,retryRound=0;
 let session={c:0,w:0,wrongs:[],pt:0};
 
 function unitPool(uv){
@@ -364,14 +365,26 @@ function startRange(){
   beginQuiz(p.slice(0,10),rangeV);
 }
 function beginQuiz(items,rv){
+  isRetry=false;retryRound=0;
   queue=items.map(it=>({...it,...pickWord(it)}));
   rangeV=rv;idx=0;phase="ask";lastCorrect=null;session={c:0,w:0,wrongs:[],pt:0};
+  screen="quiz";render();
+}
+function startRetry(){
+  if(!session.wrongs.length)return;
+  const items=session.wrongs.slice();
+  isRetry=true;retryRound++;
+  queue=items;                       // 出題は同じ言葉のまま
+  idx=0;phase="ask";lastCorrect=null;
+  session={c:0,w:0,wrongs:[],pt:session.pt};
   screen="quiz";render();
 }
 function record(item,ok){
   const st=save.stats[item.id]||{c:0,w:0,box:0,due:todayStr()};
   st.c+=ok?1:0;st.w+=ok?0:1;
-  schedule(st,ok);
+  // なおしタイムの正解は「今おぼえただけ」なので復習の間かくは進めず、明日また出す
+  if(isRetry){ st.box=0; st.due=addDays(1); }
+  else { schedule(st,ok); }
   save.stats[item.id]=st;
   if(ok){session.c++;session.pt+=10;save.pts+=10;save.total+=10;}
   else{session.w++;session.wrongs.push(item);}
@@ -386,7 +399,10 @@ function judgeYomi(){
 function judgeKaki(ok){lastCorrect=ok;record(queue[idx],ok);phase="judged";render();}
 function next(){
   if(idx+1>=queue.length){
-    if(session.c===queue.length&&queue.length>0){session.pt+=30;save.pts+=30;save.total+=30;persist();}
+    if(session.c===queue.length&&queue.length>0){
+      const b=isRetry?10:30;
+      session.pt+=b;save.pts+=b;save.total+=b;persist();
+    }
     screen="done";
   }else{idx++;phase="ask";lastCorrect=null;}
   render();
@@ -513,7 +529,7 @@ function renderQuiz(){
   }
   return `
   <div class="row" style="justify-content:space-between;margin-bottom:10px">
-    <span style="font-weight:900;font-size:13px;color:var(--gray)">だい ${idx+1} 問 / ${queue.length} 問</span>
+    <span style="font-weight:900;font-size:13px;color:${isRetry?"var(--red)":"var(--gray)"}">${isRetry?`なおしタイム${retryRound>1?"("+retryRound+"かい目)":""} `:""}だい ${idx+1} 問 / ${queue.length} 問</span>
     <span style="font-weight:900;font-size:13px"><span style="color:var(--green)">○ ${session.c}</span>　<span style="color:var(--red)">× ${session.w}</span>　<span style="color:var(--gold)">⭐${session.pt}pt</span></span>
   </div>
   <div class="masu">${board}</div>
@@ -521,26 +537,40 @@ function renderQuiz(){
 }
 
 function renderDone(){
-  const msg=session.c===queue.length?"パーフェクト!! ボーナス +30pt ⭐":session.c>=8?"すごい!この調子!":session.c>=5?"あと少し!"
+  const perfect=session.c===queue.length&&queue.length>0;
+  const cleared=isRetry&&perfect;                    // なおしタイムを全部なおせた
+  const msg=cleared?"ぜんぶ なおせた!! ボーナス +10pt ⭐"
+    :perfect?(isRetry?"":"パーフェクト!! ボーナス +30pt ⭐")
+    :isRetry?"のこりを もう一回 なおそう!"
+    :session.c>=8?"すごい!この調子!":session.c>=5?"あと少し!"
     :"だいじょうぶ、わすれるのはふつう。思い出す練習をしてるんだ!";
-  const color=session.c>=8?"var(--green)":session.c>=5?"var(--blue)":"var(--red)";
-  let wrongs="";
+  const color=perfect?"var(--green)":session.c>=5?"var(--blue)":"var(--red)";
+  let wrongs="",retryBtn="";
   if(session.wrongs.length){
     wrongs=`<div style="background:#FBECE8;border:2px solid var(--red);border-radius:12px;padding:14px;margin-top:14px;text-align:left">
-      <p style="font-weight:900;font-size:13px;color:var(--red);margin-bottom:6px">きょうまちがえたもの(ノートに3回ずつ書こう)</p>
+      <p style="font-weight:900;font-size:13px;color:var(--red);margin-bottom:6px">まちがえたもの(ノートに3回ずつ書いてから なおそう)</p>
       ${session.wrongs.map(w0=>`<p style="font-weight:900;font-size:16px">${w0.w}(${w0.y})</p>`).join("")}
     </div>`;
+    retryBtn=`<button class="btn" style="width:100%;background:#B03A2E;padding:15px;font-size:17px;margin-top:14px" data-act="retryWrong">
+      ✏️ なおしタイム(${session.wrongs.length}問)</button>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:6px">まちがえたものだけ、ぜんぶ書けるまでくりかえすよ</p>`;
   }
+  const clearMsg=cleared?`<div style="background:#EBF5EE;border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px">
+      <p style="font-weight:900;font-size:15px;color:var(--green)">きょうの積みのこし ゼロ! 🎉</p>
+      <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:4px">なおした漢字は、明日また出してたしかめるよ。</p>
+    </div>`:"";
   return `<div style="text-align:center">
     <div style="background:#fff;border:3px solid var(--ink);border-radius:16px;padding:24px">
-      <p style="font-weight:900;font-size:16px">けっか</p>
+      <p style="font-weight:900;font-size:16px">${isRetry?"なおしタイムの けっか":"けっか"}</p>
       <p style="font-weight:900;font-size:46px;color:${color}">${session.c} <span style="font-size:20px;color:var(--ink)">/ ${queue.length} 問</span></p>
-      <p style="font-weight:900;font-size:15px">${msg}</p>
+      ${msg?`<p style="font-weight:900;font-size:15px">${msg}</p>`:""}
       <p class="pt" style="margin-top:8px">こんかい +${session.pt} pt(ぜんぶで ${save.pts} pt)</p>
     </div>
+    ${clearMsg}
     ${wrongs}
+    ${retryBtn}
     <div class="row" style="margin-top:14px;flex-wrap:nowrap">
-      <button class="btn" style="flex:1;background:var(--red);padding:13px;font-size:15px" data-act="again">もう1回!</button>
+      <button class="btn" style="flex:1;background:${session.wrongs.length?"var(--gray)":"var(--red)"};padding:13px;font-size:15px" data-act="again">あたらしく10問</button>
       <button style="flex:1;background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:12px;padding:13px;font-weight:900;font-size:15px" data-act="menu">まきばへもどる</button>
     </div>
   </div>`;
@@ -648,7 +678,8 @@ document.addEventListener("click",(e)=>{
     case "kakiNg":judgeKaki(false);break;
     case "next":next();break;
     case "again":if(rangeV==="today")startToday();else{screen="menu";render();$("#rangeSel").value=rangeV;startRange();}break;
-    case "menu":screen="menu";render();break;
+    case "retryWrong":startRetry();break;
+    case "menu":isRetry=false;retryRound=0;screen="menu";render();break;
     case "list":screen="list";render();break;
     case "egg":buyEgg(el.dataset.kind);break;
     case "zukan":screen="zukan";render();break;
