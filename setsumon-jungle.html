@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0A2416">
+<title>設問ジャングル</title>
+<style>
+  :root{
+    --bg-deep:#0A2416; --bg-mid:#123822; --leaf:#2E7D4F; --leaf-l:#5DBB7F;
+    --cream:#F7F3E3; --cream-d:#EFE8CF; --amber:#F5B62E; --amber-d:#D98E12;
+    --red:#E4572E; --ink:#1E2E22; --ink-s:#4A5C4E;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    min-height:100vh;
+    background:radial-gradient(ellipse at 50% -10%, var(--bg-mid) 0%, var(--bg-deep) 65%) fixed;
+    font-family:"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4","M PLUS Rounded 1c",
+                "Hiragino Kaku Gothic ProN",sans-serif;
+    color:var(--cream);
+    -webkit-text-size-adjust:100%;
+    -webkit-user-select:none; user-select:none;
+  }
+  #app{max-width:460px; margin:0 auto; padding:calc(18px + env(safe-area-inset-top)) 18px
+        calc(40px + env(safe-area-inset-bottom)); position:relative; z-index:1;}
+  .deco{position:fixed; pointer-events:none; z-index:0; opacity:.15;}
+  .deco.tl{top:-30px; left:-30px; font-size:90px; transform:rotate(30deg);}
+  .deco.br{bottom:-20px; right:-25px; font-size:100px; transform:rotate(-140deg);}
+  .fly{position:fixed; border-radius:50%; background:var(--amber); pointer-events:none; z-index:0;
+       animation:fly 5s ease-in-out infinite; opacity:.7;}
+  @keyframes fly{0%,100%{transform:translate(0,0);opacity:.5}50%{transform:translate(12px,-18px);opacity:1}}
+  @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+  @keyframes wig{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+  @keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  h1{font-size:29px; font-weight:800; margin:6px 0 2px; letter-spacing:2px;}
+  h2{font-size:21px; font-weight:800; text-align:center; margin:8px 0 4px;}
+  .center{text-align:center}
+  .rise{animation:rise .35s ease}
+  .wig{display:inline-block; animation:wig 2.5s ease-in-out infinite}
+
+  .panel{background:rgba(0,0,0,.3); border:1px solid rgba(93,187,127,.35);
+         border-radius:20px; padding:15px 17px;}
+  .row{display:flex; justify-content:space-between; font-weight:800; font-size:15px;}
+  .bar{width:100%; height:12px; border-radius:12px; background:rgba(0,0,0,.35);
+       overflow:hidden; border:1px solid rgba(93,187,127,.3);}
+  .bar>i{display:block; height:100%; border-radius:12px;
+         background:linear-gradient(90deg,var(--leaf-l),var(--amber));
+         transition:width .6s cubic-bezier(.2,.8,.3,1);}
+
+  button{font-family:inherit; cursor:pointer; border:none;}
+  .btn{font-weight:800; font-size:17px; padding:15px 24px; border-radius:999px;
+       background:var(--amber); color:#3A2A05; box-shadow:0 5px 0 rgba(0,0,0,.3);
+       width:100%; display:block; margin-top:10px; transition:transform .1s;}
+  .btn:active{transform:translateY(3px)}
+  .btn.green{background:var(--leaf-l); color:#0A2416}
+  .btn.ghost{background:rgba(93,187,127,.2); color:var(--cream); border:2px solid var(--leaf-l)}
+  .btn.flat{background:transparent; color:var(--cream-d); box-shadow:none; font-size:14px; padding:8px}
+
+  .course{font-family:inherit; font-weight:800; font-size:15px; text-align:left; width:100%;
+          padding:13px 16px; border-radius:14px; border:2px solid rgba(93,187,127,.5);
+          background:rgba(93,187,127,.14); color:var(--cream); margin-top:8px;}
+
+  .card{background:var(--cream); color:var(--ink); border-radius:20px;
+        padding:17px 18px 15px; box-shadow:0 6px 0 rgba(0,0,0,.35); margin-top:16px;}
+  .passage{background:#E7F3E5; border:1.5px dashed var(--leaf); border-radius:12px;
+           padding:10px 12px; font-size:15px; line-height:1.8; margin-bottom:12px;}
+  .qlabel{font-size:12px; font-weight:800; color:var(--leaf); letter-spacing:1px;}
+  .qtext{font-size:17px; font-weight:800; line-height:1.7; margin-top:4px;}
+
+  .opt{font-weight:700; font-size:15px; line-height:1.6; text-align:left; width:100%;
+       padding:13px 15px; border-radius:14px; border:2px solid transparent;
+       background:rgba(247,243,227,.95); color:var(--ink); margin-top:9px;}
+  .opt.ok{background:#DFF5D8; border-color:var(--leaf-l)}
+  .opt.ng{background:#FBE0D6; border-color:var(--red); color:#8A2E12}
+  .opt.dim{background:rgba(247,243,227,.45)}
+
+  .fb{border-radius:16px; padding:12px 15px; font-weight:800; font-size:15px;
+      line-height:1.7; margin-top:14px; animation:pop .35s ease;}
+  .fb.good{background:rgba(93,187,127,.2); border:2px solid var(--leaf-l)}
+  .fb.bad{background:rgba(228,87,46,.18); border:2px solid var(--red)}
+  .hint{font-weight:700; font-size:13px; margin-top:6px; color:var(--cream-d)}
+
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;}
+  .bug{border-radius:16px; padding:13px 9px; text-align:center;
+       background:rgba(0,0,0,.35); color:var(--cream-d); border:1px solid rgba(93,187,127,.25);}
+  .bug.got{background:var(--cream); color:var(--ink); border:2px solid var(--amber)}
+  .bug .e{font-size:36px; filter:grayscale(1) brightness(.35)}
+  .bug.got .e{filter:none}
+  .bug .n{font-weight:800; font-size:13px; margin-top:4px}
+  .bug .d{font-size:11px; margin-top:3px; line-height:1.5; min-height:30px}
+
+  .pet{background:linear-gradient(160deg,#164A2C,#0D2E1B); border:2px solid var(--leaf);
+       border-radius:20px; padding:14px 16px; margin-top:14px; text-align:center;}
+  .pet .stage{font-size:11px; font-weight:800; color:var(--leaf-l); letter-spacing:1px}
+  .pet .big{font-size:62px; line-height:1.15; margin:2px 0}
+  .pet .nm{font-weight:800; font-size:17px}
+  .pet .sz{font-size:12px; color:var(--cream-d); margin-bottom:8px}
+  .jelly{display:inline-block; background:rgba(245,182,46,.16); border:1px solid var(--amber);
+         border-radius:999px; padding:3px 13px; font-size:13px; font-weight:800; color:var(--amber);}
+  .statrow{display:flex; align-items:center; gap:8px; margin-top:7px; font-size:12px; font-weight:700}
+  .statrow .lbl{width:78px; flex:none; color:var(--cream-d)}
+  .statrow .num{width:46px; flex:none; text-align:right; color:var(--amber)}
+  .review{background:rgba(228,87,46,.16); border-color:var(--red)!important; color:var(--cream)}
+  .rules{font-size:13px; line-height:1.8; color:var(--cream-d);
+         background:rgba(0,0,0,.2); border-radius:14px; padding:12px 15px; margin-top:20px;}
+  .amber{color:var(--amber)} .green{color:var(--leaf-l)}
+  .mini{font-size:12px; color:#7FA891; text-align:center; margin-top:18px; line-height:1.9}
+  .mini button{background:none; color:#7FA891; font-size:12px; text-decoration:underline; padding:2px 6px}
+  textarea{width:100%; height:110px; font-size:12px; border-radius:10px; padding:8px;
+           border:1px solid var(--leaf); background:#0F3020; color:var(--cream);
+           font-family:monospace; -webkit-user-select:text; user-select:text;}
+</style>
+</head>
+<body>
+<div class="deco tl">🌿</div><div class="deco br">🌿</div>
+<div id="app"></div>
+
+<script>
+"use strict";
+
+/* ========= データ ========= */
+const BUGS=[
+ {e:"🐜",n:"ハキリアリ",d:"葉っぱを運ぶ力もち",p:100},
+ {e:"🦋",n:"モルフォチョウ",d:"青くかがやく宝石のチョウ",p:300},
+ {e:"🐸",n:"ヤドクガエル",d:"ど派手な色は「さわるな」のサイン",p:550},
+ {e:"🕷️",n:"タランチュラ",d:"毛むくじゃらのハンター",p:850},
+ {e:"🦜",n:"コンゴウインコ",d:"ジャングルにひびく大声",p:1200},
+ {e:"🐍",n:"エメラルドボア",d:"木の上でとぐろを巻く",p:1600},
+ {e:"🦥",n:"ナマケモノ",d:"1週間に1回しか木から下りない",p:2050},
+ {e:"🐊",n:"クロカイマン",d:"アマゾン川のぬし",p:2550},
+ {e:"🦎",n:"バシリスク",d:"水の上を走るトカゲ",p:3100},
+ {e:"🐆",n:"ジャガー",d:"ジャングル最強のネコ",p:3700},
+ {e:"🦇",n:"オオコウモリ",d:"夜のジャングルの支配者",p:4400},
+ {e:"🪲",n:"ヘラクレスオオカブト",d:"世界最大！カブトムシの王者！",p:5200}
+];
+
+const SPECIES=[
+ {n:"ヘラクレスオオカブト",e:"🪲",max:180,d:"世界最大。長い角がじまん"},
+ {n:"コーカサスオオカブト",e:"🪲",max:130,d:"3本の角を持つ暴れん坊"},
+ {n:"ネプチューンオオカブト",e:"🪲",max:165,d:"海の神の名を持つ黒い巨人"},
+ {n:"ゾウカブト",e:"🪲",max:140,d:"金色の毛におおわれた重量級"},
+ {n:"ニジイロクワガタ",e:"🪲",max:75,d:"虹色に光る美しいクワガタ"},
+ {n:"ギラファノコギリクワガタ",e:"🪲",max:120,d:"世界一長いアゴ"}
+];
+const STAGES=[
+ {e:"🥚",n:"たまご",need:0},
+ {e:"🐛",n:"1令幼虫",need:15},
+ {e:"🐛",n:"2令幼虫",need:40},
+ {e:"🐛",n:"3令幼虫",need:75},
+ {e:"🫘",n:"前蛹",need:105},
+ {e:"🫘",n:"さなぎ",need:130}
+];
+const GROWN=150;
+
+const POOL={
+ what:["理由","気持ち","内容説明","抜き出し","指示語（こそあど）","つなぎ言葉"],
+ where:["直前・きっかけの場面","そのときのようす・セリフ","——線のまわり","ヒント語のちかく","指示語より前の文","前の文と後の文"],
+ how:["「〜から。」","「〜と思った。」","「〜ということ。」","そのまま抜き出す（1字も変えない）","入れかえて意味が通るか確かめる","前と後をくらべてえらぶ"]
+};
+const STEP_LABEL=["① なにを聞いてる？","② どこを見る？","③ どう答える？"];
+const STEP_KEY=["what","where","how"];
+const TYPE_INDEX={理由:0,気持ち:1,内容説明:2,抜き出し:3,指示語:4,つなぎ言葉:5};
+const TYPE_RULES={
+ 理由:"理由は「〜から。」直前のきっかけをさがせ！",
+ 気持ち:"気持ちは「〜と思った。」ようす・セリフから読みとる！",
+ 内容説明:"内容説明は「〜ということ。」中身を言いかえる！",
+ 抜き出し:"抜き出しはコピー力勝負！1字も変えずにまるごと写す！",
+ 指示語:"こそあどは前をさがす！入れかえて意味が通ればアタリ！",
+ つなぎ言葉:"つなぎ言葉は前と後をくらべる！同じ向きか、逆向きか！"
+};
+const COURSES=[
+ {k:"all",l:"🌍 ぜんぶミックス",t:null},
+ {k:"a",l:"🔥 理由・気持ち",t:["理由","気持ち"]},
+ {k:"b",l:"🧩 内容説明・抜き出し",t:["内容説明","抜き出し"]},
+ {k:"c",l:"🔍 指示語・つなぎ言葉",t:["指示語","つなぎ言葉"]}
+];
+
+const Q=[
+/* 理由 */
+{t:"理由",p:"雨がふりそうだったので、けんたは家まで走り出した。",q:"けんたはなぜ走り出したのですか。",a:[
+ {t:"雨がふりそうだったから。",ok:1},
+ {t:"雨がふりそうだった。",n:"おしい！理由は「から。」でしめる！"},
+ {t:"家まで走ったということ。",n:"それは出来事。理由の型は「〜から。」"}]},
+{t:"理由",p:"犬は大きな花火の音におどろいて、にわから逃げた。",q:"犬はなぜ逃げたのですか。",a:[
+ {t:"大きな花火の音におどろいたから。",ok:1},
+ {t:"にわから逃げたから。",n:"それは「逃げたこと」そのもの。きっかけをさがせ！"},
+ {t:"こわいと思った。",n:"それは気持ちの型。今は理由を聞かれてるよ！"}]},
+{t:"理由",p:"弟がぼくの大切なカードを勝手に使ったので、ぼくは怒った。",q:"ぼくはなぜ怒ったのですか。",a:[
+ {t:"弟が大切なカードを勝手に使ったから。",ok:1},
+ {t:"怒ったということ。",n:"「ということ。」は内容説明の型！"},
+ {t:"カードが大切だから。",n:"近いけど…直接のきっかけは「勝手に使った」こと！"}]},
+{t:"理由",p:"バスの時間におくれそうだったから、みんな急いで走った。",q:"みんなはなぜ急いだのですか。",a:[
+ {t:"バスの時間におくれそうだったから。",ok:1},
+ {t:"バスが好きだから。",n:"本文に書いてない！答えはかならず本文の中！"},
+ {t:"急いで走った。",n:"それは出来事。理由＋「から。」だ！"}]},
+{t:"理由",p:"この土地は一年中あたたかく雨が多い。そのため、木がぐんぐん育つ。",q:"木がぐんぐん育つのはなぜですか。",a:[
+ {t:"一年中あたたかく雨が多いから。",ok:1},
+ {t:"木がぐんぐん育つから。",n:"聞かれてることをくり返してるだけ！前をさがせ！"},
+ {t:"土地が広いから。",n:"書いてない！「そのため」の前に答えがある！"}]},
+{t:"理由",p:"ゆうたは足をくじいていた。だから今日の試合には出なかった。",q:"ゆうたはなぜ試合に出なかったのですか。",a:[
+ {t:"足をくじいていたから。",ok:1},
+ {t:"試合に出たくないと思った。",n:"気持ちの型だし、本文にない！"},
+ {t:"試合に出なかったということ。",n:"内容説明の型。理由は「から。」！"}]},
+{t:"理由",p:"たまごを冷ぞう庫から出しておく。冷たいままだと生地とまざりにくいからだ。",q:"たまごを冷ぞう庫から出しておくのはなぜですか。",a:[
+ {t:"冷たいままだと生地とまざりにくいから。",ok:1},
+ {t:"冷ぞう庫から出しておくから。",n:"そのままくり返してる！理由は次の文にある！"},
+ {t:"たまごをまぜるということ。",n:"型がちがう。理由は「〜から。」"}]},
+/* 気持ち */
+{t:"気持ち",p:"テストで100点を取って、ゆみは思わずとび上がった。",q:"ゆみはどんな気持ちでしたか。",a:[
+ {t:"うれしいと思った。",ok:1},
+ {t:"100点を取ったから。",n:"「から。」は理由の型。気持ちは「〜と思った。」"},
+ {t:"とび上がったということ。",n:"それは動き。動きから気持ちを読みとろう！"}]},
+{t:"気持ち",p:"母は、こわれたお皿を見て、だまってため息をついた。",q:"母はどんな気持ちでしたか。",a:[
+ {t:"がっかりしたと思った。",ok:1},
+ {t:"ため息をついたから。",n:"ため息はヒント。そこから気持ちに変身させる！"},
+ {t:"お皿がこわれたということ。",n:"それは出来事の説明。気持ちの型で答えよう！"}]},
+{t:"気持ち",p:"初めての発表の前、たけしの手は小さくふるえていた。",q:"たけしはどんな気持ちでしたか。",a:[
+ {t:"きんちょうしてこわいと思った。",ok:1},
+ {t:"手がふるえたから。",n:"ふるえは体のサイン。気持ちの言葉に変える！"},
+ {t:"発表したということ。",n:"まだ発表してない！ようすから気持ちを読もう！"}]},
+{t:"気持ち",p:"友だちが遠くに引っこすと聞いて、さくらはだまってうつむいた。",q:"さくらはどんな気持ちでしたか。",a:[
+ {t:"さびしいと思った。",ok:1},
+ {t:"引っこすから。",n:"それはきっかけ。聞かれてるのは気持ち！"},
+ {t:"うつむいたということ。",n:"うつむき＝ヒント。気持ちの言葉に変身させよう！"}]},
+{t:"気持ち",p:"「そんなの、ぼくだってできるよ」と言いながら、こうたはくちびるをかんだ。",q:"こうたはどんな気持ちでしたか。",a:[
+ {t:"くやしいと思った。",ok:1},
+ {t:"できると思った。",n:"セリフだけを信じちゃダメ！体の動きが本当の気持ち！"},
+ {t:"くちびるをかんだから。",n:"理由の型。気持ちの言葉に変えよう！"}]},
+{t:"気持ち",p:"だれもいない教室で、りんは何度も時計を見ては、ろうかをのぞいた。",q:"りんはどんな気持ちでしたか。",a:[
+ {t:"早く来ないかと待ち遠しく思った。",ok:1},
+ {t:"時計が好きだと思った。",n:"本文からずれてる！くり返す動きの意味を考えよう！"},
+ {t:"教室にいたということ。",n:"内容説明の型。今は気持ち！"}]},
+{t:"気持ち",p:"落とし物をとどけると、おじいさんは何度も何度も頭を下げた。",q:"おじいさんはどんな気持ちでしたか。",a:[
+ {t:"ありがたいと思った。",ok:1},
+ {t:"頭を下げたということ。",n:"動きの説明どまり。気持ちの言葉にしよう！"},
+ {t:"落とし物をしたから。",n:"理由の型。聞かれてるのは気持ち！"}]},
+/* 内容説明 */
+{t:"内容説明",p:"ぼくにとって大切なものは、祖父にもらった古い図鑑だ。",q:"「大切なもの」とは何ですか。",a:[
+ {t:"祖父にもらった古い図鑑ということ。",ok:1},
+ {t:"図鑑が古いから。",n:"「から。」は理由の型だよ！"},
+ {t:"祖父がやさしいと思った。",n:"気持ちは聞かれてない！中身を説明しよう！"}]},
+{t:"内容説明",p:"勇気を出すとは、こわくてもやってみることだと先生は言った。",q:"「勇気を出す」とはどういうことですか。",a:[
+ {t:"こわくてもやってみるということ。",ok:1},
+ {t:"先生が言ったから。",n:"だれが言ったかじゃなく、中身を答える！"},
+ {t:"こわいと思った。",n:"気持ちの型になってる！「〜ということ。」だ！"}]},
+{t:"内容説明",p:"この話は、あきらめずに練習を続ければ夢はかなう、という話だ。",q:"この話のテーマは何ですか。",a:[
+ {t:"あきらめずに続ければ夢がかなうということ。",ok:1},
+ {t:"練習したから。",n:"テーマ＝話ぜんたいで言いたいこと！"},
+ {t:"夢がかなった。",n:"おしい！「ということ。」でしめよう！"}]},
+{t:"内容説明",p:"「たから物」とは、みんなでとった夏の写真のことだった。",q:"「たから物」とは何ですか。",a:[
+ {t:"みんなでとった夏の写真ということ。",ok:1},
+ {t:"写真をとったから。",n:"理由の型になってる！中身を説明しよう！"},
+ {t:"夏が好きだと思った。",n:"気持ちは聞かれてないぞ！"}]},
+{t:"内容説明",p:"カブトムシの角は、えさ場をめぐって相手をはね飛ばすための道具である。",q:"カブトムシにとって角とはどういうものですか。",a:[
+ {t:"えさ場をめぐって相手をはね飛ばす道具だということ。",ok:1},
+ {t:"角が大きいから。",n:"理由の型。中身の説明をしよう！"},
+ {t:"強そうだと思った。",n:"自分の感想はNG！本文の言葉で説明する！"}]},
+{t:"内容説明",p:"「森は水をたくわえるダムだ」と筆者は言う。地面がスポンジのように雨をためるからだ。",q:"「森は水をたくわえるダム」とはどういうことですか。",a:[
+ {t:"地面がスポンジのように雨をためるということ。",ok:1},
+ {t:"森にダムがあるということ。",n:"たとえを本当のことにしちゃダメ！中身を言いかえる！"},
+ {t:"雨がふるから。",n:"理由の型。聞かれてるのは「どういうこと」！"}]},
+{t:"内容説明",p:"本当の友だちとは、うまくいかない時にそばにいてくれる人のことだ。",q:"「本当の友だち」とはどんな人ですか。",a:[
+ {t:"うまくいかない時にそばにいてくれる人ということ。",ok:1},
+ {t:"友だちが多いということ。",n:"本文にない！書いてあることだけで答える！"},
+ {t:"そばにいてほしいと思った。",n:"気持ちの型。今は説明！"}]},
+/* 抜き出し */
+{t:"抜き出し",p:"ころんでひざをすりむいた。ぼくはなみだが止まらなかった。",q:"悲しかったことがわかる一文を抜き出しなさい。",a:[
+ {t:"ぼくはなみだが止まらなかった。",ok:1},
+ {t:"ころんでひざをすりむいた。",n:"それは出来事。悲しさがわかる言葉は「なみだ」！"},
+ {t:"なみだが止まらない。",n:"1字でも変えたらアウト！そのまま写す！"}]},
+{t:"抜き出し",p:"プレゼントを開けたしゅんかん、みかは大声で笑ってはしゃいだ。となりで犬もほえた。",q:"うれしかった様子がわかる一文を抜き出しなさい。",a:[
+ {t:"プレゼントを開けたしゅんかん、みかは大声で笑ってはしゃいだ。",ok:1},
+ {t:"となりで犬もほえた。",n:"犬じゃない！「笑った」「はしゃいだ」がうれしさの言葉！"},
+ {t:"みかは笑ってはしゃいだ。",n:"勝手にけずったらダメ！一文まるごとコピー！"}]},
+{t:"抜き出し",p:"森が静かなのは、鳥たちがねむっているからだ。月だけが光っていた。",q:"理由が書いてある一文を抜き出しなさい。",a:[
+ {t:"森が静かなのは、鳥たちがねむっているからだ。",ok:1},
+ {t:"月だけが光っていた。",n:"「から」「ので」がある文が理由の文！"},
+ {t:"鳥たちがねむっている。",n:"けずっちゃダメ！一文をそのまま写す！"}]},
+{t:"抜き出し",p:"かぶと虫が羽を広げて飛んだ。そうまは目をかがやかせて追いかけた。",q:"わくわくした様子がわかる一文を抜き出しなさい。",a:[
+ {t:"そうまは目をかがやかせて追いかけた。",ok:1},
+ {t:"かぶと虫が羽を広げて飛んだ。",n:"それはかぶと虫のようす。人のようすをさがせ！"},
+ {t:"そうまは追いかけた。",n:"とちゅうをけずったらアウト！まるごとコピー！"}]},
+{t:"抜き出し",p:"つまり、こん虫の足は六本である。クモは八本なのでこん虫ではない。",q:"筆者の考えがまとめられている一文を抜き出しなさい。",a:[
+ {t:"つまり、こん虫の足は六本である。",ok:1},
+ {t:"クモは八本なのでこん虫ではない。",n:"それは例。「つまり」がまとめのサイン！"},
+ {t:"こん虫の足は六本である。",n:"「つまり、」も文の一部！けずらない！"}]},
+{t:"抜き出し",p:"空が急に暗くなった。遠くでかみなりが鳴りはじめた。ぼくは家へ向かった。",q:"天気が悪くなったことがわかる一文を、二つ目からさがして抜き出しなさい。",a:[
+ {t:"遠くでかみなりが鳴りはじめた。",ok:1},
+ {t:"空が急に暗くなった。",n:"「二つ目から」という指定を読みとばした！設問をよく読む！"},
+ {t:"ぼくは家へ向かった。",n:"それは人の動き。天気の言葉をさがせ！"}]},
+{t:"抜き出し",p:"リクは何も言わなかった。ただ、こぶしをぎゅっとにぎりしめていた。",q:"リクの気持ちがいちばんよく表れている一文を抜き出しなさい。",a:[
+ {t:"ただ、こぶしをぎゅっとにぎりしめていた。",ok:1},
+ {t:"リクは何も言わなかった。",n:"おしい！気持ちが強く出てるのは体の動きのほう！"},
+ {t:"こぶしをにぎりしめていた。",n:"「ただ、」「ぎゅっと」を消したらアウト！"}]},
+/* 指示語 */
+{t:"指示語",p:"つくえの上に古い箱があった。それは祖父が使っていたものだ。",q:"「それ」とは何を指していますか。",a:[
+ {t:"つくえの上にあった古い箱",ok:1},
+ {t:"祖父",n:"入れかえてみて！「祖父は祖父が使っていた」…変！"},
+ {t:"つくえ",n:"おしい！指してるのは箱のほう。入れかえて確かめよう！"}]},
+{t:"指示語",p:"毎朝五分だけ本を読む。それを一年続けたら、読むのが速くなった。",q:"「それ」とは何を指していますか。",a:[
+ {t:"毎朝五分だけ本を読むこと",ok:1},
+ {t:"一年",n:"「一年を一年続けたら」…意味が通らない！"},
+ {t:"読むのが速くなったこと",n:"指示語は前をさがす！後ろじゃない！"}]},
+{t:"指示語",p:"アマゾンには数万種のこん虫がいる。このことが、研究者を引きつけている。",q:"「このこと」とは何を指していますか。",a:[
+ {t:"アマゾンに数万種のこん虫がいること",ok:1},
+ {t:"研究者が集まること",n:"後ろを指してる！こそあどは前を見る！"},
+ {t:"アマゾン",n:"「こと」だから出来事のはず。場所じゃない！"}]},
+{t:"指示語",p:"ぼくはメモを取る習慣をつけた。そのおかげで、忘れ物がへった。",q:"「そのおかげ」とは何のおかげですか。",a:[
+ {t:"メモを取る習慣をつけたおかげ",ok:1},
+ {t:"忘れ物がへったおかげ",n:"順番が逆！原因は前にある！"},
+ {t:"ぼくのおかげ",n:"入れかえると意味が通らない！行動をさがそう！"}]},
+{t:"指示語",p:"水そうの底に小石をしいた。こうすると、魚が落ち着くらしい。",q:"「こうする」とはどうすることですか。",a:[
+ {t:"水そうの底に小石をしくこと",ok:1},
+ {t:"魚を落ち着かせること",n:"それは結果！やり方は前の文にある！"},
+ {t:"水そうを買うこと",n:"本文にない！書いてあることだけで答える！"}]},
+{t:"指示語",p:"父は毎晩、庭のカブトムシに新しいゼリーを置く。そんな父を、ぼくは少しおかしく思う。",q:"「そんな父」とはどんな父ですか。",a:[
+ {t:"毎晩カブトムシに新しいゼリーを置く父",ok:1},
+ {t:"おかしい父",n:"それは「ぼく」の感想。前の文の行動を指してる！"},
+ {t:"庭にいる父",n:"近いけど足りない！何をしているかまで入れる！"}]},
+{t:"指示語",p:"ヤドクガエルの体は赤や青にかがやく。これは「毒があるぞ」という合図である。",q:"「これ」とは何を指していますか。",a:[
+ {t:"体が赤や青にかがやくこと",ok:1},
+ {t:"毒があること",n:"後ろの説明のほう！こそあどは前をさがす！"},
+ {t:"ヤドクガエル",n:"入れかえると「カエルは合図である」…変！"}]},
+/* つなぎ言葉 */
+{t:"つなぎ言葉",p:"朝からたくさん練習した。（　　）、本番では失敗してしまった。",q:"（　）に入るつなぎ言葉はどれですか。",a:[
+ {t:"しかし",ok:1},
+ {t:"だから",n:"前と後が逆向き！練習したのに失敗＝反対の関係！"},
+ {t:"つまり",n:"「つまり」はまとめ。ここは逆向きのつなぎ！"}]},
+{t:"つなぎ言葉",p:"こん虫の足は六本ある。（　　）、クモの足は八本だ。",q:"（　）に入るつなぎ言葉はどれですか。",a:[
+ {t:"一方",ok:1},
+ {t:"だから",n:"六本だから八本…にはならない！ならべてくらべてる！"},
+ {t:"たとえば",n:"クモはこん虫の例じゃない！反対のものをならべてる！"}]},
+{t:"つなぎ言葉",p:"この森は雨がとても多い。（　　）、植物がぐんぐん育つ。",q:"（　）に入るつなぎ言葉はどれですか。",a:[
+ {t:"だから",ok:1},
+ {t:"しかし",n:"前と後が同じ向き！原因→結果のつなぎ！"},
+ {t:"ところで",n:"話を変えてない！つながってるよ！"}]},
+{t:"つなぎ言葉",p:"南アメリカには大きな虫が多い。（　　）、ヘラクレスオオカブトだ。",q:"（　）に入るつなぎ言葉はどれですか。",a:[
+ {t:"たとえば",ok:1},
+ {t:"しかし",n:"反対じゃない！具体例を出してる！"},
+ {t:"だから",n:"結果じゃない！「例をあげるよ」の合図！"}]},
+{t:"つなぎ言葉",p:"足は六本、羽は四枚、体は三つに分かれている。（　　）、これはこん虫だ。",q:"（　）に入るつなぎ言葉はどれですか。",a:[
+ {t:"つまり",ok:1},
+ {t:"たとえば",n:"例じゃない！ならべた事実をまとめてる！"},
+ {t:"しかし",n:"反対じゃない！まとめのサインだ！"}]},
+{t:"つなぎ言葉",p:"土曜日は雨がふった。（　　）、日曜日も雨だった。",q:"（　）に入るつなぎ言葉はどれですか。",a:[
+ {t:"そのうえ",ok:1},
+ {t:"しかし",n:"同じことが続いてる！つけ足しのつなぎ！"},
+ {t:"つまり",n:"まとめてない！ただ足してるだけ！"}]},
+{t:"つなぎ言葉",p:"明日は遠足に行く。（　　）、雨がふったら中止だ。",q:"（　）に入るつなぎ言葉はどれですか。",a:[
+ {t:"ただし",ok:1},
+ {t:"だから",n:"結果じゃない！条件をつけ加えてる！"},
+ {t:"たとえば",n:"例じゃない！「でもこの場合は別」の合図！"}]}
+];
+
+const VOCAB=[
+ ["うつむいて、くちびるをかんだ",["くやしい","うれしい","ねむい"]],
+ ["目をまるくして立ち止まった",["おどろいた","かなしい","はずかしい"]],
+ ["何度も時計を見た",["待ち遠しい","おこっている","あきれた"]],
+ ["むねをはって前に出た",["じしんがある","こわい","さびしい"]],
+ ["顔が真っ赤になった",["はずかしい","ねむい","つまらない"]],
+ ["ため息をついて肩を落とした",["がっかりした","わくわくした","おこった"]],
+ ["こぶしをぎゅっとにぎりしめた",["がまんしている","よろこんでいる","こまっている"]],
+ ["何度も頭を下げた",["ありがたい","いばっている","ねむい"]],
+ ["そっと肩に手を置いた",["心配している","おこっている","わらっている"]],
+ ["うでを組んで、まゆをよせた",["なっとくできない","うれしい","ほっとした"]],
+ ["むねをなでおろした",["ほっとした","びっくりした","くやしい"]],
+ ["だまってせなかを向けた",["きげんが悪い","たのしい","おどろいた"]],
+ ["足がすくんで動けなかった",["こわい","うれしい","ねむい"]],
+ ["目をかがやかせて身をのり出した",["きょうみしんしん","たいくつ","かなしい"]],
+ ["小さくうなずいて、また下を向いた",["元気がない","はりきっている","おこっている"]],
+ ["「べつに」と言って走っていった",["本当は気にしている","どうでもいい","楽しい"]],
+ ["文の中に「から」「ので」がある",["理由が書いてある","気持ちが書いてある","まとめの文"]],
+ ["文の頭に「つまり」がある",["まとめの文","例の文","反対の文"]],
+ ["文の頭に「たとえば」がある",["例の文","理由の文","まとめの文"]],
+ ["文の頭に「しかし」がある",["前と反対のことがくる","前と同じことがくる","例がくる"]],
+ ["文の頭に「そのため」がある",["前が原因、後が結果","前が例、後がまとめ","前と反対"]],
+ ["「それ」「この」「そんな」がある",["前に答えがある","後ろに答えがある","答えは書いてない"]],
+ ["設問に「なぜですか」とある",["「〜から。」で答える","「〜と思った。」で答える","抜き出す"]],
+ ["設問に「どういうことですか」とある",["「〜ということ。」で答える","「〜から。」で答える","気持ちを書く"]],
+ ["設問に「どんな気持ちですか」とある",["「〜と思った。」で答える","「〜ということ。」で答える","理由を書く"]],
+ ["設問に「抜き出しなさい」とある",["1字も変えずに写す","自分の言葉でまとめる","気持ちを書く"]],
+ ["設問に「十五字以内で」とある",["字数を数えてから書く","気にせず書く","長く書くほどよい"]],
+ ["設問に「本文中の言葉を使って」とある",["本文の言葉をそのまま使う","自分の考えを書く","たとえ話を作る"]]
+];
+
+const PRAISE=["ナイス！🔥","さすが！⚡","ジャングルの王者！👑","完ぺき！✨","その調子！🌿","見えてるな！👀"];
+
+/* ========= 状態 ========= */
+const KEY="souma-jungle-v1";
+let S={total:0, jelly:0, pet:{gen:0,exp:0}, dex:[], miss:{}, stats:{},
+       screen:"home", course:"all", round:[], qi:0, step:0,
+       opts:[], fb:null, roundPt:0, roundJelly:0, streak:0, newBugs:[], fixed:[], prev:0, mode:"quiz"};
+
+Q.forEach(function(q,i){ q.id=i; });
+
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY)||"{}");
+    S.total=d.total||0; S.jelly=d.jelly||0; S.dex=d.dex||[];
+    S.miss=d.miss||{}; S.stats=d.stats||{};
+    S.pet=d.pet||{gen:0,exp:0};
+  }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify({
+    total:S.total, jelly:S.jelly, pet:S.pet, dex:S.dex, miss:S.miss, stats:S.stats,
+    saved:new Date().toISOString()})); }catch(e){}
+}
+
+/* ---- ペット ---- */
+function species(){ return SPECIES[S.pet.gen % SPECIES.length]; }
+function stageOf(exp){
+  if(exp>=GROWN) return {e:species().e, n:"成虫", need:GROWN, grown:true};
+  let st=STAGES[0];
+  for(let i=0;i<STAGES.length;i++) if(exp>=STAGES[i].need) st=STAGES[i];
+  return st;
+}
+function feed(n){
+  n=Math.min(n, S.jelly);
+  if(n<=0) return;
+  S.jelly-=n; S.pet.exp=Math.min(GROWN, S.pet.exp+n*5);
+  save(); render();
+}
+function graduate(){
+  const sp=species();
+  S.dex.push(sp.n);
+  S.pet={gen:S.pet.gen+1, exp:0};
+  save(); render();
+  alert(sp.n+" を図鑑にいれました！\nあたらしいたまごをもらいました🥚");
+}
+
+/* ---- 成績・復習 ---- */
+function recordStat(type, ok){
+  if(!S.stats[type]) S.stats[type]={a:0,c:0};
+  S.stats[type].a++; if(ok) S.stats[type].c++;
+}
+function missCount(){ return Object.keys(S.miss).length; }
+function startReview(){
+  const ids=Object.keys(S.miss).sort(function(a,b){ return S.miss[b]-S.miss[a]; }).slice(0,5);
+  if(!ids.length) return;
+  S.course="review"; S.mode="quiz"; S.round=shuffle(ids.map(function(i){ return Q[+i]; }));
+  S.qi=0; S.step=0; S.opts=buildOpts(S.round[0],0);
+  S.fb=null; S.roundPt=0; S.roundJelly=0; S.streak=0; S.newBugs=[]; S.fixed=[]; S.marked=false; S.prev=S.total;
+  S.screen="quiz"; render(); window.scrollTo(0,0);
+}
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ========= ロジック ========= */
+function buildOpts(q,s){
+  if(s<3){
+    const key=STEP_KEY[s], i=TYPE_INDEX[q.t], pool=POOL[key];
+    const wrong=shuffle(pool.filter((_,k)=>k!==i)).slice(0,3);
+    return shuffle([{l:pool[i],ok:1}].concat(wrong.map(w=>({l:w,ok:0,n:"正解は「"+pool[i]+"」"}))));
+  }
+  return shuffle(q.a.map(x=>({l:x.t, ok:x.ok?1:0, n:x.n})));
+}
+function startRound(ck){
+  const c=COURSES.find(x=>x.k===ck)||COURSES[0];
+  const pool=c.t? Q.filter(x=>c.t.includes(x.t)) : Q;
+  S.course=ck; S.mode="quiz"; S.round=shuffle(pool).slice(0,5);
+  S.qi=0; S.step=0; S.opts=buildOpts(S.round[0],0);
+  S.fb=null; S.roundPt=0; S.roundJelly=0; S.streak=0; S.newBugs=[]; S.fixed=[]; S.marked=false; S.prev=S.total;
+  S.screen="quiz"; render();
+}
+function startVocab(){
+  S.mode="vocab";
+  S.round=shuffle(VOCAB).slice(0,10).map(v=>({
+    q:v[0], opts:shuffle(v[1].map((t,i)=>({l:t, ok:i===0?1:0})))
+  }));
+  S.qi=0; S.fb=null; S.roundPt=0; S.roundJelly=0; S.streak=0; S.newBugs=[]; S.fixed=[]; S.prev=S.total;
+  S.screen="vocab"; render();
+}
+function pick(i){
+  if(S.fb) return;
+  const o = S.mode==="vocab" ? S.round[S.qi].opts[i] : S.opts[i];
+  const base = S.mode==="vocab" ? 8 : (S.step<3?10:20);
+  const gain = o.ok ? base + (S.streak>=2?5:0) : 0;
+  if(o.ok){ S.roundPt+=gain; S.streak++; S.total+=gain; } else { S.streak=0; }
+
+  if(S.mode==="vocab"){
+    if(o.ok) S.roundJelly++;
+  } else {
+    const q=S.round[S.qi];
+    recordStat(q.t, !!o.ok);
+    if(o.ok){
+      if(S.step===3){
+        S.roundJelly++;
+        if(S.miss[q.id]){
+          S.miss[q.id]--;
+          if(S.miss[q.id]<=0){ delete S.miss[q.id]; S.fixed.push(q.t); }
+        }
+      }
+    } else if(!S.marked){
+      S.miss[q.id]=Math.min(2,(S.miss[q.id]||0)+1); S.marked=true;
+    }
+  }
+  save();
+  S.fb={ok:o.ok, i:i, n:o.n, gain:gain};
+  render();
+}
+function next(){
+  S.fb=null;
+  if(S.mode==="vocab"){
+    if(S.qi<S.round.length-1){ S.qi++; } else { finish(); return; }
+  } else if(S.step<3){
+    S.step++; S.opts=buildOpts(S.round[S.qi],S.step);
+  } else if(S.qi<S.round.length-1){
+    S.qi++; S.step=0; S.marked=false; S.opts=buildOpts(S.round[S.qi],0);
+  } else { finish(); return; }
+  render(); window.scrollTo(0,0);
+}
+function finish(){
+  S.roundJelly+=1;
+  S.jelly+=S.roundJelly; save();
+  S.newBugs=BUGS.filter(b=>S.prev<b.p && S.total>=b.p);
+  S.screen="result"; render(); window.scrollTo(0,0);
+}
+
+/* ========= バックアップ ========= */
+function exportData(){
+  const blob=new Blob([JSON.stringify({app:"setsumon-jungle",total:S.total,jelly:S.jelly,
+    pet:S.pet,dex:S.dex,miss:S.miss,stats:S.stats,exported:new Date().toISOString()},null,2)],
+    {type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="setsumon-jungle-backup.json";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function importData(){
+  const txt=prompt("バックアップのJSONを貼りつけてください");
+  if(!txt) return;
+  try{
+    const d=JSON.parse(txt);
+    if(typeof d.total!=="number") throw 0;
+    S.total=d.total; S.jelly=d.jelly||0; S.pet=d.pet||{gen:0,exp:0};
+    S.dex=d.dex||[]; S.miss=d.miss||{}; S.stats=d.stats||{};
+    save(); render();
+    alert("復元しました（"+d.total+" pt）");
+  }catch(e){ alert("読みこめませんでした"); }
+}
+function resetData(){
+  if(confirm("ポイント・図鑑・そだてた虫をぜんぶ消します。よろしいですか？")){
+    S.total=0; S.jelly=0; S.pet={gen:0,exp:0}; S.dex=[]; S.miss={}; S.stats={};
+    save(); render();
+  }
+}
+
+/* ========= 描画 ========= */
+function bar(v,m,h){
+  h=h||12;
+  const pct=Math.max(0,Math.min(100, m? v/m*100 : 0));
+  return '<div class="bar" style="height:'+h+'px"><i style="width:'+pct+'%"></i></div>';
+}
+function optHTML(list, fb){
+  return list.map((o,i)=>{
+    let c="opt";
+    if(fb){ if(o.ok) c+=" ok"; else if(i===fb.i) c+=" ng"; else c+=" dim"; }
+    const mark = fb ? (o.ok?"✅ ":(i===fb.i?"❌ ":"")) : "";
+    return '<button class="'+c+'" data-pick="'+i+'"'+(fb?" disabled":"")+'>'+mark+esc(o.l)+'</button>';
+  }).join("");
+}
+function fbHTML(rule){
+  const f=S.fb; if(!f) return "";
+  const praise=PRAISE[Math.floor(Math.random()*PRAISE.length)];
+  let body = f.ok
+    ? praise+' <span class="amber">+'+f.gain+' pt</span>'+(S.streak>=3?' 🔥連続ボーナス中！':'')
+    : 'ざんねん！ '+esc(f.n||"");
+  return '<div class="fb '+(f.ok?"good":"bad")+'">'+body+
+    (rule?'<div class="hint">💡 '+esc(rule)+'</div>':'')+'</div>'+
+    '<button class="btn" data-next="1">'+nextLabel()+'</button>';
+}
+function nextLabel(){
+  if(S.mode==="vocab") return S.qi<S.round.length-1 ? "つぎへ ▶" : "けっかを見る 🏆";
+  if(S.step<3) return "つぎへ ▶";
+  return S.qi<S.round.length-1 ? "つぎの問題へ ▶" : "けっかを見る 🏆";
+}
+
+function render(){
+  const app=document.getElementById("app");
+  const got=BUGS.filter(b=>S.total>=b.p).length;
+  const nb=BUGS.find(b=>S.total<b.p);
+  const prevP = nb ? (BUGS[BUGS.indexOf(nb)-1]||{p:0}).p : 0;
+  let h="";
+
+  if(S.screen==="home"){
+    h+='<div class="rise"><div class="center" style="margin-top:18px">'+
+       '<div class="wig" style="font-size:60px">🪲</div>'+
+       '<h1>設問ジャングル</h1>'+
+       '<div class="green" style="font-weight:700;font-size:13px">〜 そうまのぼうけん 〜</div></div>';
+    h+='<div class="panel" style="margin-top:22px">'+
+       '<div class="row"><span>🍃 ジャングルポイント</span><span class="amber">'+S.total+' pt</span></div>'+
+       '<div class="row" style="margin-top:7px"><span>🎒 コレクション</span><span class="green">'+got+' / '+BUGS.length+' ひき</span></div>';
+    if(nb){
+      h+='<div style="margin-top:13px"><div style="font-size:12.5px;font-weight:700;margin-bottom:6px;color:var(--cream-d)">'+
+         'つぎのなかま：'+nb.e+' '+nb.n+'（あと '+(nb.p-S.total)+' pt）</div>'+bar(S.total-prevP, nb.p-prevP)+'</div>';
+    } else {
+      h+='<div class="amber center" style="margin-top:12px;font-weight:800">👑 全部ゲット！きみがジャングルの王者だ！</div>';
+    }
+    h+='</div>';
+
+    const sp=species(), st=stageOf(S.pet.exp);
+    h+='<div class="pet"><div class="stage">そだてているムシ　第'+(S.pet.gen+1)+'代</div>'+
+       '<div class="big wig">'+st.e+'</div>'+
+       '<div class="nm">'+esc(sp.n)+'</div>'+
+       '<div class="sz">'+esc(st.n)+'　'+Math.round(sp.max*Math.min(1,S.pet.exp/GROWN))+' / '+sp.max+' mm</div>'+
+       bar(S.pet.exp, GROWN, 10)+
+       '<div style="margin-top:10px"><span class="jelly">🍮 ゼリー '+S.jelly+'こ</span></div>'+
+       (st.grown
+         ? '<button class="btn" data-act="graduate" style="margin-top:10px">👑 成虫になった！図鑑にいれる</button>'
+         : (S.jelly>0
+            ? '<button class="btn green" data-feed="1" style="margin-top:10px">🍮 ゼリーをあげる（1こ）</button>'+
+              (S.jelly>1?'<button class="btn ghost" data-feed="'+S.jelly+'">まとめて '+S.jelly+'こ あげる</button>':'')
+            : '<div style="font-size:12px;color:var(--cream-d);margin-top:10px">ぼうけんに行くとゼリーがもらえる</div>'))+
+       '</div>';
+
+    h+='<div class="amber" style="margin-top:20px;font-size:13px;font-weight:800">▶ コースをえらぶ</div>';
+    if(missCount()) h+='<button class="course review" data-act="review">🩹 まちがい直し（'+missCount()+'問たまってる）</button>';
+    h+=COURSES.map(c=>'<button class="course" data-course="'+c.k+'">'+c.l+'</button>').join("");
+    h+='<button class="btn green" data-vocab="1" style="margin-top:14px">🕯️ ことばの洞窟（10問・語彙）</button>';
+    h+='<button class="btn ghost" data-screen="zukan">📖 いきもの図鑑</button>';
+    h+='<button class="btn ghost" data-screen="stats">📊 じぶんのきろく</button>';
+    h+='<div class="rules"><b class="amber">ルール</b>：設問を見たら3つに分ける！<br>'+
+       '① なにを聞いてる？　② どこを見る？　③ どう答える？<br>'+
+       '<span class="green">※ 選ぶ前にかならず口に出す！</span><br>'+
+       '正解 <b class="amber">+10pt</b>／答えの文 <b class="amber">+20pt</b>／3連続で <b>🔥ボーナス</b></div>';
+    h+='<div class="mini">きろくはこの端末に保存されます<br>'+
+       '<button data-act="export">バックアップ保存</button>・'+
+       '<button data-act="import">復元</button>・'+
+       '<button data-act="reset">リセット</button></div></div>';
+  }
+
+  else if(S.screen==="zukan"){
+    h+='<div class="rise"><h2>📖 エクアドル・いきもの図鑑</h2>'+
+       '<div class="center green" style="font-weight:700;font-size:13px">'+got+' / '+BUGS.length+' ひき発見ずみ</div>'+
+       '<div class="grid">'+BUGS.map(b=>{
+         const g=S.total>=b.p;
+         return '<div class="bug'+(g?" got":"")+'"><div class="e">'+(g?b.e:"❓")+'</div>'+
+                '<div class="n">'+(g?b.n:"？？？")+'</div>'+
+                '<div class="d">'+(g?b.d:b.p+" pt でゲット")+'</div></div>';
+       }).join("")+'</div>'+
+       '<button class="btn ghost" data-screen="home" style="margin-top:16px">← もどる</button></div>';
+  }
+
+  else if(S.screen==="stats"){
+    h+='<div class="rise"><h2>📊 じぶんのきろく</h2>'+
+       '<div class="center green" style="font-weight:700;font-size:13px;margin-bottom:10px">型べつの正かい率</div>'+
+       '<div class="panel">';
+    const types=["理由","気持ち","内容説明","抜き出し","指示語","つなぎ言葉"];
+    let any=false;
+    types.forEach(function(t){
+      const d=S.stats[t];
+      if(!d||!d.a) return;
+      any=true;
+      const pct=Math.round(d.c/d.a*100);
+      h+='<div class="statrow"><span class="lbl">'+t+'</span>'+bar(pct,100,9)+'<span class="num">'+pct+'%</span></div>';
+    });
+    if(!any) h+='<div style="font-size:13px;color:var(--cream-d)">まだきろくがありません。ぼうけんに行こう！</div>';
+    h+='</div>';
+    h+='<div class="panel" style="margin-top:14px"><div class="row" style="font-size:14px">'+
+       '<span>🩹 まちがい直しリスト</span><span class="amber">'+missCount()+' 問</span></div>'+
+       '<div style="font-size:12px;color:var(--cream-d);margin-top:6px;line-height:1.7">'+
+       'まちがえた問題がここにたまる。正かいするとリストから消える。<br>'+
+       '2回まちがえた問題は、2回正かいするまで残るよ。1問につき1回ずつたまる。</div>'+
+       (missCount()?'<button class="btn" data-act="review" style="margin-top:10px">🩹 まちがい直しをやる</button>':'')+
+       '</div>';
+    h+='<div class="panel" style="margin-top:14px"><div class="row" style="font-size:14px">'+
+       '<span>🏅 そだてた虫</span><span class="green">'+S.dex.length+' ひき</span></div>'+
+       '<div style="font-size:12.5px;color:var(--cream-d);margin-top:6px;line-height:1.8">'+
+       (S.dex.length? S.dex.map(function(n){return "🪲 "+esc(n);}).join("<br>") : "まだいません")+
+       '</div></div>';
+    h+='<button class="btn ghost" data-screen="home" style="margin-top:16px">← もどる</button></div>';
+  }
+
+  else if(S.screen==="result"){
+    h+='<div class="rise center" style="margin-top:26px"><div style="font-size:56px">🏆</div>'+
+       '<h2>クリア！</h2>'+
+       '<div class="amber" style="font-size:18px;font-weight:800">+'+S.roundPt+' pt ゲット！</div>'+
+       '<div style="color:var(--cream-d);font-weight:700;font-size:14px;margin-top:4px">ごうけい '+S.total+' pt</div>'+
+       '<div style="margin-top:10px"><span class="jelly">🍮 ゼリーを '+S.roundJelly+'こ ゲット！</span></div>';
+    if(S.fixed.length){
+      h+='<div style="margin-top:12px;font-size:13px;font-weight:800;color:var(--leaf-l)">'+
+         '💪 「'+S.fixed.filter(function(v,i,a){return a.indexOf(v)===i;}).join("」「")+'」を克服！</div>';
+    }
+    if(missCount()){
+      h+='<div style="margin-top:8px;font-size:12.5px;color:var(--cream-d)">🩹 まちがい直しリスト：'+missCount()+'問</div>';
+    }
+    if(S.newBugs.length){
+      h+='<div style="margin-top:20px;background:var(--cream);color:var(--ink);border-radius:20px;'+
+         'padding:18px 16px;border:3px solid var(--amber);animation:pop .5s ease">'+
+         '<div style="font-weight:800;color:var(--amber-d);font-size:15px">✨ あたらしいなかま発見！ ✨</div>'+
+         S.newBugs.map(b=>'<div style="margin-top:10px"><div class="wig" style="font-size:52px">'+b.e+'</div>'+
+           '<div style="font-weight:800;font-size:17px">'+b.n+'</div>'+
+           '<div style="font-size:12.5px;color:var(--ink-s)">'+b.d+'</div></div>').join("")+'</div>';
+    }
+    if(nb) h+='<div style="margin-top:18px;font-size:13px;font-weight:700;color:var(--cream-d)">つぎは '+nb.e+' '+nb.n+'！ あと '+(nb.p-S.total)+' pt！</div>';
+    h+='<button class="btn" '+(S.course==="review"?'data-act="review"':'data-course="'+S.course+'"')+'>🔁 もう1回！</button>'+
+       (missCount()&&S.course!=="review"?'<button class="btn ghost" data-act="review">🩹 まちがい直し（'+missCount()+'問）</button>':'')+
+       '<button class="btn green" data-vocab="1">🕯️ ことばの洞窟へ</button>'+
+       '<button class="btn flat" data-screen="home">ホームへ</button></div>';
+  }
+
+  else if(S.screen==="vocab"){
+    const v=S.round[S.qi];
+    h+='<div class="rise"><div class="row" style="font-size:13px"><span>🕯️ ことばの洞窟 '+(S.qi+1)+' / '+S.round.length+'</span>'+
+       '<span class="amber">'+(S.streak>=3?"🔥🔥":S.streak>=2?"🔥":"")+' +'+S.roundPt+' pt</span></div>'+
+       '<div style="margin-top:8px">'+bar(S.qi+(S.fb?1:0), S.round.length, 8)+'</div>'+
+       '<div class="card center"><div class="qlabel">これは、なんのサイン？</div>'+
+       '<div class="qtext">'+esc(v.q)+'</div></div>'+
+       '<div style="margin-top:7px">'+optHTML(v.opts,S.fb)+'</div>'+
+       (S.fb?fbHTML(null):"")+'</div>';
+  }
+
+  else { /* quiz */
+    const q=S.round[S.qi], isAns=S.step===3;
+    h+='<div class="rise"><div class="row" style="font-size:13px"><span>'+(S.course==="review"?"🩹 まちがい直し ":"もんだい ")+(S.qi+1)+' / '+S.round.length+'</span>'+
+       '<span class="amber">'+(S.streak>=3?"🔥🔥":S.streak>=2?"🔥":"")+' +'+S.roundPt+' pt</span></div>'+
+       '<div style="margin-top:8px">'+bar(S.qi*4+S.step+(S.fb?1:0), S.round.length*4, 8)+'</div>'+
+       '<div class="card">'+
+       (isAns?'<div class="passage">📜 '+esc(q.p)+'</div>':'')+
+       '<div class="qlabel">設問</div><div class="qtext">'+esc(q.q)+'</div></div>'+
+       '<div class="amber" style="margin-top:16px;font-weight:800;font-size:16px">'+
+       (isAns?"🎯 答えをえらべ！":STEP_LABEL[S.step])+'</div>'+
+       optHTML(S.opts,S.fb)+
+       (S.fb?fbHTML(TYPE_RULES[q.t]):"")+'</div>';
+  }
+
+  app.innerHTML=h;
+}
+
+/* ========= イベント ========= */
+document.addEventListener("click",function(ev){
+  const b=ev.target.closest("button"); if(!b) return;
+  if(b.dataset.pick!==undefined) return pick(+b.dataset.pick);
+  if(b.dataset.next) return next();
+  if(b.dataset.course) return startRound(b.dataset.course);
+  if(b.dataset.vocab) return startVocab();
+  if(b.dataset.screen){ S.screen=b.dataset.screen; render(); window.scrollTo(0,0); return; }
+  if(b.dataset.feed) return feed(+b.dataset.feed);
+  if(b.dataset.act==="graduate") return graduate();
+  if(b.dataset.act==="review") return startReview();
+  if(b.dataset.act==="export") return exportData();
+  if(b.dataset.act==="import") return importData();
+  if(b.dataset.act==="reset") return resetData();
+});
+
+/* ホタル */
+[[8,18,0,6],[85,12,1.4,5],[70,70,.7,7],[18,82,2.1,5],[50,40,2.8,4]].forEach(f=>{
+  const d=document.createElement("div");
+  d.className="fly";
+  d.style.cssText="left:"+f[0]+"%;top:"+f[1]+"%;width:"+f[3]+"px;height:"+f[3]+"px;"+
+    "animation-delay:"+f[2]+"s;box-shadow:0 0 "+(f[3]*2)+"px "+f[3]+"px rgba(245,182,46,.35)";
+  document.body.appendChild(d);
+});
+
+load(); render();
+</script>
+</body>
+</html>
