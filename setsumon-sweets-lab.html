@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>せつもんスイーツラボ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#8FE0F5;
+  --sky2:#D8F5FD;
+  --cream:#FFFBF3;
+  --ichigo:#FF95BE;
+  --ichigo-d:#E56E9C;
+  --lemon:#FFDF6B;
+  --lemon-d:#E5BE3E;
+  --mint:#8DE7C0;
+  --mint-d:#5FC79C;
+  --grape:#C0AEF7;
+  --grape-d:#9B85E0;
+  --peach:#FFB48C;
+  --aqua-d:#4CBEDD;
+  --ink:#5B4A72;
+  --ink-soft:#9186A8;
+  --font:"Zen Maru Gothic","Hiragino Maru Gothic ProN","M PLUS Rounded 1c",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font);font-weight:500;color:var(--ink);
+  background:linear-gradient(175deg,#CFF1FC 0%,#E6F8FE 45%,#FFF0F6 100%);
+  min-height:100vh;line-height:1.75;overflow-x:hidden;
+}
+/* ふわふわ背景 */
+.bubbles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bubbles b{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5;animation:float 14s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-26px)}}
+
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:18px 16px calc(120px + env(safe-area-inset-bottom))}
+
+/* ヘッダー */
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+h1{
+  margin:0;font-size:22px;font-weight:900;letter-spacing:.02em;
+  background:linear-gradient(90deg,#FF8FB8,#FFC46B,#8DE7C0,#6FD5F2,#C0AEF7);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 2px 0 rgba(255,255,255,.9);
+}
+.ptbox{
+  background:#fff;border-radius:999px;padding:6px 14px;font-weight:900;font-size:17px;color:var(--ichigo-d);
+  box-shadow:0 4px 0 #FFD9E7,0 6px 12px rgba(160,120,180,.16);white-space:nowrap;
+}
+.ptbox small{font-size:11px;color:var(--ink-soft);font-weight:700;margin-left:2px}
+
+/* ぷにたん */
+.puni{position:relative;width:104px;height:96px;margin:2px auto 6px;cursor:pointer}
+.blob{
+  position:absolute;inset:0;
+  background:radial-gradient(circle at 34% 28%,#FFFFFF 0%,#B9EEFF 34%,#79D8F5 78%,#57C3E6 100%);
+  border-radius:48% 52% 46% 54%/54% 48% 52% 46%;
+  box-shadow:0 10px 0 rgba(87,195,230,.30),0 14px 26px rgba(90,160,200,.32),inset 0 -10px 18px rgba(60,170,210,.28),inset 0 10px 14px rgba(255,255,255,.9);
+  animation:wobble 3.6s ease-in-out infinite;
+}
+@keyframes wobble{
+  0%,100%{border-radius:48% 52% 46% 54%/54% 48% 52% 46%;transform:scale(1,1)}
+  33%{border-radius:56% 44% 52% 48%/46% 56% 44% 54%;transform:scale(1.03,.97)}
+  66%{border-radius:44% 56% 50% 50%/56% 44% 56% 44%;transform:scale(.97,1.03)}
+}
+.puni.squish .blob{animation:squish .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes squish{0%{transform:scale(1.18,.78)}55%{transform:scale(.9,1.14)}100%{transform:scale(1,1)}}
+.face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:16px;padding-top:8px}
+.eye{width:11px;height:14px;background:#4A3C60;border-radius:50%;transition:all .2s}
+.puni.happy .eye{height:5px;border-radius:8px 8px 0 0;background:transparent;border-top:4px solid #4A3C60}
+.puni.oops .eye{height:11px;width:11px;border-radius:50%}
+.cheek{position:absolute;top:52px;width:15px;height:9px;background:#FF9CC0;border-radius:50%;opacity:.75;filter:blur(1px)}
+.cheek.l{left:16px}.cheek.r{right:16px}
+.mouth{position:absolute;top:58px;left:50%;transform:translateX(-50%);width:16px;height:9px;border:3px solid #4A3C60;border-top:0;border-radius:0 0 16px 16px}
+.puni.oops .mouth{width:10px;height:10px;border:3px solid #4A3C60;border-radius:50%}
+.speech{
+  text-align:center;font-weight:700;font-size:13.5px;color:var(--ink);
+  background:#fff;border-radius:18px;padding:8px 16px;display:inline-block;
+  box-shadow:0 4px 0 #E7EEF6,0 6px 14px rgba(120,150,180,.16);
+}
+.speechwrap{text-align:center;margin-bottom:16px}
+
+/* パフェゲージ */
+.parfait{display:flex;align-items:center;gap:10px;background:#fff;border-radius:22px;padding:10px 14px;margin-bottom:16px;box-shadow:0 5px 0 #E9F4FA,0 8px 16px rgba(120,160,190,.14)}
+.glass{flex:1;height:16px;border-radius:999px;background:#EFF5FA;overflow:hidden;position:relative}
+.glass i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#FF9EC4,#FFD36B,#8DE7C0,#6FD5F2,#C0AEF7);transition:width .6s cubic-bezier(.2,.9,.3,1)}
+.parfait .lbl{font-size:11.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap}
+
+/* ボタン共通ぷにぷに */
+.pop{
+  border:0;font-family:inherit;font-weight:700;color:var(--ink);cursor:pointer;
+  border-radius:22px;transition:transform .08s,box-shadow .08s;
+}
+.pop:active{transform:translateY(5px)}
+.mode{
+  width:100%;display:flex;align-items:center;gap:12px;text-align:left;
+  padding:15px 16px;margin-bottom:12px;font-size:16px;
+  background:#fff;box-shadow:0 6px 0 #E4EFF7,0 10px 18px rgba(120,160,190,.16);
+}
+.mode:active{box-shadow:0 1px 0 #E4EFF7,0 3px 8px rgba(120,160,190,.16)}
+.mode .ic{
+  width:46px;height:46px;border-radius:16px;display:grid;place-items:center;font-size:24px;flex:none;
+  box-shadow:inset 0 -4px 8px rgba(0,0,0,.06),inset 0 4px 8px rgba(255,255,255,.7);
+}
+.mode .ttl{font-weight:900;font-size:16.5px;line-height:1.4}
+.mode .sub{font-size:11.5px;color:var(--ink-soft);font-weight:500;line-height:1.5}
+.m1 .ic{background:#FFD9E7}.m2 .ic{background:#FFF0BF}.m3 .ic{background:#CFF2E2}
+
+.soft{
+  width:100%;padding:13px;background:#fff;font-size:14px;color:var(--ink-soft);
+  box-shadow:0 5px 0 #E4EFF7,0 8px 14px rgba(120,160,190,.14);margin-bottom:10px;
+}
+.soft:active{box-shadow:0 1px 0 #E4EFF7}
+.candy{
+  width:100%;padding:16px;font-size:17px;font-weight:900;color:#fff;
+  background:linear-gradient(180deg,#FFA9CB,#FF7FAF);
+  box-shadow:0 6px 0 var(--ichigo-d),0 10px 18px rgba(229,110,156,.34);margin-bottom:12px;
+}
+.candy:active{box-shadow:0 1px 0 var(--ichigo-d)}
+.candy:disabled{opacity:.45;box-shadow:0 6px 0 #ccc}
+
+/* カード */
+.card{background:#fff;border-radius:26px;padding:18px;margin-bottom:14px;box-shadow:0 6px 0 #E4EFF7,0 10px 20px rgba(120,160,190,.15)}
+
+/* 進み具合ドット */
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.dots i{width:10px;height:10px;border-radius:50%;background:#DCEBF4;transition:all .3s}
+.dots i.done{background:linear-gradient(135deg,#FF9EC4,#FFD36B)}
+.dots i.now{background:#6FD5F2;transform:scale(1.4)}
+
+/* 設問 */
+.qcard{
+  background:linear-gradient(180deg,#FFFFFF,#F6FCFF);
+  border-radius:26px;padding:20px 18px;margin-bottom:16px;
+  box-shadow:0 6px 0 #DFF0F8,0 10px 22px rgba(120,160,190,.18);
+  border:3px solid #fff;
+}
+.tag{display:inline-block;font-size:11px;font-weight:900;color:#fff;background:linear-gradient(90deg,#7FD8F0,#6FC3F2);padding:3px 12px;border-radius:999px;margin-bottom:10px}
+.qt{font-size:16px;font-weight:700;line-height:1.95}
+.bigans{font-size:23px;font-weight:900;text-align:center;padding:10px 0;color:var(--ichigo-d)}
+
+.step{font-size:12.5px;font-weight:700;color:var(--ink-soft);margin:0 0 8px 4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}
+.grid.one{grid-template-columns:1fr}
+.opt{
+  padding:14px 8px;font-size:15.5px;font-weight:700;background:#fff;text-align:center;
+  box-shadow:0 5px 0 #E4EFF7,0 8px 14px rgba(120,160,190,.13);
+}
+.grid.one .opt{text-align:left;font-size:14px;line-height:1.6;padding:14px 15px;font-weight:500}
+.opt:active{box-shadow:0 1px 0 #E4EFF7}
+.opt:disabled{cursor:default;opacity:.45}
+.opt.ok{background:linear-gradient(180deg,#B7F0D8,#8DE7C0);color:#2F7A5C;box-shadow:0 5px 0 var(--mint-d);opacity:1}
+.opt.ng{background:linear-gradient(180deg,#FFD3DE,#FFB9CB);color:#C4547C;box-shadow:0 5px 0 #E58AA6;opacity:1}
+
+.tip{background:#FFF9E3;border-radius:20px;padding:12px 15px;font-size:13px;font-weight:700;margin-bottom:14px;box-shadow:0 4px 0 #F6E9B8}
+.tip b{color:#D9A319}
+
+.gain{text-align:center;font-weight:900;font-size:15px;color:var(--ichigo-d);margin-bottom:10px}
+
+/* きらきら */
+.spark{position:fixed;pointer-events:none;font-size:22px;z-index:60;animation:up 1s ease-out forwards}
+@keyframes up{0%{opacity:1;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(var(--dx),-90px) scale(1.3)}}
+
+/* 結果 */
+.score{font-size:52px;font-weight:900;text-align:center;line-height:1.1;background:linear-gradient(90deg,#FF8FB8,#FFC46B,#8DE7C0,#6FD5F2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.score small{font-size:16px;color:var(--ink-soft);-webkit-text-fill-color:var(--ink-soft)}
+.center{text-align:center}
+
+/* ガチャ演出 */
+.reveal{text-align:center;padding:20px 0}
+.reveal .em{font-size:76px;display:block;line-height:1;animation:jump .7s cubic-bezier(.2,1.5,.4,1)}
+@keyframes jump{0%{transform:scale(.2) rotate(-20deg);opacity:0}60%{transform:scale(1.18) rotate(6deg)}100%{transform:none;opacity:1}}
+.reveal .nm{font-size:21px;font-weight:900;margin-top:10px}
+.reveal .rr{display:inline-block;font-size:11.5px;font-weight:900;color:#fff;padding:3px 14px;border-radius:999px;margin-top:8px}
+
+/* 図鑑 */
+.coll{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sw{background:#fff;border-radius:22px;padding:14px 6px;text-align:center;box-shadow:0 5px 0 #E4EFF7,0 8px 14px rgba(120,160,190,.13)}
+.sw .em{font-size:32px;display:block;line-height:1.2}
+.sw .nm{font-size:10.5px;font-weight:700;color:var(--ink-soft);margin-top:6px}
+.sw.locked{background:#F2F7FB}
+.sw.locked .em{filter:grayscale(1);opacity:.35}
+.sw.r4{background:linear-gradient(180deg,#FFF4CE,#FFE7F3);box-shadow:0 5px 0 #F3D9A8,0 8px 16px rgba(200,150,90,.2)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media (max-width:360px){h1{font-size:19px}.qt{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="bubbles" id="bub"></div>
+<div class="wrap">
+  <header>
+    <h1>せつもんスイーツラボ</h1>
+    <div class="ptbox" id="ptview">0<small>pt</small></div>
+  </header>
+
+  <div class="puni" id="puni">
+    <div class="blob"></div>
+    <div class="face"><div class="eye"></div><div class="eye"></div></div>
+    <div class="cheek l"></div><div class="cheek r"></div>
+    <div class="mouth"></div>
+  </div>
+  <div class="speechwrap"><div class="speech" id="speech">きょうもいっしょにがんばろ〜</div></div>
+
+  <div class="parfait">
+    <span style="font-size:20px">🍨</span>
+    <div class="glass"><i id="gauge" style="width:0%"></i></div>
+    <span class="lbl" id="glbl">あと100pt</span>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+(function(){"use strict";
+/* ============ せなか：学習データ ============ */
+const WHAT=["気持ち","理由","内容","様子"];
+const HOW=["〜こと。","〜から。","〜気持ち。","〜様子。","書きぬき","記号を選ぶ"];
+
+const SHAPE=[
+ {q:"——線①「すごい」とありますが、どんなことに対して「すごい」と思っているのですか。文章中の言葉を使って書きなさい。",w:"内容",h:"〜こと。",t:"「どんなこと」→ 文末はかならず「〜こと。」"},
+ {q:"——線②「私は立ち止まった」とありますが、それはなぜですか。",w:"理由",h:"〜から。",t:"「なぜ」ときかれたら「〜から。」でおわる。"},
+ {q:"このときの「ぼく」の気持ちを、四十字以内で書きなさい。",w:"気持ち",h:"〜気持ち。",t:"気持ちをきかれたら「〜気持ち。」で受ける。"},
+ {q:"——線③「そのこと」とは、どのようなことを指していますか。",w:"内容",h:"〜こと。",t:"指し示す言葉の中身も「内容」。前にもどってさがす。"},
+ {q:"気持ちが表れた表情を、文章中から六字で書きぬきなさい。",w:"気持ち",h:"書きぬき",t:"きかれているのは気持ちでも、答え方は写すだけ。"},
+ {q:"この場面の季節が分かる言葉を、文章中から五字で書きぬきなさい。",w:"様子",h:"書きぬき",t:"景色や場面のことは「様子」。"},
+ {q:"「私」は体のどの部分で感じていますか。適切なものを次の中から全て選びなさい。",w:"様子",h:"記号を選ぶ",t:"「全て」なので二つ以上あるかも。"},
+ {q:"——線④のように言ったのはどうしてですか。理由を書きなさい。",w:"理由",h:"〜から。",t:"「どうして」＝「なぜ」。"},
+ {q:"——線⑤「風がざわめいた」は、どのような様子を表していますか。",w:"様子",h:"〜様子。",t:"「どのような様子」→「〜様子。」でそろえる。"},
+ {q:"——線⑥「胸がいっぱいになった」とありますが、このときの母の心情として最も適切なものを次から選びなさい。",w:"気持ち",h:"記号を選ぶ",t:"心情＝気持ち。でも今回は選ぶだけ。"},
+ {q:"——線⑦「それ」が指す内容を、十字以内で書きぬきなさい。",w:"内容",h:"書きぬき",t:"字数が書いてあったら、まず指で数える。"},
+ {q:"「兄」がこのような行動をとった理由として考えられることを書きなさい。",w:"理由",h:"〜から。",t:"「理由」の文字が見えたらすぐ「〜から。」"},
+ {q:"——線⑧「顔をくもらせた」とは、どういうことですか。",w:"内容",h:"〜こと。",t:"「どういうこと」＝わかりやすく言いかえる。"},
+ {q:"教室の中の様子が分かる一文をさがし、初めの五字を書きぬきなさい。",w:"様子",h:"書きぬき",t:"「初めの五字」なので文のあたまから数える。"},
+ {q:"——線⑨のときの少年の気持ちを、「〜という気持ち。」に続く形で書きなさい。",w:"気持ち",h:"〜気持ち。",t:"文末の形が問題文に書いてある。したがうだけ。"},
+ {q:"——線⑩「あわてて」とありますが、なぜあわてたのですか。",w:"理由",h:"〜から。",t:"「とありますが」は場所の目じるし。答えとは関係ない。"},
+ {q:"雨がやんだあとの町の様子を表している言葉を、文章中から七字で書きぬきなさい。",w:"様子",h:"書きぬき",t:"「表している言葉」＝そのまま写す。"}
+];
+
+const VOCAB=[
+ {q:"「——線①『すごい』とありますが」の「とありますが」は、なにをしている？",o:["本文のどこの話かを教えているだけ","理由をきいている","気持ちをきいている"],a:0,t:"場所の目じるし。ここに答えはない。"},
+ {q:"「それぞれ書きなさい」と言われたら？",o:["まとめて一つ書く","一つずつ分けて書く","どちらか選んで書く"],a:1,t:"②と③があるなら、答えも二つ。"},
+ {q:"「書きぬきなさい」は？",o:["自分の言葉で説明する","本文の言葉をそのまま写す","本文を短くまとめる"],a:1,t:"一字でもかえたら×。写すだけ。"},
+ {q:"「文章中の言葉を使って書きなさい」は？",o:["本文の言葉をかりて自分でつなぐ","本文をそのまま写す","本文を見ずに書く"],a:0,t:"ざいりょうは本文、組み立ては自分。"},
+ {q:"「※順不同」は？",o:["順番どおりに書く","順番はどれでもよい","一つだけ書く"],a:1,t:"順番で×にはならない。"},
+ {q:"「適切なものを全て選びなさい」で気をつけることは？",o:["答えはかならず一つ","答えが二つ以上あるかもしれない","記号は書かなくてよい"],a:1,t:"一つ見つけて安心しない。"},
+ {q:"「気持ちが表れた表情」の「表情」は？",o:["言ったことば","顔のようす","した行動"],a:1,t:"目・口・顔をさがす。"},
+ {q:"「どういうことですか」ときかれたら？",o:["理由を答える","わかりやすく言いかえる","気持ちを答える"],a:1,t:"文末は「〜こと。」"},
+ {q:"「〜に対して」は？",o:["なにに向かってか","いつのことか","だれが言ったか"],a:0,t:"向きをきかれている。"},
+ {q:"「五字で書きぬきなさい」の数え方は？",o:["漢字だけ数える","句読点も一字と数える","ふりがなも数える"],a:1,t:"マスに一つずつ入れて数える。"},
+ {q:"方言のセリフから答えを書くときは？",o:["そのまま写す","ふつうの言い方に直す","書かない"],a:1,t:"「〜しとった」→「〜していた」。"},
+ {q:"答えの中に「この」「そういう」がのこっていたら？",o:["中身に置きかえる","そのままでよい","消すだけでよい"],a:0,t:"指し示す言葉をのこすと点が引かれる。"}
+];
+
+const REV=[
+ {a:"まんまるい目",o:["咲子ちゃんの気持ちが表れた表情を、文章中から六字で書きぬきなさい。","咲子ちゃんはなぜおどろいたのですか。","咲子ちゃんの気持ちを書きなさい。"],c:0,t:"名詞でとまる答え＝書きぬきの問題。"},
+ {a:"雨がふり出したから。",o:["どのような様子ですか。","なぜ試合が中止になったのですか。","何を書きぬきますか。"],c:1,t:"「〜から。」でおわる答えは理由の問題。"},
+ {a:"友だちに会えてうれしい気持ち。",o:["このときの「ぼく」の気持ちを書きなさい。","「ぼく」は何をしましたか。","理由を書きなさい。"],c:0,t:"「〜気持ち。」でおわる答えは心情の問題。"},
+ {a:"母がないしょで用意してくれていたこと。",o:["母の気持ちを書きなさい。","——線「そのこと」とはどんなことですか。","なぜ母はおこったのですか。"],c:1,t:"「〜こと。」でおわる答えは内容の問題。"},
+ {a:"すすき野原",o:["季節が分かる言葉を五字で書きぬきなさい。","季節はいつですか。","どんな気持ちですか。"],c:0,t:"字数がぴったり合うかも手がかり。"},
+ {a:"約束を破ってしまったから。",o:["どんなことですか。","なぜあやまったのですか。","どんな様子ですか。"],c:1,t:"文末から問題の種類が逆算できる。"},
+ {a:"金色にかがやいている様子。",o:["どのような様子を表していますか。","なぜかがやくのですか。","何字で書きぬきますか。"],c:0,t:"「〜様子。」は様子の問題。"}
+];
+
+const SWEETS=[
+ {n:"いちご",e:"🍓",r:1},{n:"クッキー",e:"🍪",r:1},{n:"キャンディ",e:"🍬",r:1},{n:"ドーナツ",e:"🍩",r:1},
+ {n:"カップケーキ",e:"🧁",r:2},{n:"プリン",e:"🍮",r:2},{n:"ソフトクリーム",e:"🍦",r:2},{n:"パンケーキ",e:"🥞",r:2},
+ {n:"ショートケーキ",e:"🍰",r:3},{n:"パフェ",e:"🍨",r:3},{n:"チョコフォンデュ",e:"🍫",r:3},
+ {n:"にじいろゼリー",e:"🌈",r:4}
+];
+const RAR={1:{t:"ふつう",c:"#8DC9E8"},2:{t:"かわいい",c:"#FFA9CB"},3:{t:"レア",c:"#B79BF0"},4:{t:"キラキラ",c:"#F0A93E"}};
+const STEP=100;
+
+/* ============ 保存 ============ */
+const KEY="setsumon_sweets_v1";
+const store={
+  async get(k){
+    try{ if(window.storage){const r=await window.storage.get(k); if(r&&r.value!=null) return r.value;} }catch(e){}
+    try{ return localStorage.getItem(k); }catch(e){ return null; }
+  },
+  async set(k,v){
+    try{ if(window.storage){ await window.storage.set(k,v); return; } }catch(e){}
+    try{ localStorage.setItem(k,v); }catch(e){}
+  }
+};
+let S={pt:0,owned:[],digs:0};
+async function loadState(){
+  const raw=await store.get(KEY);
+  if(raw){ try{ S=Object.assign(S,JSON.parse(raw)); }catch(e){} }
+  paintHUD();
+}
+function saveState(){ store.set(KEY,JSON.stringify(S)); }
+
+/* ============ 見た目のしかけ ============ */
+const bub=document.getElementById("bub");
+[["#FFD6E8",70,"6%","12%",0],["#D3F1FF",95,"78%","22%",2],["#FFF3C4",56,"12%","62%",4],
+ ["#DCF6E7",80,"82%","72%",1],["#EADDFF",48,"46%","88%",3]].forEach(([c,s,l,t,d])=>{
+  const b=document.createElement("b");
+  b.style.cssText=`width:${s}px;height:${s}px;background:${c};left:${l};top:${t};animation-delay:${d}s`;
+  bub.appendChild(b);
+});
+
+const puni=document.getElementById("puni"), speech=document.getElementById("speech");
+function say(txt,mood){
+  speech.textContent=txt;
+  puni.classList.remove("happy","oops");
+  if(mood) puni.classList.add(mood);
+  puni.classList.remove("squish"); void puni.offsetWidth; puni.classList.add("squish");
+}
+puni.onclick=()=>say(["ぷにぷに！","くすぐったい〜","もういっかいやる？","きょうもかわいいね"][Math.floor(Math.random()*4)],"happy");
+
+function sparkle(){
+  const marks=["✨","🌟","💖","🍬","⭐️","🩷"];
+  for(let i=0;i<9;i++){
+    const s=document.createElement("div");
+    s.className="spark"; s.textContent=marks[Math.floor(Math.random()*marks.length)];
+    s.style.left=(20+Math.random()*60)+"vw";
+    s.style.top=(35+Math.random()*30)+"vh";
+    s.style.setProperty("--dx",(Math.random()*120-60)+"px");
+    s.style.animationDelay=(i*0.05)+"s";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),1300);
+  }
+}
+
+function paintHUD(){
+  document.getElementById("ptview").innerHTML=S.pt+'<small>pt</small>';
+  const rest=STEP-(S.pt%STEP);
+  document.getElementById("gauge").style.width=((S.pt%STEP)/STEP*100)+"%";
+  document.getElementById("glbl").textContent="あと"+rest+"pt";
+}
+
+/* ============ 画面 ============ */
+const app=document.getElementById("app");
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+const toTop=()=>{ try{ window.scrollTo(0,0); }catch(e){} };
+
+function showErr(e){
+  try{
+    app.insertAdjacentHTML("afterbegin",
+      '<div class="card" style="font-size:12px;color:#C4547C">うまくいかなかったよ: '+String((e&&e.message)||e)+'</div>');
+  }catch(_){ alert("error: "+e); }
+}
+
+/* タップは画面全体でまとめて受ける（作り直しに強い方式） */
+const ACT={};
+let busy=false;
+function onTap(e){
+  const t=e.target&&e.target.closest?e.target.closest("[data-act]"):null;
+  if(!t) return;
+  const fn=ACT[t.getAttribute("data-act")];
+  if(!fn) return;
+  if(busy) return;
+  busy=true; setTimeout(()=>{busy=false;},150);
+  try{ fn(t); }catch(err){ showErr(err); }
+}
+document.addEventListener("click",onTap,false);
+
+ACT.mode  = t=>startRun(t.getAttribute("data-m"));
+ACT.coll  = ()=>collection();
+ACT.home  = ()=>goHome();
+ACT.again = ()=>startRun(run.mode);
+ACT.dig   = t=>openSweet(t);
+ACT.next  = ()=>{ run.i++; if(run.i<run.items.length) question(); else showResult(); };
+
+function goHome(){
+  toTop();
+  say("どれからやる？","happy");
+  app.innerHTML=`
+   <button type="button" class="pop mode m1" data-act="mode" data-m="shape"><span class="ic">🍰</span><span>
+     <div class="ttl">せつもんのかたち</div>
+     <div class="sub">なにを答える？　文末はどうなる？</div></span></button>
+   <button type="button" class="pop mode m2" data-act="mode" data-m="vocab"><span class="ic">🍋</span><span>
+     <div class="ttl">せつもんのことば</div>
+     <div class="sub">「とありますが」ってどういう意味？</div></span></button>
+   <button type="button" class="pop mode m3" data-act="mode" data-m="rev"><span class="ic">🍡</span><span>
+     <div class="ttl">答えからぎゃくに</div>
+     <div class="sub">この答えになるせつもんはどれ？</div></span></button>
+   <div class="card center">
+     <div style="font-size:12px;font-weight:700;color:var(--ink-soft)">あつめたスイーツ</div>
+     <div style="font-size:32px;font-weight:900;color:var(--ichigo-d);margin:2px 0">${S.owned.length}<span style="font-size:15px;color:var(--ink-soft)"> / ${SWEETS.length}</span></div>
+     ${S.digs>0?`<div style="font-size:13px;font-weight:900;color:#D9A319">🎁 まだあけてないおかしが ${S.digs} こ！</div>`:``}
+   </div>
+   <button type="button" class="pop soft" data-act="coll">スイーツ図かんを見る 🍧</button>`;
+}
+
+let run=null;
+function startRun(mode){
+  let items;
+  if(mode==="shape") items=shuffle(SHAPE).slice(0,8);
+  else if(mode==="vocab") items=shuffle(VOCAB).slice(0,8);
+  else items=shuffle(REV).slice(0,6);
+  run={mode,items,i:0,pt:0,ok:0,streak:0};
+  say("いくよ〜！");
+  question();
+}
+
+const dots=()=>'<div class="dots">'+run.items.map((_,i)=>
+  `<i class="${i<run.i?'done':i===run.i?'now':''}"></i>`).join('')+'</div>';
+
+function lockRow(sel,pickEl,markFn){
+  app.querySelectorAll(sel).forEach(x=>{
+    x.disabled=true;
+    if(markFn(x)) x.classList.add("ok");
+    else if(x===pickEl) x.classList.add("ng");
+  });
+}
+
+function question(){
+  toTop();
+  const it=run.items[run.i];
+  if(run.mode==="shape"){
+    app.innerHTML=dots()+`
+      <div class="qcard"><span class="tag">せつもん ${run.i+1} / ${run.items.length}</span>
+        <div class="qt">${it.q}</div></div>
+      <p class="step">① なにを答える問題？</p>
+      <div class="grid" id="g1">${WHAT.map(w=>`<button type="button" class="pop opt" data-v="${w}">${w}</button>`).join('')}</div>
+      <div id="st2"></div>`;
+    let d1=false;
+    app.querySelectorAll("#g1 .opt").forEach(b=>b.onclick=()=>{
+      if(d1) return; d1=true;
+      const r1=b.dataset.v===it.w;
+      lockRow("#g1 .opt",b,x=>x.dataset.v===it.w);
+      document.getElementById("st2").innerHTML=`
+        <p class="step">② 答えの文末はどうなる？</p>
+        <div class="grid" id="g2">${HOW.map(h=>`<button type="button" class="pop opt" data-v="${h}">${h}</button>`).join('')}</div>`;
+      let d2=false;
+      app.querySelectorAll("#g2 .opt").forEach(c=>c.onclick=()=>{
+        if(d2) return; d2=true;
+        const r2=c.dataset.v===it.h;
+        lockRow("#g2 .opt",c,x=>x.dataset.v===it.h);
+        judge(r1&&r2,it.t,(r1?5:0)+(r2?5:0));
+      });
+    });
+  } else {
+    const isRev=run.mode==="rev";
+    const correct=isRev?it.c:it.a;
+    app.innerHTML=dots()+`
+      <div class="qcard"><span class="tag">${isRev?"この答えになるのは？":"ことば "+(run.i+1)+" / "+run.items.length}</span>
+        ${isRev?`<div class="bigans">${it.a}</div>`:`<div class="qt">${it.q}</div>`}</div>
+      <div class="grid one" id="g1">${it.o.map((o,i)=>`<button type="button" class="pop opt" data-i="${i}">${o}</button>`).join('')}</div>
+      <div id="st2"></div>`;
+    let d=false;
+    app.querySelectorAll("#g1 .opt").forEach(b=>b.onclick=()=>{
+      if(d) return; d=true;
+      const right=+b.dataset.i===correct;
+      lockRow("#g1 .opt",b,x=>+x.dataset.i===correct);
+      judge(right,it.t,right?10:0);
+    });
+  }
+}
+
+function judge(right,tip,gain){
+  if(right){ run.ok++; run.streak++; sparkle(); say(["せいかい〜！","やった！","あまい〜！","ぷにっ！かんぺき"][Math.floor(Math.random()*4)],"happy"); }
+  else { run.streak=0; say("おしい〜！ポイント見てみよ","oops"); }
+  const bonus=run.streak>=3?5:0;
+  run.pt+=gain+bonus;
+  const last=run.i+1>=run.items.length;
+  document.getElementById("st2").insertAdjacentHTML("beforeend",`
+    <div class="gain">+${gain+bonus}pt${bonus?` 🔥${run.streak}れんぞく ボーナス+5`:``}</div>
+    ${tip?`<div class="tip"><b>ここがコツ</b>　${tip}</div>`:``}
+    <button type="button" class="pop candy" data-act="next">${last?'けっかを見る 🎀':'つぎへ ▶'}</button>`);
+}
+
+function showResult(){
+  toTop();
+  const before=Math.floor(S.pt/STEP);
+  S.pt+=run.pt;
+  S.digs+=Math.max(0,Math.floor(S.pt/STEP)-before);
+  const perfect=run.ok===run.items.length;
+  app.innerHTML=`
+    <div class="card center">
+      <div class="score">${run.ok}<small> / ${run.items.length}</small></div>
+      <div style="font-size:13px;font-weight:700;color:var(--ink-soft);margin-top:4px">きょうのポイント +${run.pt}pt</div>
+    </div>
+    ${S.digs>0?`<button type="button" class="pop candy" data-act="dig">おかしをあける 🎁 ×${S.digs}</button>`:``}
+    <div id="rv"></div>
+    <button type="button" class="pop soft" data-act="again">もういちど 🔁</button>
+    <button type="button" class="pop soft" data-act="home">ホームへ 🏠</button>`;
+  try{ saveState(); paintHUD(); }catch(e){}
+  try{ if(perfect) sparkle(); say(perfect?"ぜんぶせいかい！すごすぎる〜":"おつかれさま！えらい〜","happy"); }catch(e){}
+}
+
+function openSweet(btn){
+  if(S.digs<=0) return;
+  S.digs--;
+  const pool=SWEETS.map((f,i)=>({f,i})).filter(x=>!S.owned.includes(x.i));
+  if(pool.length===0){
+    S.pt+=50; saveState(); paintHUD(); sparkle(); say("ぜんぶそろってる！ボーナスだよ","happy");
+    document.getElementById("rv").innerHTML=`<div class="reveal"><span class="em">👑</span>
+      <div class="nm">コンプリート！</div><div class="rr" style="background:#F0A93E">ボーナス +50pt</div></div>`;
+  }else{
+    const w={1:40,2:25,3:12,4:5};
+    const total=pool.reduce((s,x)=>s+w[x.f.r],0);
+    let r=Math.random()*total, picked=pool[0];
+    for(const x of pool){ r-=w[x.f.r]; if(r<=0){ picked=x; break; } }
+    S.owned.push(picked.i); saveState(); paintHUD(); sparkle();
+    say("わあ！"+picked.f.n+"だ〜","happy");
+    document.getElementById("rv").innerHTML=`<div class="reveal"><span class="em">${picked.f.e}</span>
+      <div class="nm">${picked.f.n}</div>
+      <div class="rr" style="background:${RAR[picked.f.r].c}">${RAR[picked.f.r].t}</div></div>`;
+  }
+  if(S.digs>0) btn.textContent=`おかしをあける 🎁 ×${S.digs}`;
+  else { btn.disabled=true; btn.removeAttribute("data-act"); btn.textContent="ぜんぶあけたよ"; }
+}
+
+function collection(){
+  toTop();
+  say("あつめたスイーツだよ〜","happy");
+  app.innerHTML=`<div class="coll">${SWEETS.map((f,i)=>{
+    const has=S.owned.includes(i);
+    return `<div class="sw ${has?'':'locked'} ${f.r===4?'r4':''}">
+      <span class="em">${has?f.e:'🍥'}</span>
+      <div class="nm">${has?f.n:'？？？'}</div></div>`;
+  }).join('')}</div>
+  <div class="card center" style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">
+    ${STEP}pt ためるごとに おかしが 1こ あくよ</div>
+  <button type="button" class="pop soft" data-act="home">ホームへ 🏠</button>`;
+}
+
+loadState().then(goHome);
+})();
+</script>
+</body>
+</html>
