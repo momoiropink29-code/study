@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>にじいろ社会ノート｜日本の気候と地形</title>
+<style>
+:root{
+  --pink:#FF8FB1; --pink-d:#E86D93;
+  --orange:#FFB067; --yellow:#FFD766;
+  --green:#8FDCA6; --blue:#7FC9EC; --purple:#B4A8F5; --violet:#E29BE8;
+  --ink:#5B4A57; --ink-soft:#96859A;
+  --card:#FFFFFF; --line:#F3E4EE;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  color:var(--ink); font-size:16px; line-height:1.75;
+  font-family:"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4","Yu Gothic",system-ui,sans-serif;
+  background:#FFF4FA;
+  background-image:
+    radial-gradient(circle at 12% 8%, #FFE3F0 0 22%, transparent 22%),
+    radial-gradient(circle at 88% 22%, #E6E7FF 0 20%, transparent 20%),
+    radial-gradient(circle at 20% 92%, #DFF5EA 0 24%, transparent 24%),
+    linear-gradient(#FFF7FC,#F6F2FF);
+  background-attachment:fixed;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 15px 70px}
+
+/* ===== ヘッダー ===== */
+header{
+  background:linear-gradient(100deg,#FFA9C6,#FFC79A,#FFE58A,#9BE5B4,#8FD3F4,#BDB2F7,#EBA6EE);
+  padding:16px 0 20px; border-radius:0 0 30px 30px; position:relative; overflow:hidden;
+  box-shadow:0 6px 0 rgba(255,175,205,.35);
+}
+header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;
+  background:radial-gradient(circle at 10px -2px,#fff 8px,transparent 9px) repeat-x;background-size:20px 14px}
+.hd{max-width:560px;margin:0 auto;padding:0 15px;display:flex;align-items:center;gap:10px}
+.hd button{background:none;border:none;padding:0;flex:1;text-align:left;cursor:pointer;font-family:inherit;color:#fff}
+.hd h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.04em;text-shadow:0 2px 0 rgba(230,120,160,.45)}
+.hd .sub{margin:0;font-size:11px;font-weight:700;letter-spacing:.16em;color:#fff;opacity:.95}
+.hd .best{background:#fff;border-radius:16px;padding:5px 11px;text-align:center;box-shadow:0 3px 0 rgba(232,109,147,.3)}
+.hd .best small{display:block;font-size:9px;color:var(--ink-soft);letter-spacing:.1em}
+.hd .best b{font-size:20px;color:var(--pink-d);line-height:1}
+
+/* ===== カード・ボタン ===== */
+.card{background:var(--card);border-radius:24px;padding:16px 17px;margin-top:15px;
+  box-shadow:0 5px 0 #F3E1EC, 0 10px 22px rgba(190,150,180,.13)}
+.card h2{margin:0 0 7px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:6px}
+.muted{color:var(--ink-soft);font-size:13.5px}
+.btn{display:block;width:100%;border:none;border-radius:22px;padding:15px 18px;margin-top:12px;
+  font:inherit;font-weight:800;font-size:16px;color:#fff;cursor:pointer;text-align:left;
+  background:var(--pink); box-shadow:0 6px 0 var(--pink-d); transition:transform .08s, box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--pink-d)}
+.btn .s{display:block;font-size:12.5px;font-weight:600;opacity:.95;margin-top:2px;line-height:1.5}
+.btn.rainbow{background:linear-gradient(95deg,#FF8FB1,#FFB067,#FFD766,#8FDCA6,#7FC9EC,#B4A8F5);box-shadow:0 6px 0 #D9A0C6}
+.btn.rainbow:active{box-shadow:0 2px 0 #D9A0C6}
+.btn.honey{background:#FFC24D;box-shadow:0 6px 0 #E2A22C}
+.btn.honey:active{box-shadow:0 2px 0 #E2A22C}
+.btn.soft{background:#fff;color:var(--ink);box-shadow:0 5px 0 #EFE0EA;text-align:center;font-size:15px}
+.btn.soft:active{box-shadow:0 1px 0 #EFE0EA}
+.btn:disabled{background:#EFE7EF;color:#B7A8B7;box-shadow:0 5px 0 #E2D6E2}
+.btn:disabled .badge{display:none}
+button:focus-visible{outline:3px dashed var(--purple);outline-offset:3px}
+.badge{display:inline-block;background:#fff;color:var(--pink-d);border-radius:99px;padding:0 9px;
+  font-size:12px;font-weight:800;margin-left:6px;vertical-align:2px;box-shadow:0 2px 0 rgba(0,0,0,.06)}
+
+/* ===== 単元ボタン ===== */
+.unit{display:flex;align-items:center;gap:12px;width:100%;border:none;border-radius:22px;
+  padding:12px 15px;margin-top:10px;font:inherit;cursor:pointer;text-align:left;background:#fff;
+  box-shadow:0 5px 0 #EFE0EA; transition:transform .08s, box-shadow .08s}
+.unit:active{transform:translateY(3px);box-shadow:0 2px 0 #EFE0EA}
+.unit .ic{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
+.unit .nm{flex:1;font-weight:800;font-size:15px}
+.unit .ct{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft)}
+.unit .ar{color:#E7D4E2;font-weight:800;font-size:20px}
+
+/* ===== ペット ===== */
+.pet{border-radius:26px;overflow:hidden;margin-top:15px;background:#fff;
+  box-shadow:0 6px 0 #F0DFEC, 0 12px 26px rgba(185,150,180,.16)}
+.pet .stage{position:relative;height:190px}
+.pet .stage>svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.pet .stage>svg.ch{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);height:158px;
+  animation:bob 3.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-8px)}}
+@keyframes wob{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+.pet .info{padding:12px 16px 16px}
+.pet .nm{font-weight:800;font-size:16px}
+.pet .kd{font-size:11.5px;font-weight:700;color:#fff;background:var(--purple);border-radius:99px;padding:1px 9px;margin-left:5px}
+.pet .stg{font-size:12px;color:var(--ink-soft);font-weight:600}
+.bar{height:14px;background:#F3EAF3;border-radius:99px;overflow:hidden;margin:8px 0 5px;padding:3px}
+.bar i{display:block;height:100%;border-radius:99px;transition:width .6s cubic-bezier(.3,1.4,.5,1);
+  background:linear-gradient(90deg,#FF8FB1,#FFD766,#8FDCA6,#7FC9EC,#B4A8F5)}
+
+/* ===== クイズ ===== */
+.prog{display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;color:var(--ink-soft);margin-top:18px;padding:0 4px}
+.pbar{height:13px;background:#fff;border-radius:99px;padding:3px;margin:6px 0 14px;box-shadow:0 3px 0 #F0E2EC}
+.pbar i{display:block;height:100%;border-radius:99px;transition:width .35s;
+  background:linear-gradient(90deg,#FF8FB1,#FFD766,#8FDCA6,#7FC9EC,#B4A8F5)}
+.qcard{background:#fff;border-radius:24px;padding:18px;position:relative;box-shadow:0 5px 0 #F3E1EC}
+.qcard .tag{display:inline-block;font-size:11px;font-weight:800;color:#fff;border-radius:99px;padding:1px 11px;margin:0 0 8px}
+.qcard .qt{margin:0;font-weight:800;font-size:17px;line-height:1.7}
+.mark{position:absolute;top:-40px;right:2px;width:86px;height:86px;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(180,140,170,.25))}
+.opt{display:flex;align-items:center;gap:12px;width:100%;border:none;background:#fff;border-radius:20px;
+  padding:14px;margin-top:11px;font:inherit;font-weight:800;font-size:15.5px;cursor:pointer;text-align:left;
+  color:var(--ink);box-shadow:0 5px 0 #EFE0EA;transition:transform .08s,box-shadow .08s}
+.opt:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #EFE0EA}
+.opt .k{width:28px;height:28px;flex:none;border-radius:50%;background:#F6EEF7;color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.opt.ok{background:#FFF0F5;box-shadow:0 5px 0 #FFC7DB;color:var(--pink-d)}
+.opt.ok .k{background:var(--pink);color:#fff}
+.opt.ng{background:#EFF7FD;box-shadow:0 5px 0 #C6E3F5}
+.opt.dim{opacity:.45}
+.opt .res{margin-left:auto;font-size:12px;color:var(--pink-d);font-weight:800}
+.exp{margin-top:15px;background:#FFFBEB;border-radius:20px;padding:14px 16px;font-size:14.5px;
+  box-shadow:0 4px 0 #FBEFC7}
+.exp b{display:block;font-size:12px;color:#D9A017;margin-bottom:3px;font-weight:800}
+.big{display:block;margin:10px auto 0}
+.pop{animation:pop .3s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.sparkle{position:absolute;font-size:19px;pointer-events:none;animation:spk 1s ease-out forwards}
+@keyframes spk{0%{transform:scale(.3) rotate(0);opacity:0}30%{opacity:1}100%{transform:scale(1.3) translateY(-26px) rotate(25deg);opacity:0}}
+
+/* ===== 地図 ===== */
+.mapbox{background:linear-gradient(#DCF1FB,#EAF6FF);border-radius:22px;margin-top:13px;padding:8px;
+  box-shadow:0 5px 0 #D5E9F5}
+.mapbox svg{display:block;width:100%;height:auto}
+.jp{fill:#FFF7E9;stroke:#F0C7A8;stroke-width:2;stroke-linejoin:round}
+.ring{fill:none;stroke:#FF6E9C;stroke-width:3;animation:pulse 1.7s ease-out infinite}
+@keyframes pulse{0%{r:8;opacity:.95}100%{r:30;opacity:0}}
+
+/* ===== リスト ===== */
+table.list{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:13.5px;margin-top:4px}
+table.list td{background:#FDF6FB;padding:9px 12px;vertical-align:top}
+table.list td:first-child{border-radius:14px 0 0 14px;font-weight:800;white-space:nowrap}
+table.list td:last-child{border-radius:0 14px 14px 0;color:var(--ink-soft);font-size:12.5px}
+table.list .yomi{display:block;font-weight:600;font-size:10.5px;color:var(--ink-soft)}
+
+textarea{width:100%;height:80px;font-size:11.5px;border:2px solid var(--line);border-radius:14px;padding:9px;font-family:monospace}
+.center{text-align:center}
+.link{background:none;border:none;color:var(--ink-soft);text-decoration:underline;font:inherit;
+  font-size:13px;font-weight:700;cursor:pointer;display:block;margin:24px auto 0}
+.score{font-size:66px;font-weight:800;line-height:1;margin:4px 0;
+  background:linear-gradient(95deg,#FF8FB1,#FFB067,#FFD766,#8FDCA6,#7FC9EC,#B4A8F5);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.score span{font-size:22px}
+.dex{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.dex .d{background:#FDF3F9;border-radius:18px;padding:8px 10px;text-align:center;width:78px;box-shadow:0 3px 0 #F2E2EE}
+.dex .d svg{height:52px;display:block;margin:0 auto}
+.dex .d span{font-size:10.5px;font-weight:800;display:block;margin-top:2px}
+.dex .d.lock{filter:grayscale(1);opacity:.45}
+.wlist{background:#FDF6FB;border-radius:16px;padding:10px 13px;margin-top:9px;font-size:13.5px}
+.wlist b{color:var(--pink-d)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <button onclick="go('home')">
+      <p class="sub">9／14（月）しゃかいのテスト</p>
+      <h1>にじいろ社会ノート</h1>
+    </button>
+    <div id="hdScore"></div>
+  </div>
+</header>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================
+   1. データ
+   ========================================================= */
+const UNITS = {
+  kokudo :{name:"国土のようす",           ic:"⛰️", col:"#FF8FB1", dk:"#E86D93"},
+  ranking:{name:"山・川・湖・島",          ic:"🗻", col:"#FFB067", dk:"#E28E45"},
+  kikou  :{name:"日本の気候",              ic:"🌈", col:"#FFD766", dk:"#DFB63F"},
+  kubun  :{name:"気候区分と雨温図",        ic:"🗾", col:"#8FDCA6", dk:"#63B87D"},
+  mSan   :{name:"地図｜山地・山脈・高地",  ic:"🏔️", col:"#7FC9EC", dk:"#54A6CC"},
+  mHei   :{name:"地図｜平野・盆地",        ic:"🌾", col:"#B4A8F5", dk:"#8B7DDB"},
+  mKawa  :{name:"地図｜川",                ic:"💧", col:"#E29BE8", dk:"#BE74C6"}
+};
+
+/* --- 4択問題 --- */
+const Q = [
+// 国土のようす
+["kokudo","日本の国土がふくまれている大きな造山帯を何といいますか。",["環太平洋造山帯","アルプス・ヒマラヤ造山帯","環日本海造山帯","太平洋プレート帯"],0,"日本は環太平洋（かんたいへいよう）造山帯にふくまれるため、山地や火山が多く、地震も多い。"],
+["kokudo","日本の国土のうち、山地はおよそ何分のいくつをしめていますか。",["約2分の1","約3分の1","約4分の3","約4分の1"],2,"国土の約4分の3が山地で、残りの約4分の1が平地。単元テストの選択問題で出る！"],
+["kokudo","日本を地形的に大きく東西2つに分ける大きなみぞを何といいますか。",["日本海溝","フォッサマグナ","リアス海岸","中央構造線"],1,"フォッサマグナはラテン語で「大きなみぞ」。西のはしは糸魚川－静岡構造線。"],
+["kokudo","フォッサマグナをさかいに、東側の山脈はどの方向に連なっていますか。",["東西","南北","ななめ45度","決まっていない"],1,"東側は南北に、西側は東西に。「東は南北・西は東西」とセットで覚える。"],
+["kokudo","本州の中央部にならぶ3000m級の3つの山脈は、飛驒山脈・赤石山脈と、あと1つは何山脈ですか。",["越後山脈","奥羽山脈","木曽山脈","日高山脈"],2,"飛驒（ひだ）・木曽（きそ）・赤石（あかいし）。「ひ・き・あ」で覚えよう。"],
+["kokudo","飛驒山脈・木曽山脈・赤石山脈をまとめて何とよびますか。",["日本アルプス","日本ロッキー","中央山脈","三大山地"],0,"3000m級が連なるので「日本アルプス」。飛驒＝北、木曽＝中央、赤石＝南アルプス。"],
+["kokudo","日本アルプスにふくまれない山脈は次のうちどれですか。",["飛驒山脈","越後山脈","赤石山脈","木曽山脈"],1,"越後（えちご）山脈は日本アルプスではない。問題集P.45まとめ(1)そのまま！"],
+["kokudo","高くけわしい山が細長く連なっている地形を何といいますか。",["高原","丘陵","山脈","高地"],2,"山脈＝高くけわしく細長い／高原＝表面が平ら／高地＝高さが低め／丘陵＝低く起伏が小さい。"],
+["kokudo","山に囲まれた平地を何といいますか。",["平野","台地","盆地","三角州"],2,"盆地は山に囲まれた平地。平野は海に面した平地。"],
+["kokudo","平野や盆地のなかで、まわりより高くなった台状の平地を何といいますか。",["高原","台地","丘陵","高地"],1,"台地は「平地」のなかま。高原・高地は「山地」のなかまなので注意！"],
+["kokudo","日本で最も長い信濃川の河口に広がる平野を何といいますか。",["関東平野","越後平野","濃尾平野","石狩平野"],1,"信濃川－越後平野（新潟県）。川と平野のセットは超頻出！"],
+["kokudo","川が山から平地に出たところに、土砂がつもってできた傾斜地を何といいますか。",["三角州","扇状地","台地","リアス海岸"],1,"扇状地（せんじょうち）＝山から平地に出たところ。甲府盆地の地形図で出る。"],
+["kokudo","川が運んできた土や砂が、河口付近にたまってできる地形を何といいますか。",["扇状地","砂浜海岸","三角州","盆地"],2,"三角州（さんかくす）＝河口付近。「扇状地＝山のふもと」「三角州＝河口」で区別！広島市も三角州。"],
+["kokudo","山地が海にしずみこんでできた、複雑に入り組んだ海岸を何といいますか。",["砂浜海岸","リアス海岸","磯浜海岸","人工海岸"],1,"リアス海岸。写真ではギザギザに入り組んだ海岸。三陸海岸の南部が代表例。"],
+["kokudo","波によって運ばれた砂がたまってできた、出入りの少ない海岸を何といいますか。",["リアス海岸","断崖海岸","砂浜海岸","岩石海岸"],2,"砂浜（すなはま）海岸。写真ではまっすぐな海岸線。リアス海岸との見分けが出る！"],
+["kokudo","青森県南部から宮城県にかけての、日本の代表的なリアス海岸がある海岸は何ですか。",["三陸海岸","九十九里浜","若狭湾","志摩半島"],0,"三陸（さんりく）海岸。南部がリアス海岸になっている。"],
+["kokudo","東北地方の東側の海にある、深さ8000m以上の細長く深いみぞを何といいますか。",["フォッサマグナ","マリアナ海溝","日本海溝","南海トラフ"],2,"日本海溝（にほんかいこう）。8000m以上の深さがある。"],
+["kokudo","日本で最も広い平野は何ですか。",["越後平野","石狩平野","濃尾平野","関東平野"],3,"関東平野は日本最大の平野。利根川の流域に広がる。"],
+["kokudo","関東平野が広がる都道府県の数として正しいものはどれですか。",["1都6県","1府7県","1都5県","2府3県"],0,"関東地方の1都6県。問題集P.44(4)そのまま！"],
+["kokudo","川と平野の組み合わせとして正しいものはどれですか。",["石狩川－筑紫平野","木曽川－大阪平野","利根川－関東平野","筑後川－庄内平野"],2,"石狩川－石狩平野／木曽川－濃尾平野／筑後川－筑紫平野／最上川－庄内平野／信濃川－越後平野。"],
+["kokudo","木曽川が流れ、愛知県などに広がる平野はどれですか。",["濃尾平野","仙台平野","高知平野","筑紫平野"],0,"木曽川－濃尾（のうび）平野。"],
+["kokudo","日本の火山について正しい文はどれですか。",["日本には火山がほとんどない","火山があるため温泉が多い","火山は九州にしかない","火山は地震とは関係がない"],1,"火山が多く被害もあるが、火山性の温泉が多いというよい面もある。"],
+// 山・川・湖・島
+["ranking","日本で最も高く、世界文化遺産に登録されている山は何ですか。",["北岳","富士山","槍ヶ岳","御岳"],1,"富士山（3776m）。山梨県と静岡県の境にある活火山。"],
+["ranking","富士山の高さとして正しいものはどれですか。",["1233m","3776m","4755m","8848m"],1,"3776m。8848mはエベレストなのでひっかからない！"],
+["ranking","富士山の山頂は2つの県にまたがっています。どことどこの県ですか。",["山梨県と静岡県","長野県と静岡県","山梨県と長野県","静岡県と岐阜県"],0,"山梨県と静岡県。記述で書けるように！"],
+["ranking","日本で2番目に高い山は何ですか。",["奥穂高岳","間ノ岳","北岳","槍ヶ岳"],2,"①富士山3776 ②北岳3193（山梨県）③奥穂高岳・間ノ岳3190 ⑤槍ヶ岳3180。"],
+["ranking","日本で最も長い川は何ですか。",["利根川","石狩川","信濃川","北上川"],2,"信濃川（367km）が長さ1位。利根川（322km）が2位。"],
+["ranking","信濃川は長野県からどこの県にかけて流れていますか。",["新潟県","富山県","群馬県","福島県"],0,"長野県→新潟県。河口に越後平野が広がる。書き問題で「新潟県」！"],
+["ranking","流域面積が日本で1位の川は何ですか。",["信濃川","石狩川","利根川","天塩川"],2,"利根川（16840km²）が流域面積1位。長さ1位は信濃川。ひっかけ注意！"],
+["ranking","信濃川、利根川に次いで長い、北海道を流れる川は何ですか。",["天塩川","石狩川","十勝川","北上川"],1,"長さ3位は石狩川（268km）。①信濃②利根③石狩④天塩⑤北上。"],
+["ranking","日本で最も大きな湖は何ですか。",["霞ヶ浦","琵琶湖","サロマ湖","猪苗代湖"],1,"琵琶湖（669km²・滋賀県）。世界で3番目に古い古代湖、400万年の歴史。"],
+["ranking","琵琶湖の説明として正しいものはどれですか。",["日本で2番目に大きな湖","面積は滋賀県の約6分の1","世界で最も古い湖","3つ以上の県にまたがる湖"],1,"滋賀県の約6分の1。世界で「3番目に」古い古代湖。問題集P.44(5)そのまま！"],
+["ranking","琵琶湖の次に大きな湖である霞ヶ浦は、何県にありますか。",["千葉県","栃木県","茨城県","埼玉県"],2,"霞ヶ浦（かすみがうら）は茨城県。"],
+["ranking","本州・北海道・九州・四国に次いで大きい島は何ですか。",["沖縄島","佐渡島","択捉島","淡路島"],2,"択捉島（えとろふとう）。地図ではいちばん北東にある。"],
+// 日本の気候
+["kikou","世界の気候帯のなかで、日本の大部分が属する気候帯は何ですか。",["熱帯","乾燥帯","温帯","冷帯"],2,"日本の大部分は温帯。はっきりした四季があるのは温帯。"],
+["kikou","北海道が属する気候帯は何ですか。",["温帯","冷帯［亜寒帯］","寒帯","乾燥帯"],1,"北海道は冷帯（亜寒帯）。日本で唯一、温帯ではない。"],
+["kikou","夏と冬でふく向きが逆になる風を何といいますか。",["季節風［モンスーン］","偏西風","やませ","台風"],0,"季節風（モンスーン）。夏は南東から、冬は北西から。"],
+["kikou","夏の季節風はどちらの方角からふきますか。",["北西","南東","北東","南西"],1,"夏＝南東（太平洋から）→太平洋側に雨。冬＝北西→日本海側に雪。"],
+["kikou","冬の季節風のえいきょうで、雪や雨が多くなるのはどちら側ですか。",["太平洋側","日本海側","瀬戸内","南西諸島"],1,"北西季節風が日本海でしめった風になり日本海側に大雪。山をこえるとかわいた風。"],
+["kikou","夏に東北地方でふくと冷害をおこす、冷たい北東の風を何といいますか。",["からっ風","モンスーン","やませ","木枯らし"],2,"やませ。気温が上がらず農作物が実らない冷害をおこす。"],
+["kikou","やませによる冷害が特に発生しやすいのは、7地方区分のどの地方ですか。",["北海道地方","東北地方","関東地方","中部地方"],1,"東北地方。「7地方区分で書きなさい」なら「東北地方」！"],
+["kikou","6月から7月にかけて雨の多い時期を何といいますか。",["台風","つゆ［梅雨］","秋雨","時雨"],1,"つゆ（梅雨）。夏の農作業に必要なめぐみの水になる。時期は「6月から7月」。"],
+["kikou","つゆ（梅雨）がみられない地域はどこですか。",["北海道","東北地方","沖縄県","九州地方"],0,"つゆは北海道をのぞく地域でみられる。"],
+["kikou","夏から秋に日本に接近し、強風と大雨をもたらす発達した熱帯低気圧を何といいますか。",["やませ","季節風","たつまき","台風"],3,"台風。9月に降水量が多い都市が多いのは台風の雨のため。"],
+["kikou","暖流の組み合わせとして正しいものはどれですか。",["千島海流と日本海流","リマン海流と対馬海流","日本海流と対馬海流","千島海流とリマン海流"],2,"暖流＝日本海流［黒潮］・対馬海流／寒流＝千島海流［親潮］・リマン海流。南から来るのが暖流！"],
+["kikou","日本海流の別のよび名は何ですか。",["親潮","黒潮","対馬海流","リマン海流"],1,"日本海流＝黒潮（くろしお）、千島海流＝親潮（おやしお）。"],
+["kikou","千島海流の別のよび名は何ですか。",["黒潮","青潮","親潮","赤潮"],2,"千島海流＝親潮。北から流れてくる寒流。"],
+["kikou","日本近海で、北から流れてくる海流は暖流・寒流のどちらですか。",["暖流","寒流","どちらもある","海流はない"],1,"北から＝寒流、南から＝暖流。"],
+["kikou","瀬戸内の地域で、降水量不足からおこる災害を何といいますか。",["水害","冷害","干害","雪害"],2,"干害（かんがい）。瀬戸内は年間を通じて降水量が少ないため水不足になりやすい。"],
+["kikou","夏の季節風が太平洋側に雨をふらせたあと、山地をこえるとどんな風になりますか。",["しめった風","かわいた風","冷たい北東の風","強い台風"],1,"山地をこえると「かわいた風」になる。図の穴うめで出る！"],
+// 気候区分
+["kubun","「冬が長く寒さがきびしい。1年を通じて降水量は比かく的少ない」のは何の気候ですか。",["日本海側の気候","北海道の気候","中央高地の気候","太平洋側の気候"],1,"北海道の気候。冷帯［亜寒帯］に属する。"],
+["kubun","「冬に雪が多い」のが特色の気候区分はどれですか。",["太平洋側の気候","瀬戸内の気候","日本海側の気候","中央高地の気候"],2,"日本海側の気候。夏の気温は太平洋側と同じくらいになる。"],
+["kubun","「夏に雨が多く、冬は降水量が少なく乾燥する」のは何の気候ですか。",["太平洋側の気候","日本海側の気候","南西諸島の気候","北海道の気候"],0,"太平洋側の気候。東京が代表。"],
+["kubun","「1日の気温差・夏と冬の気温差が大きく、降水量が少ない」中部地方の内陸部の気候は？",["瀬戸内の気候","中央高地の気候","北海道の気候","日本海側の気候"],1,"中央高地の気候。長野が代表。"],
+["kubun","「夏と冬の気温差が小さく、年間を通じて降水量が少ない」のは何の気候ですか。",["中央高地の気候","太平洋側の気候","瀬戸内の気候","南西諸島の気候"],2,"瀬戸内の気候。高松が代表。水不足（干害）になりやすい。"],
+["kubun","「冬でも比かく的気温が高く夏が長い。1年じゅう雨が多く台風も多い」のは何の気候？",["南西諸島の気候","太平洋側の気候","瀬戸内の気候","日本海側の気候"],0,"南西諸島の気候。鹿児島県南部〜沖縄県。那覇が代表。"],
+["kubun","瀬戸内の気候で降水量が少ない理由として正しいものはどれですか。",["海から遠いから","南北の山地が季節風をさえぎるから","寒流が流れているから","標高が高いから"],1,"中国山地と四国山地にはさまれ、季節風のしめった空気がとどきにくい。記述で出る！"],
+["kubun","気候区分の境界の多くが山地・山脈になっている理由は？「山地や山脈によって…」",["季節風がさえぎられるから","気温が同じになるから","海流が変わるから","地震が多いから"],0,"山地・山脈が季節風（しめった風）をさえぎるので、山をはさんで気候が変わる。"],
+["kubun","雨温図：年平均気温9.2℃・年降水量1146mm。冬は0℃を大きく下回る。どの都市？",["札幌","新潟","東京","那覇"],0,"年平均が1けた（9.2℃）なのは札幌だけ！北海道の気候。"],
+["kubun","雨温図：年平均気温13.9℃・年降水量1845mm。冬（12〜2月）の降水量が多い。どの都市？",["高松","新潟","長野","東京"],1,"冬の降水（雪）が多い→日本海側の気候→新潟。"],
+["kubun","雨温図：年平均気温15.8℃・年降水量1598mm。夏〜9月に降水が多く冬は少ない。どの都市？",["東京","札幌","高松","長野"],0,"夏に多く冬に乾燥→太平洋側の気候→東京。9月の山は台風の雨。"],
+["kubun","雨温図：年平均気温12.3℃・年降水量965mm。降水量がとても少なく気温差が大きい。どの都市？",["新潟","那覇","長野","東京"],2,"年降水量が1000mmを切る（965mm）→中央高地の気候→長野。"],
+["kubun","雨温図：年平均気温16.7℃・年降水量1150mm。降水量が少なめで気温差が小さい。どの都市？",["高松","札幌","新潟","那覇"],0,"温暖で降水が少ない→瀬戸内の気候→高松。長野との区別は「年平均気温が高い」こと！"],
+["kubun","雨温図：年平均気温23.3℃・年降水量2161mm。冬でも15℃くらいある。どの都市？",["東京","那覇","高松","新潟"],1,"年平均23.3℃と高温多雨→南西諸島の気候→那覇。"],
+["kubun","太平洋側（東京）の降水量が多くなる季節はいつですか。",["冬","夏","春","1年中同じ"],1,"太平洋側は夏、日本海側（新潟）は冬に多い。確認しようの穴うめ⑬⑭！"],
+["kubun","冬の日本海側と太平洋側の天気について正しいものはどれですか。",["日本海側は晴れ、太平洋側は大雪","日本海側は大雪、太平洋側は晴れて乾燥","どちらも大雪","どちらも晴れ"],1,"北西季節風が日本海側に大雪。山をこえるとかわいた風になり太平洋側は晴れて乾燥。"]
+];
+
+/* --- 地図データ [名前, よみ, 種類, 緯度, 経度, ヒント] --- */
+const GEO = [
+// 山地・山脈・高地
+["北見山地","きたみさんち","mSan",44.0,143.3,"北海道の北東部。"],
+["日高山脈","ひだかさんみゃく","mSan",42.7,142.8,"北海道の南東部を南北に走る。"],
+["白神山地","しらかみさんち","mSan",40.5,140.15,"青森県と秋田県の境。ぶなの原生林で世界自然遺産。"],
+["出羽山地","でわさんち","mSan",39.5,140.0,"東北地方の日本海側を南北に走る。"],
+["奥羽山脈","おううさんみゃく","mSan",39.7,140.8,"東北地方のまん中を走る、日本一長い山脈。"],
+["北上高地","きたかみこうち","mSan",39.6,141.5,"岩手県の東がわ。"],
+["阿武隈高地","あぶくまこうち","mSan",37.3,140.7,"福島県の東がわ。"],
+["越後山脈","えちごさんみゃく","mSan",37.0,139.2,"新潟県と群馬・福島の境。日本アルプスではないので注意！"],
+["関東山地","かんとうさんち","mSan",35.9,138.8,"関東平野の西がわ。"],
+["飛驒山脈","ひださんみゃく","mSan",36.4,137.6,"日本アルプスの「北アルプス」。"],
+["木曽山脈","きそさんみゃく","mSan",35.7,137.85,"日本アルプスの「中央アルプス」。"],
+["赤石山脈","あかいしさんみゃく","mSan",35.5,138.25,"日本アルプスの「南アルプス」。"],
+["紀伊山地","きいさんち","mSan",34.0,135.8,"紀伊半島。雨がとても多い。"],
+["中国山地","ちゅうごくさんち","mSan",35.0,133.0,"中国地方。瀬戸内の北がわのかべ。"],
+["四国山地","しこくさんち","mSan",33.7,133.3,"四国。瀬戸内の南がわのかべ。"],
+["九州山地","きゅうしゅうさんち","mSan",32.5,131.0,"九州の中央部。"],
+// 平野・盆地
+["上川盆地","かみかわぼんち","mHei",43.8,142.4,"北海道の中央（旭川あたり）。"],
+["石狩平野","いしかりへいや","mHei",43.2,141.55,"北海道西部。石狩川の下流。"],
+["十勝平野","とかちへいや","mHei",42.9,143.2,"北海道の南東部。十勝川の流域。"],
+["庄内平野","しょうないへいや","mHei",38.9,139.85,"山形県。最上川の河口に広がる。"],
+["山形盆地","やまがたぼんち","mHei",38.3,140.35,"山形県の内陸。さくらんぼで有名。"],
+["仙台平野","せんだいへいや","mHei",38.2,140.95,"宮城県の太平洋側。"],
+["会津盆地","あいづぼんち","mHei",37.5,139.9,"福島県の西部。"],
+["越後平野","えちごへいや","mHei",37.8,139.0,"新潟県。日本一長い信濃川の河口に広がる。"],
+["長野盆地","ながのぼんち","mHei",36.7,138.2,"長野県の北部。"],
+["関東平野","かんとうへいや","mHei",36.0,139.7,"日本最大の平野。1都6県に広がる。"],
+["甲府盆地","こうふぼんち","mHei",35.65,138.55,"山梨県。扇状地が広がりぶどう作りがさかん。"],
+["濃尾平野","のうびへいや","mHei",35.2,136.8,"愛知・岐阜。木曽川の下流。"],
+["大阪平野","おおさかへいや","mHei",34.65,135.45,"大阪府。淀川の下流。"],
+["讃岐平野","さぬきへいや","mHei",34.2,134.0,"香川県。雨が少なくため池が多い。"],
+["高知平野","こうちへいや","mHei",33.55,133.5,"高知県の太平洋側。"],
+["筑紫平野","つくしへいや","mHei",33.25,130.45,"福岡・佐賀。筑後川の下流。"],
+["宮崎平野","みやざきへいや","mHei",31.9,131.4,"宮崎県の太平洋側。"],
+// 川
+["石狩川","いしかりがわ","mKawa",43.35,141.7,"北海道。長さ3位・流域面積2位。"],
+["北上川","きたかみがわ","mKawa",39.0,141.2,"岩手県から宮城県へ。長さ5位。"],
+["最上川","もがみがわ","mKawa",38.6,140.15,"山形県。庄内平野を通って日本海へ。"],
+["阿武隈川","あぶくまがわ","mKawa",37.9,140.75,"福島県から宮城県へ。"],
+["信濃川","しなのがわ","mKawa",37.4,138.9,"日本一長い川（367km）。長野県→新潟県。"],
+["利根川","とねがわ","mKawa",36.05,140.2,"流域面積が日本一（16840km²）。長さ2位。関東平野を流れる。"],
+["木曽川","きそがわ","mKawa",35.4,136.85,"濃尾平野を流れる。"],
+["淀川","よどがわ","mKawa",34.8,135.6,"琵琶湖から大阪平野へ流れる。"],
+["紀ノ川","きのかわ","mKawa",34.2,135.4,"紀伊半島の北部を西へ流れる。"],
+["吉野川","よしのがわ","mKawa",34.05,134.2,"四国を東西に流れる。"],
+["筑後川","ちくごがわ","mKawa",33.3,130.6,"筑紫平野を流れる九州最大の川。"]
+];
+
+/* --- なかまたち（12ひき） --- */
+const PETS = [
+  {name:"もちまる", kind:"ハムスター", style:"fluff",  ears:"round", ex:"",              body:"#FFDFB8",body2:"#FFCF9A",face:"#FFF4E6",ear:"#FFB9C4",accent:"#FF9EB5"},
+  {name:"ぷにこ",   kind:"ハリネズミ", style:"fluff",  ears:"spike", ex:"",              body:"#F0E2FF",body2:"#DCC6F8",face:"#FFF3E7",ear:"#FFC2DE",accent:"#B4A8F5"},
+  {name:"わたあめ", kind:"ひつじ",     style:"fluff",  ears:"sheep", ex:"",              body:"#FFFFFF",body2:"#EFE9F8",face:"#FFDCE8",ear:"#FFC0D4",accent:"#FF8FB1"},
+  {name:"にじうさ", kind:"うさぎ",     style:"fluff",  ears:"long",  ex:"",              body:"#F3F0FF",body2:"#E2DCFB",face:"#FFE8F3",ear:"#FFAFD0",accent:"#7FC9EC"},
+  {name:"みけにゃ", kind:"ねこ",       style:"fluff",  ears:"cat",   ex:"whisker",       body:"#FFF1E0",body2:"#FFD3A6",face:"#FFFAF2",ear:"#FFB3C7",accent:"#FFB067"},
+  {name:"こまち",   kind:"しばいぬ",   style:"fluff",  ears:"dog",   ex:"",              body:"#FFD9A8",body2:"#F2BD86",face:"#FFF6EA",ear:"#FFB9A8",accent:"#E28E45"},
+  {name:"ぱんまる", kind:"パンダ",     style:"fluff",  ears:"panda", ex:"patch",         body:"#FFFFFF",body2:"#EAE4EE",face:"#FFFFFF",ear:"#5B4A57",accent:"#8FDCA6"},
+  {name:"ぺんち",   kind:"ペンギン",   style:"smooth", ears:"none",  ex:"wing,beak",     body:"#BFD9F0",body2:"#9BC0E6",face:"#FFFFFF",ear:"#FFC24D",accent:"#7FC9EC"},
+  {name:"くまきち", kind:"くま",       style:"fluff",  ears:"round", ex:"",              body:"#E9CDAF",body2:"#D4B08C",face:"#FFF3E4",ear:"#FFB9C4",accent:"#C98F5E"},
+  {name:"りすこ",   kind:"りす",       style:"fluff",  ears:"tuft",  ex:"tail",          body:"#FFC9A0",body2:"#F2A97C",face:"#FFF2E3",ear:"#FFB0C8",accent:"#FF8FB1"},
+  {name:"ぷかぷか", kind:"あざらし",   style:"smooth", ears:"none",  ex:"flipper,whisker",body:"#E4EDF7",body2:"#C6D6E8",face:"#F8FBFF",ear:"#FFB9C4",accent:"#9BD6F2"},
+  {name:"ぴよまる", kind:"ひよこ",     style:"smooth", ears:"none",  ex:"wing,beak",     body:"#FFE58A",body2:"#F5D059",face:"#FFF7D6",ear:"#FFAE4D",accent:"#FFD766"}
+];
+const STAGE_NAME=["たまご","ベビー","こども","おとな","にじいろマスター"];
+const LV=[0,25,65,125,200];
+
+/* =========================================================
+   2. 保存
+   ========================================================= */
+const KEY="nijiiro_shakai_v2";
+let S={xp:0,pet:0,dex:[],wrong:{},best:0,done:0};
+function load(){try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+load();
+
+/* =========================================================
+   3. 問題づくり
+   ========================================================= */
+const ITEMS=[];
+Q.forEach((q,i)=>ITEMS.push({id:"q"+i,unit:q[0],kind:"mc",text:q[1],choices:q[2],ans:q[3],exp:q[4]}));
+GEO.forEach((g,i)=>ITEMS.push({id:"g"+i,unit:g[2],kind:"map",geo:i}));
+const byId=id=>ITEMS.find(x=>x.id===id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+function build(item){
+  let text,choices,ans,exp,geo=null;
+  if(item.kind==="map"){
+    const g=GEO[item.geo];geo=g;
+    const peers=shuffle(GEO.filter((x,i)=>x[2]===g[2]&&i!==item.geo)).slice(0,3).map(x=>x[0]);
+    choices=shuffle([g[0],...peers]); ans=choices.indexOf(g[0]);
+    text="地図の★のところは、なんという名前？";
+    exp=g[0]+"（"+g[1]+"）… "+g[5];
+  }else{
+    const o=shuffle([0,1,2,3]);
+    choices=o.map(i=>item.choices[i]); ans=o.indexOf(item.ans);
+    text=item.text; exp=item.exp;
+  }
+  return {id:item.id,unit:item.unit,text,choices,ans,exp,geo};
+}
+
+/* =========================================================
+   4. 日本地図
+   ========================================================= */
+const LON0=128.5,LAT1=46.2,KX=25.4,KY=32.2;
+const px=(lat,lon)=>[((lon-LON0)*KX).toFixed(1),((LAT1-lat)*KY).toFixed(1)];
+const poly=p=>"M"+p.map(q=>px(q[0],q[1]).join(",")).join("L")+"Z";
+const HOKKAIDO=[[45.52,141.94],[45.4,142.3],[44.35,145.12],[43.95,144.85],[43.3,145.6],[43.0,144.9],[42.9,143.3],[42.0,143.15],[42.3,141.0],[41.79,140.7],[41.45,140.05],[41.9,139.95],[42.6,139.8],[43.35,140.3],[44.0,141.65],[45.1,141.6]];
+const HONSHU=[[41.55,141.45],[41.15,141.4],[40.85,141.4],[40.2,141.8],[39.55,142.0],[38.9,141.6],[38.4,141.5],[38.15,141.05],[37.6,141.05],[36.95,140.95],[36.35,140.6],[35.75,140.85],[35.35,140.4],[35.15,139.75],[35.55,139.85],[35.3,139.6],[34.9,139.1],[34.6,138.85],[34.78,138.75],[34.6,138.22],[34.72,137.55],[34.6,136.85],[34.28,136.9],[33.9,136.15],[33.43,135.77],[33.9,135.1],[34.35,135.15],[34.65,135.2],[34.6,134.6],[34.45,133.35],[34.35,132.2],[33.95,130.95],[34.4,131.0],[35.45,132.9],[35.6,134.2],[35.7,135.2],[35.55,135.9],[36.0,136.0],[36.6,136.65],[37.0,136.75],[37.5,137.33],[37.3,137.15],[36.85,137.2],[37.0,137.85],[37.9,139.05],[38.3,139.55],[38.9,139.75],[39.9,139.85],[40.5,140.05],[41.15,140.3],[41.55,140.55],[41.2,140.9],[41.3,141.3]];
+const SHIKOKU=[[34.35,133.75],[34.25,134.35],[34.05,134.6],[33.55,134.3],[33.25,134.18],[32.72,132.98],[33.25,132.5],[33.9,132.7],[34.3,133.2]];
+const KYUSHU=[[33.95,130.95],[33.6,131.7],[33.25,131.6],[32.85,131.98],[32.1,131.55],[31.55,131.45],[31.0,130.68],[31.35,130.2],[31.6,130.35],[32.2,130.15],[32.6,130.2],[33.1,129.35],[33.35,129.6],[33.6,130.2]];
+
+function mapSVG(lat,lon){
+  const [x,y]=px(lat,lon);
+  return `<svg viewBox="0 0 460 512" role="img" aria-label="日本地図。星のところの名前をこたえます。">
+    <path class="jp" d="${poly(HOKKAIDO)}"/><path class="jp" d="${poly(HONSHU)}"/>
+    <path class="jp" d="${poly(SHIKOKU)}"/><path class="jp" d="${poly(KYUSHU)}"/>
+    <circle class="ring" cx="${x}" cy="${y}" r="8"/>
+    <g transform="translate(${x},${y}) scale(1.8)">
+      <path fill="#FF6E9C" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"
+        d="M0,-11 L2.6,-3.6 L10.5,-3.6 L4.2,1.2 L6.6,8.8 L0,4.2 L-6.6,8.8 L-4.2,1.2 L-10.5,-3.6 L-2.6,-3.6 Z"/>
+    </g></svg>`;
+}
+
+/* =========================================================
+   5. なかまたちのお絵かき
+   ========================================================= */
+function fluff(cx,cy,r,n){
+  const pts=[];
+  for(let i=0;i<n;i++){const a=Math.PI*2*i/n-Math.PI/2;pts.push([cx+Math.cos(a)*r,cy+Math.sin(a)*r]);}
+  const amp=(2*r*Math.sin(Math.PI/n)*0.66).toFixed(1);
+  let d="M"+pts[0][0].toFixed(1)+","+pts[0][1].toFixed(1);
+  for(let i=1;i<=n;i++){const p=pts[i%n];d+="A"+amp+","+amp+" 0 0 1 "+p[0].toFixed(1)+","+p[1].toFixed(1);}
+  return d+"Z";
+}
+
+/* --- みみ（体のうしろがわ） --- */
+function earsSVG(p){
+  const b=p.body2,e=p.ear;
+  switch(p.ears){
+    case "round":
+      return `<circle cx="-38" cy="-40" r="17" fill="${b}"/><circle cx="38" cy="-40" r="17" fill="${b}"/>
+              <circle cx="-38" cy="-40" r="9" fill="${e}"/><circle cx="38" cy="-40" r="9" fill="${e}"/>`;
+    case "panda":
+      return `<circle cx="-40" cy="-40" r="16" fill="#5B4A57"/><circle cx="40" cy="-40" r="16" fill="#5B4A57"/>`;
+    case "spike":{
+      let sp="";
+      for(let i=0;i<11;i++){const a=Math.PI*(1.05+i*0.085),r1=54,r2=70;
+        sp+=`<path d="M${(Math.cos(a)*r1).toFixed(1)},${(Math.sin(a)*r1).toFixed(1)} L${(Math.cos(a-.05)*r2).toFixed(1)},${(Math.sin(a-.05)*r2).toFixed(1)} L${(Math.cos(a+.06)*r1).toFixed(1)},${(Math.sin(a+.06)*r1).toFixed(1)} Z" fill="${b}"/>`;}
+      return sp+`<circle cx="-40" cy="-30" r="11" fill="${b}"/><circle cx="40" cy="-30" r="11" fill="${b}"/>`;}
+    case "sheep":
+      return `<circle cx="-32" cy="-46" r="20" fill="${p.body}"/><circle cx="0" cy="-56" r="22" fill="${p.body}"/><circle cx="32" cy="-46" r="20" fill="${p.body}"/>
+              <path d="M-46,-34 q-16,-2 -14,12 q1,10 12,8" fill="none" stroke="${e}" stroke-width="7" stroke-linecap="round"/>
+              <path d="M46,-34 q16,-2 14,12 q-1,10 -12,8" fill="none" stroke="${e}" stroke-width="7" stroke-linecap="round"/>`;
+    case "long":
+      return `<g transform="rotate(-14)"><ellipse cx="-22" cy="-72" rx="13" ry="38" fill="${b}"/><ellipse cx="-22" cy="-72" rx="6" ry="27" fill="${e}"/></g>
+              <g transform="rotate(14)"><ellipse cx="22" cy="-72" rx="13" ry="38" fill="${b}"/><ellipse cx="22" cy="-72" rx="6" ry="27" fill="${e}"/></g>`;
+    case "cat":
+      return `<path d="M-60,-30 L-46,-88 L-12,-50 Z" fill="${b}"/><path d="M60,-30 L46,-88 L12,-50 Z" fill="${b}"/>
+              <path d="M-51,-38 L-44,-74 L-24,-50 Z" fill="${e}"/><path d="M51,-38 L44,-74 L24,-50 Z" fill="${e}"/>`;
+    case "dog":
+      return `<path d="M-70,-24 L-40,-78 L-10,-46 Z" fill="${b}" stroke="${b}" stroke-width="6" stroke-linejoin="round"/>
+              <path d="M70,-24 L40,-78 L10,-46 Z" fill="${b}" stroke="${b}" stroke-width="6" stroke-linejoin="round"/>
+              <path d="M-58,-30 L-39,-64 L-22,-46 Z" fill="${e}"/><path d="M58,-30 L39,-64 L22,-46 Z" fill="${e}"/>`;
+    case "tuft":
+      return `<ellipse cx="-34" cy="-54" rx="12" ry="26" fill="${b}" transform="rotate(-12 -34 -54)"/>
+              <ellipse cx="34" cy="-54" rx="12" ry="26" fill="${b}" transform="rotate(12 34 -54)"/>
+              <ellipse cx="-34" cy="-52" rx="5.5" ry="15" fill="${e}" transform="rotate(-12 -34 -52)"/>
+              <ellipse cx="34" cy="-52" rx="5.5" ry="15" fill="${e}" transform="rotate(12 34 -52)"/>`;
+    default: return "";
+  }
+}
+
+/* --- かお --- */
+function faceSVG(p){
+  const ex=p.ex||"";
+  let s=`<ellipse cx="0" cy="16" rx="30" ry="22" fill="${p.face}"/>`;
+  if(ex.includes("patch")){
+    s+=`<ellipse cx="-18" cy="2" rx="14" ry="17" fill="#5B4A57" transform="rotate(-16 -18 2)"/>
+        <ellipse cx="18" cy="2" rx="14" ry="17" fill="#5B4A57" transform="rotate(16 18 2)"/>
+        <circle cx="-17" cy="3" r="7" fill="#fff"/><circle cx="17" cy="3" r="7" fill="#fff"/>
+        <circle cx="-16" cy="4" r="4.2" fill="#3E2F3C"/><circle cx="18" cy="4" r="4.2" fill="#3E2F3C"/>`;
+  }else{
+    s+=`<ellipse cx="-16" cy="4" rx="7.5" ry="8.5" fill="#4E3A4B"/><circle cx="-13.5" cy="1" r="2.8" fill="#fff"/>
+        <ellipse cx="16" cy="4" rx="7.5" ry="8.5" fill="#4E3A4B"/><circle cx="18.5" cy="1" r="2.8" fill="#fff"/>`;
+  }
+  s+=`<ellipse cx="-32" cy="16" rx="9" ry="6" fill="#FFA8C6" opacity=".75"/>
+      <ellipse cx="32" cy="16" rx="9" ry="6" fill="#FFA8C6" opacity=".75"/>`;
+  if(ex.includes("beak")){
+    s+=`<path d="M0,9 L-10,18 L10,18 Z" fill="#FFB84D"/><path d="M-10,18 L10,18 L0,25 Z" fill="#EFA02C"/>`;
+  }else{
+    s+=`<ellipse cx="0" cy="17" rx="5" ry="3.6" fill="${p.accent}"/>
+        <path d="M-8,23 q8,8 8,0 q0,8 8,0" fill="none" stroke="#8C6E82" stroke-width="2.4" stroke-linecap="round"/>`;
+  }
+  if(ex.includes("whisker")){
+    s+=`<g stroke="#C4A8BC" stroke-width="2" stroke-linecap="round">
+        <path d="M-30,14 L-48,10"/><path d="M-30,20 L-49,21"/><path d="M30,14 L48,10"/><path d="M30,20 L49,21"/></g>`;
+  }
+  return s;
+}
+
+function creatureSVG(pi,stage,h,cls){
+  const p=PETS[pi%PETS.length];
+  h=h||158; cls=(cls===undefined?"ch":cls);
+  const box=`class="${cls}" style="height:${h}px;width:${h}px"`;
+  if(stage===0){
+    return `<svg ${box} viewBox="0 0 200 200" role="img" aria-label="たまご">
+      <ellipse cx="100" cy="180" rx="42" ry="8" fill="#000" opacity=".07"/>
+      <g style="transform-origin:100px 170px;animation:wob 2.6s ease-in-out infinite">
+      <ellipse cx="100" cy="120" rx="48" ry="58" fill="#FFF9FC" stroke="#F6DCEA" stroke-width="3"/>
+      <path d="M52,120 l12,-9 l12,9 l12,-9 l12,9 l12,-9 l12,9 l12,-9 l12,9 v13 l-12,9 l-12,-9 l-12,9 l-12,-9 l-12,9 l-12,-9 l-12,9 l-12,-9 Z" fill="url(#rg)" opacity=".9"/>
+      <defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#FF8FB1"/><stop offset=".35" stop-color="#FFD766"/>
+      <stop offset=".7" stop-color="#8FDCA6"/><stop offset="1" stop-color="#B4A8F5"/></linearGradient></defs>
+      <text x="152" y="76" font-size="20">✨</text><text x="42" y="168" font-size="15">✨</text></g></svg>`;
+  }
+  const sc=[0,.62,.76,.9,1.04][stage];
+  const ex=p.ex||"";
+  let back="",front="",aura="";
+
+  if(ex.includes("tail"))
+    back+=`<path d="${fluff(66,-16,30,11)}" fill="${p.body2}"/><path d="${fluff(70,-18,20,10)}" fill="${p.body}" opacity=".7"/>`;
+  back+=earsSVG(p);
+  if(ex.includes("wing"))
+    back+=`<ellipse cx="-58" cy="16" rx="15" ry="30" fill="${p.body2}" transform="rotate(-16 -58 16)"/>
+           <ellipse cx="58" cy="16" rx="15" ry="30" fill="${p.body2}" transform="rotate(16 58 16)"/>`;
+  if(ex.includes("flipper"))
+    back+=`<ellipse cx="-46" cy="44" rx="18" ry="10" fill="${p.body2}" transform="rotate(-20 -46 44)"/>
+           <ellipse cx="46" cy="44" rx="18" ry="10" fill="${p.body2}" transform="rotate(20 46 44)"/>`;
+
+  const bodyShape = p.style==="fluff"
+    ? `<path d="${fluff(0,0,54,15)}" fill="${p.body}" stroke="${p.body2}" stroke-width="2"/>`
+    : `<ellipse cx="0" cy="2" rx="52" ry="56" fill="${p.body}" stroke="${p.body2}" stroke-width="2"/>`;
+
+  const hasArm = !ex.includes("wing") && !ex.includes("flipper");
+  const arms = hasArm
+    ? `<circle cx="-52" cy="24" r="12" fill="${p.body}" stroke="${p.body2}" stroke-width="2"/>
+       <circle cx="52" cy="24" r="12" fill="${p.body}" stroke="${p.body2}" stroke-width="2"/>` : "";
+  const feet = ex.includes("flipper") ? ""
+    : `<ellipse cx="-48" cy="52" rx="17" ry="11" fill="${p.body2}"/><ellipse cx="48" cy="52" rx="17" ry="11" fill="${p.body2}"/>`;
+
+  if(stage>=2) front+=`<g transform="translate(40,-38)"><ellipse cx="-11" cy="0" rx="11" ry="8" fill="#FF8FB1"/>
+    <ellipse cx="11" cy="0" rx="11" ry="8" fill="#FFB0C8"/><circle cx="0" cy="0" r="6" fill="#FFD766"/></g>`;
+  if(stage>=3) front+=`<path transform="translate(-42,-40)" d="M0,-11 L3,-3 L11,-3 L4.5,2 L7,10 L0,5 L-7,10 L-4.5,2 L-11,-3 L-3,-3 Z" fill="#FFD766"/>`;
+  if(stage>=4){
+    front+=`<path d="M-26,-58 l9,-20 l9,14 l8,-22 l8,22 l9,-14 l9,20 Z" fill="#FFD766" stroke="#F3B93C" stroke-width="2" stroke-linejoin="round"/>`;
+    aura=`<g opacity=".55"><path d="M28,142 a72,72 0 0 1 144,0" fill="none" stroke="url(#rb)" stroke-width="12"/></g>
+      <defs><linearGradient id="rb" x1="0" x2="1"><stop offset="0" stop-color="#FF8FB1"/><stop offset=".25" stop-color="#FFD766"/>
+      <stop offset=".5" stop-color="#8FDCA6"/><stop offset=".75" stop-color="#7FC9EC"/><stop offset="1" stop-color="#B4A8F5"/></linearGradient></defs>`;
+  }
+  return `<svg ${box} viewBox="0 0 200 200" role="img" aria-label="${p.name}">
+    ${aura}<ellipse cx="100" cy="186" rx="46" ry="8" fill="#000" opacity=".07"/>
+    <g transform="translate(100,120) scale(${sc})">
+      ${back}${feet}${bodyShape}${arms}${faceSVG(p)}${front}
+    </g></svg>`;
+}
+
+/* せいちょう */
+function stageOf(xp){let s=0;for(let i=0;i<LV.length;i++)if(xp>=LV[i])s=i;return s;}
+function petCard(){
+  const p=PETS[S.pet%PETS.length], st=stageOf(S.xp);
+  const next=LV[st+1], prev=LV[st];
+  const pct=next?Math.min(100,(S.xp-prev)/(next-prev)*100):100;
+  return `<div class="pet">
+    <div class="stage">
+      <svg class="bg" viewBox="0 0 400 190" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFF0F8"/><stop offset="1" stop-color="#E9F6FF"/></linearGradient></defs>
+        <rect width="400" height="190" fill="url(#sky)"/>
+        <g fill="none" stroke-width="6" opacity=".42">
+          <path d="M84,168 a116,116 0 0 1 232,0" stroke="#FF9EB5"/>
+          <path d="M84,168 a116,116 0 0 1 232,0" stroke="#FFC98A" transform="translate(0,7)"/>
+          <path d="M84,168 a116,116 0 0 1 232,0" stroke="#FFE58A" transform="translate(0,14)"/>
+          <path d="M84,168 a116,116 0 0 1 232,0" stroke="#A8E8BE" transform="translate(0,21)"/>
+          <path d="M84,168 a116,116 0 0 1 232,0" stroke="#9BD6F2" transform="translate(0,28)"/>
+          <path d="M84,168 a116,116 0 0 1 232,0" stroke="#C3B8FA" transform="translate(0,35)"/>
+        </g>
+        <g fill="#fff" opacity=".95">
+          <circle cx="52" cy="42" r="17"/><circle cx="74" cy="42" r="22"/><circle cx="98" cy="44" r="15"/>
+          <circle cx="312" cy="30" r="14"/><circle cx="332" cy="30" r="19"/><circle cx="352" cy="32" r="13"/>
+        </g>
+        <path d="M0,190 L0,150 Q100,128 200,148 T400,142 L400,190 Z" fill="#CDEFD8"/>
+        <path d="M0,190 L0,168 Q120,152 240,172 T400,164 L400,190 Z" fill="#B4E5C6"/>
+      </svg>
+      ${creatureSVG(S.pet,st)}
+    </div>
+    <div class="info">
+      <div class="nm">${p.name}<span class="kd">${p.kind}</span></div>
+      <div class="stg">${STAGE_NAME[st]}（レベル ${st+1}／5）</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="stg">🍬 ${S.xp}${next?" / "+next+"　もんだいに正かいすると そだつよ！":"　もうすぐ図かんにとうろく！"}</div>
+    </div></div>`;
+}
+function addXP(n){
+  S.xp+=n;
+  if(S.xp>=LV[LV.length-1]){
+    const p=PETS[S.pet%PETS.length];
+    if(!S.dex.includes(p.name))S.dex.push(p.name);
+    const rest=PETS.map((_,i)=>i).filter(i=>!S.dex.includes(PETS[i].name));
+    S.pet = rest.length ? rest[Math.random()*rest.length|0] : (S.pet+1)%PETS.length;
+    S.xp=0;
+    flashMsg="🎉 "+p.name+" が にじいろマスターに なりました！ 図かん "+S.dex.length+"／"+PETS.length+" だよ。"+(S.dex.length>=PETS.length?"ぜんいんコンプリート、すごい！🏆":"あたらしいなかまのたまごが とどいたよ🥚");
+  }
+  save();
+}
+let flashMsg=null;
+
+/* =========================================================
+   6. まちがい直しリスト
+   ========================================================= */
+function markWrong(id){S.wrong[id]=0;save();}
+function markRight(id){if(S.wrong[id]===undefined)return;S.wrong[id]++;if(S.wrong[id]>=2)delete S.wrong[id];save();}
+const wrongIds=()=>Object.keys(S.wrong).filter(id=>byId(id));
+const wrongCount=()=>wrongIds().length;
+
+/* =========================================================
+   7. 画面
+   ========================================================= */
+let view="home",deck=[],idx=0,picked=null,right=0,mode=null,sessionWrong=[];
+const app=document.getElementById("app");
+function go(v){view=v;render();window.scrollTo(0,0);}
+
+function start(m){
+  let pool;
+  if(m.type==="unit")pool=ITEMS.filter(i=>i.unit===m.unit);
+  else if(m.type==="mogi")pool=shuffle(ITEMS).slice(0,20);
+  else pool=wrongIds().map(byId);
+  if(!pool.length)return;
+  mode=m;deck=shuffle(pool).map(build);idx=0;picked=null;right=0;sessionWrong=[];
+  go("quiz");
+}
+function choose(i){
+  if(picked!==null)return;
+  picked=i;
+  const q=deck[idx];
+  if(i===q.ans){right++;addXP(mode.type==="review"?3:2);markRight(q.id);}
+  else{markWrong(q.id);sessionWrong.push(q.id);}
+  S.done++;save();render();
+}
+function next(){
+  if(idx+1<deck.length){idx++;picked=null;render();}
+  else{
+    if(mode.type==="mogi"){const pts=right*5;if(pts>S.best)S.best=pts;if(pts===100)addXP(30);save();}
+    go("result");
+  }
+}
+
+/* 花まる／ばつ */
+function hanamaru(ok){
+  if(!ok)return `<svg class="mark pop" viewBox="0 0 100 100" aria-label="まちがい">
+    <circle cx="50" cy="50" r="34" fill="#EAF5FD"/>
+    <line x1="34" y1="34" x2="66" y2="66" stroke="#6FB6E0" stroke-width="9" stroke-linecap="round"/>
+    <line x1="66" y1="34" x2="34" y2="66" stroke="#6FB6E0" stroke-width="9" stroke-linecap="round"/></svg>`;
+  let pet="";
+  for(let i=0;i<8;i++){const a=Math.PI*2*i/8;
+    pet+=`<ellipse cx="${(50+Math.cos(a)*32).toFixed(1)}" cy="${(50+Math.sin(a)*32).toFixed(1)}" rx="13" ry="9"
+      transform="rotate(${(a*180/Math.PI).toFixed(0)} ${(50+Math.cos(a)*32).toFixed(1)} ${(50+Math.sin(a)*32).toFixed(1)})"
+      fill="#FFC6DB"/>`;}
+  return `<svg class="mark pop" viewBox="0 0 100 100" aria-label="正かい・はなまる">${pet}
+    <circle cx="50" cy="50" r="26" fill="none" stroke="#FF5C8A" stroke-width="8"/>
+    <circle cx="50" cy="50" r="13" fill="none" stroke="#FF8FB1" stroke-width="5"/></svg>`;
+}
+
+function unitBtn(u){
+  const n=ITEMS.filter(i=>i.unit===u).length,U=UNITS[u];
+  return `<button class="unit" onclick='start({type:"unit",unit:"${u}"})' style="box-shadow:0 5px 0 ${U.dk}33">
+    <span class="ic" style="background:${U.col}33">${U.ic}</span>
+    <span class="nm" style="color:${U.dk}">${U.name}<span class="ct">ぜんぶで ${n}もん</span></span>
+    <span class="ar">›</span></button>`;
+}
+function listTable(u){
+  return `<table class="list">`+GEO.map((g,i)=>({g,i})).filter(x=>x.g[2]===u)
+    .map(x=>`<tr><td style="color:${UNITS[u].dk}">${x.g[0]}<span class="yomi">${x.g[1]}</span></td><td>${x.g[5]}</td></tr>`).join("")+`</table>`;
+}
+
+function render(){
+  const fm=flashMsg;flashMsg=null;
+  document.getElementById("hdScore").innerHTML=S.best?`<div class="best"><small>もぎベスト</small><b>${S.best}</b></div>`:"";
+  let h="";
+  if(fm)h+=`<div class="card pop" style="background:linear-gradient(#FFF6FB,#FFFBEB)"><b>${fm}</b></div>`;
+
+  /* ---- ホーム ---- */
+  if(view==="home"){
+    h+=petCard();
+    const wc=wrongCount();
+    h+=`<button class="btn rainbow" onclick='start({type:"mogi"})'>✏️ もぎテストにちょうせん（20もん×5点）
+      <span class="s">ぜんぶの中からランダム。100点でボーナスあめ🍬30こ！</span></button>`;
+    h+=`<button class="btn honey" ${wc?"":"disabled"} onclick='start({type:"review"})'>🔁 まちがいなおし${wc?`<span class="badge">${wc}もん</span>`:""}
+      <span class="s">${wc?"まちがえたもんだいを自動であつめています。2回れんぞくで正かいするとそつぎょう！":"まちがえると ここに自動でたまるよ。"}</span></button>`;
+
+    h+=`<div class="card"><h2>📋 テストのはんい</h2>
+      <p class="muted" style="margin:0">「日本の気候と地形」＝もんだい集 P.40〜51（7 国土のようす／8 日本の気候区分）と、「日本の自然 かくにんプリント」の 山地・山脈・高地・平野・盆地・川 の名前。</p></div>`;
+
+    h+=`<h2 style="margin:24px 0 0;font-size:16px">🎀 ことばのれんしゅう</h2>`;
+    ["kokudo","ranking","kikou","kubun"].forEach(u=>h+=unitBtn(u));
+    h+=`<h2 style="margin:24px 0 0;font-size:16px">🗺 地図のれんしゅう</h2>`;
+    ["mSan","mHei","mKawa"].forEach(u=>h+=unitBtn(u));
+    h+=`<button class="btn soft" onclick="go('list')">📖 地名の一らんを見ておぼえる</button>`;
+
+    h+=`<div class="card"><h2>🏅 そだてた図かん（${S.dex.length}／${PETS.length}）</h2><div class="dex">`;
+    PETS.forEach((p,i)=>{const got=S.dex.includes(p.name);
+      h+=`<div class="d ${got?"":"lock"}">${creatureSVG(i,got?4:1,52,"")}<span>${got?p.name:"？？？"}</span></div>`;});
+    h+=`</div></div>`;
+
+    h+=`<div class="card"><h2>💡 100点へのコツ</h2><ul class="muted" style="margin:0;padding-left:1.2em">
+      <li>雨温図は「①年へいきん気温 → ②冬の降水量」のじゅんに見る</li>
+      <li>「扇状地＝山のふもと／三角州＝河口」はセットでおぼえる</li>
+      <li>地図はゆびでなぞりながら、声に出して名前を言う</li>
+      <li>もぎテストで3回れんぞく100点なら 本番もだいじょうぶ！</li></ul></div>`;
+
+    h+=`<div class="card"><h2>💾 バックアップ</h2>
+      <p class="muted" style="margin:0 0 6px">きろくは自動でほぞんされます。ほかのタブレットにうつすときは下をコピーしてね。</p>
+      <textarea readonly>${JSON.stringify(S)}</textarea>
+      <button class="btn soft" onclick="restore()">はりつけて ふくげんする</button></div>`;
+    h+=`<p class="muted center" style="margin-top:16px">これまでにといた もんだい：${S.done}もん</p>`;
+  }
+
+  /* ---- 一覧 ---- */
+  if(view==="list"){
+    h+=`<div class="card"><h2>🏔️ 山地・山脈・高地（16）</h2>${listTable("mSan")}</div>`;
+    h+=`<div class="card"><h2>🌾 平野・盆地（17）</h2>${listTable("mHei")}</div>`;
+    h+=`<div class="card"><h2>💧 川（11）</h2>${listTable("mKawa")}</div>`;
+    h+=`<button class="link" onclick="go('home')">ホームにもどる</button>`;
+  }
+
+  /* ---- クイズ ---- */
+  if(view==="quiz"){
+    const q=deck[idx],U=UNITS[q.unit];
+    const label=mode.type==="mogi"?"✏️ もぎテスト":mode.type==="review"?"🔁 まちがいなおし":U.ic+" "+U.name;
+    h+=`<div class="prog"><span>${label}</span><span>${idx+1} / ${deck.length}　🌸 ${right}</span></div>
+        <div class="pbar"><i style="width:${(idx+(picked!==null?1:0))/deck.length*100}%"></i></div>`;
+    h+=`<div class="qcard"><span class="tag" style="background:${U.col}">${U.name}</span>
+        <p class="qt">${q.text}</p>${picked!==null?hanamaru(picked===q.ans):""}`;
+    if(picked===q.ans)h+=`<span class="sparkle" style="left:14px;top:-6px">✨</span><span class="sparkle" style="right:76px;top:2px;animation-delay:.15s">🌟</span>`;
+    h+=`</div>`;
+    if(q.geo)h+=`<div class="mapbox">${mapSVG(q.geo[3],q.geo[4])}</div>`;
+    q.choices.forEach((c,i)=>{
+      let cls="";if(picked!==null)cls=i===q.ans?"ok":(i===picked?"ng":"dim");
+      h+=`<button class="opt ${cls}" ${picked!==null?"disabled":""} onclick="choose(${i})">
+        <span class="k">${"アイウエ"[i]}</span><span>${c}</span>${picked!==null&&i===q.ans?'<span class="res">せいかい🌸</span>':""}</button>`;
+    });
+    if(picked!==null){
+      h+=`<div class="exp pop"><b>🍯 かいせつ</b>${q.exp}</div>
+        <button class="btn" onclick="next()" style="text-align:center">${idx+1<deck.length?"つぎのもんだいへ →":"けっかを見る"}</button>`;
+    }
+    h+=`<button class="link" onclick="go('home')">ホームにもどる</button>`;
+  }
+
+  /* ---- 結果 ---- */
+  if(view==="result"){
+    const pts=right*5,full=right===deck.length;
+    h+=`<div class="card center pop"><p class="muted" style="margin:0">${mode.type==="mogi"?"もぎテストのけっか":"れんしゅうのけっか"}</p>
+      <p class="score">${mode.type==="mogi"?pts+'<span>点</span>':right+'<span> / '+deck.length+'もん</span>'}</p>
+      <p style="margin:0;font-weight:800">${full?"🌸 ぜんもん正かい！ 本番も100点だね！":right/deck.length>=.8?"🔥 あとすこし！まちがいなおしでカンペキに":"💪 のびしろたっぷり！ かいせつを読んでもう一しゅう"}</p>
+      ${full?creatureSVG(S.pet,stageOf(S.xp),120,"big"):""}</div>`;
+    if(sessionWrong.length){
+      h+=`<div class="card"><h2>📝 今回まちがえたもんだい（${sessionWrong.length}）</h2>
+        <p class="muted" style="margin:0">まちがいなおしリストに 入れておいたよ！</p>`;
+      sessionWrong.forEach(id=>{const it=byId(id);
+        h+=`<div class="wlist">${it.kind==="map"?"地図の★ → ":it.text+"<br>"}<b>こたえ：${it.kind==="map"?GEO[it.geo][0]:it.choices[it.ans]}</b></div>`;});
+      h+=`</div><button class="btn honey" onclick='start({type:"review"})' style="text-align:center">🔁 いますぐ まちがいなおしをする</button>`;
+    }
+    h+=`<button class="btn" onclick='start(mode)' style="text-align:center">もう一回ちょうせん</button>
+        <button class="btn soft" onclick="go('home')">ホームにもどる</button>`;
+  }
+  app.innerHTML=h;
+}
+function restore(){
+  const t=prompt("バックアップの文字をはりつけて OK をおしてね。");
+  if(!t)return;
+  try{S=Object.assign(S,JSON.parse(t));save();alert("ふくげんしました！");render();}
+  catch(e){alert("うまく読みこめませんでした。文字をぜんぶコピーできているか かくにんしてね。");}
+}
+render();
+</script>
+</body>
+</html>
