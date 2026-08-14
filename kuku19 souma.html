@@ -47,7 +47,26 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 .m-bunkai{background:var(--pink);} .m-card{background:var(--peach);}
 .m-ta{background:var(--lemon);} .m-30{background:var(--mint);}
 .m-pi{background:var(--sky);} .m-sq{background:var(--lavender);}
-.m-kiroku{background:#EFEAF6; grid-column:1/-1; padding:14px;}
+.m-kiroku{background:#EFEAF6; padding:14px;}
+.m-backup{background:#E4EEF8;}
+.backup-info{
+  background:#fff; border-radius:18px; padding:14px 16px; font-size:15px; font-weight:700;
+  line-height:1.9; box-shadow:0 2px 8px rgba(74,68,88,.07); margin-bottom:16px;
+}
+.bk-h{font-size:16px; font-weight:900; margin:4px 0 10px; color:#7d7490;}
+.data-row3{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;}
+.data-row3 button, .data-row button{
+  border:none; border-radius:16px; font-family:inherit; font-size:15px; font-weight:900;
+  color:var(--ink); padding:16px 8px; cursor:pointer; box-shadow:0 3px 0 rgba(74,68,88,.12);
+}
+.bk-main{background:var(--mint);} .bk-sub{background:#EFEAF6;} .bk-load{background:var(--peach);}
+.bk-note{font-size:12px; color:#9a92ab; font-weight:700; line-height:1.8; margin:4px 0 18px;}
+#scr-backup textarea{
+  width:100%; height:110px; border:2px solid #EFEAF6; border-radius:14px; padding:10px;
+  font-family:monospace; font-size:11px; resize:none; margin-bottom:10px;
+  user-select:text; -webkit-user-select:text;
+}
+
 .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
 .btn-back{
   border:none; background:#EFEAF6; color:var(--ink); font-family:inherit;
@@ -203,6 +222,32 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 }
 .hatch-stage{text-align:center; padding:20px 0;}
 @media (min-width:560px){ .pet-grid{grid-template-columns:repeat(3,1fr);} .zukan-grid{grid-template-columns:repeat(5,1fr);} }
+
+/* ===== よこ画面：問題エリアとテンキーを左右2列にする ===== */
+.qa-wrap{flex:1; min-height:0; display:flex; flex-direction:column;}
+.pad-wrap{flex-shrink:0;}
+@media (orientation:landscape) and (min-width:820px){
+  #scr-quiz.active{
+    display:grid;
+    grid-template-columns:1fr minmax(290px,360px);
+    grid-template-rows:auto 1fr;
+    grid-template-areas:"top top" "main pad";
+    column-gap:28px; align-items:center;
+  }
+  #scr-quiz .topbar{grid-area:top; align-self:start;}
+  #scr-quiz .qa-wrap{grid-area:main;}
+  #scr-quiz .pad-wrap{grid-area:pad;}
+  #scr-quiz .numpad{margin:0; max-width:none;}
+  #scr-quiz .numpad button{padding:11px 0; font-size:25px;}
+  #scr-quiz .np-ok{font-size:20px;}
+  #scr-quiz .q-formula{font-size:50px;}
+  #scr-quiz .answer-display{font-size:42px; min-height:58px;}
+  #scr-quiz .timer-big{min-height:38px; font-size:30px;}
+  #scr-quiz .feedback{font-size:24px; min-height:34px;}
+  #scr-quiz .bunkai-visual{min-height:54px; font-size:19px; padding:10px 14px;}
+  #scr-quiz .hint-btn{padding:8px 16px; font-size:14px;}
+  #scr-cards.active .flipcard{height:200px;}
+}
 </style>
 </head>
 <body>
@@ -227,6 +272,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
     <button class="m-pi" onclick="startPi()">🥧 πのばいすう<small>1π〜6π ぎゃく問題も</small></button>
     <button class="m-sq" onclick="startSq()">🔲 平方数<small>11×11〜19×19</small></button>
     <button class="m-kiroku" onclick="showKiroku()">📖 きろく</button>
+    <button class="m-backup" onclick="showBackup()">💾 バックアップ</button>
   </div>
 </div>
 
@@ -253,6 +299,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
     <div class="mode-title" id="quiz-title"></div>
     <div class="progress" id="quiz-progress"></div>
   </div>
+  <div class="qa-wrap">
   <div class="timer-big" id="quiz-timer"></div>
   <div class="q-area">
     <div class="q-formula" id="q-formula"></div>
@@ -261,6 +308,8 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
     <div class="bunkai-visual" id="bunkai-visual" style="visibility:hidden"></div>
     <div class="answer-display" id="answer-display">&nbsp;</div>
   </div>
+  </div>
+  <div class="pad-wrap">
   <div class="numpad">
     <button onclick="pad('7')">7</button><button onclick="pad('8')">8</button><button onclick="pad('9')">9</button>
     <button onclick="pad('4')">4</button><button onclick="pad('5')">5</button><button onclick="pad('6')">6</button>
@@ -269,6 +318,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
   </div>
   <div class="numpad" style="grid-template-columns:1fr; margin-top:10px;">
     <button class="np-ok" onclick="submitAnswer()">こたえる！</button>
+  </div>
   </div>
 </div>
 
@@ -335,14 +385,30 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
   </div>
   <button class="zukan-btn" onclick="showZukan()">🐾 いきものずかん <span id="zukan-count">0/30</span></button>
   <div class="pet-grid" id="pet-grid"></div>
-  <div class="data-box">
-    <h3>💾 データのバックアップ</h3>
-    <textarea id="data-json" placeholder="ここにバックアップの文字が出ます"></textarea>
-    <div class="data-row">
-      <button onclick="exportData()">かきだす</button>
-      <button onclick="importData()">よみこむ</button>
-    </div>
+</div>
+
+<!-- ===== バックアップ ===== -->
+<div class="screen" id="scr-backup">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← もどる</button>
+    <div class="mode-title">💾 バックアップ</div>
+    <div style="width:90px"></div>
   </div>
+  <div class="backup-info" id="backup-info"></div>
+  <h3 class="bk-h">① ほぞんする</h3>
+  <div class="data-row3">
+    <button class="bk-main" onclick="downloadData()">📁 ファイルにほぞん</button>
+    <button class="bk-sub" onclick="copyData()">📋 コピーする</button>
+  </div>
+  <p class="bk-note">「ファイルにほぞん」で .json ファイルができます。<br>
+  うまくいかないときは「コピーする」→ メモアプリに はりつけて ほぞんしてください。</p>
+  <h3 class="bk-h">② もどす</h3>
+  <textarea id="data-json" placeholder="バックアップの文字を ここに はりつけて「よみこむ」を おしてください"></textarea>
+  <div class="data-row">
+    <button class="bk-sub" onclick="exportData()">いまのデータを 出す</button>
+    <button class="bk-load" onclick="importData()">⬅ よみこむ</button>
+  </div>
+  <p class="bk-note">よみこむと、いまのポイント・なかま・きろくは 上書きされます。</p>
 </div>
 
 <!-- ===== ずかん ===== -->
@@ -776,11 +842,49 @@ function showZukan(){
   show("scr-zukan");
 }
 
+
+/* --- バックアップ画面 --- */
+function showBackup(){
+  exportData(true);
+  const sp=ownedSet().size;
+  document.getElementById("backup-info").innerHTML =
+    "⭐ ポイント: <b>"+pet.pt+"</b> pt<br>"
+   +"🐾 なかま: <b>"+pet.list.length+"</b> ひき（あつめた種類 <b>"+sp+"</b>/30）<br>"
+   +"🔥 れんぞく: <b>"+(store.streak||0)+"</b> 日";
+  show("scr-backup");
+}
+function copyData(){
+  exportData(true);
+  const ta=document.getElementById("data-json");
+  let ok=false;
+  try{ ta.focus(); ta.select(); ta.setSelectionRange(0,999999); ok=document.execCommand("copy"); }catch(e){}
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(function(){},function(){});
+    ok=true;
+  }
+  alert(ok ? "コピーしました。メモアプリなどに はりつけて ほぞんしてください"
+           : "コピーできませんでした。下の文字を えらんで コピーしてください");
+}
+function downloadData(){
+  exportData(true);
+  try{
+    const txt=document.getElementById("data-json").value;
+    const blob=new Blob([txt],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download="kuku19_souma_backup_"+todayStr()+".json";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },1500);
+  }catch(e){
+    alert("ファイルに ほぞんできませんでした。「コピーする」を つかってください");
+  }
+}
+
 /* --- バックアップ --- */
-function exportData(){
+function exportData(silent){
   const dump={v:1, app:"kuku19_souma", pet:pet, quiz:store};
   document.getElementById("data-json").value=JSON.stringify(dump);
-  alert("バックアップの文字を かきだしたよ。\nぜんぶ コピーして メモに ほぞんしてね");
+  if(!silent) alert("いまのデータを 下に出しました。ぜんぶ コピーして ほぞんしてください");
 }
 function importData(){
   const t=document.getElementById("data-json").value.trim();
@@ -797,8 +901,8 @@ function importData(){
   });
   savePet();
   if(d.quiz && typeof d.quiz==="object"){ store=d.quiz; store.bests=store.bests||{}; store.today=store.today||{}; saveStore(store); }
-  renderPet(); refreshHome();
-  alert("よみこんだよ！");
+  renderPet(); refreshHome(); showBackup();
+  alert("よみこみました！");
 }
 
 /* ===== 表示エリアの高さに追従（Documents等のアプリ内ブラウザ対策） ===== */
