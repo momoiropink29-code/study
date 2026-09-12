@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>小数まほう学校</title>
+<style>
+:root{
+  --ink:#42556e; --dim:rgba(66,85,110,.62);
+  --mint:#a8e6cf; --sakura:#ffc6de; --lemon:#ffe3a3; --lav:#cfc7ff; --mizu:#8ed3f4;
+  --panel:rgba(255,255,255,.82); --line:#dcebf7;
+  --shadow:0 6px 18px rgba(120,170,205,.22);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  background:linear-gradient(170deg,#dff1ff 0%,#f6fbff 38%,#fff4f9 100%);
+  background-attachment:fixed;
+  color:var(--ink);
+  font-family:"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4","YuGothic","Yu Gothic",system-ui,sans-serif;
+  padding:16px 16px 60px;line-height:1.6;
+}
+.wrap{max-width:560px;margin:0 auto}
+.hide{display:none}
+
+/* ---- 相棒ステージ ---- */
+.stage{display:block;text-align:center;padding:8px 0 2px}
+.blob{
+  width:230px;height:230px;line-height:230px;
+  display:inline-block;text-align:center;
+  border-radius:46% 54% 52% 48% / 50% 46% 54% 50%;
+  background:radial-gradient(circle at 34% 26%,#ffffff 0%,#eaf7ff 48%,#ffeef6 100%);
+  box-shadow:0 0 0 12px rgba(255,255,255,.6),0 12px 32px rgba(142,190,225,.35),
+             inset 0 -12px 26px rgba(190,225,245,.3);
+  animation:morph 9s ease-in-out infinite,float 4.5s ease-in-out infinite;
+}
+.blob .face{font-size:118px;line-height:1;display:inline-block;vertical-align:middle;
+  filter:drop-shadow(0 8px 12px rgba(120,170,205,.35))}
+.blob.lv3{box-shadow:0 0 0 14px rgba(255,240,200,.75),0 12px 40px rgba(245,200,120,.5),
+  inset 0 -12px 26px rgba(255,238,205,.5)}
+@keyframes morph{0%,100%{border-radius:46% 54% 52% 48% / 50% 46% 54% 50%}
+  50%{border-radius:56% 44% 46% 54% / 44% 56% 44% 56%}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@media (prefers-reduced-motion:reduce){.blob{animation:none}}
+.petname{text-align:center;font-size:21px;margin:10px 0 2px}
+.petsub{text-align:center;font-size:12.5px;color:var(--dim);margin:0 0 10px}
+.lvbar{height:10px;border-radius:999px;background:#e3eef7;overflow:hidden;margin:0 auto 6px;max-width:240px}
+.lvbar i{display:block;height:100%;background:linear-gradient(90deg,var(--mizu),var(--sakura));border-radius:999px}
+
+/* ---- 共通 ---- */
+.bar{font-size:14px;color:var(--dim);margin:10px 0 6px}
+.bar b{color:#f0a43c;font-size:18px}
+.nav{display:flex;gap:8px;margin:6px 0 4px}
+.nav button{flex:1;padding:12px 4px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.85);color:var(--ink);font:inherit;font-size:14.5px;cursor:pointer}
+.nav button.on{background:linear-gradient(100deg,var(--mizu),var(--lav));color:#2f4a63;
+  border-color:transparent;font-weight:700}
+
+.mods{margin-top:14px}
+.mod{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-bottom:10px;
+  padding:14px;border-radius:22px;border:1px solid var(--line);background:var(--panel);
+  color:var(--ink);font:inherit;cursor:pointer;box-shadow:var(--shadow)}
+.mod .icon{font-size:24px;width:34px;text-align:center;flex:none}
+.mod .t{flex:1;min-width:0}
+.mod .t strong{display:block;font-size:16px;font-weight:600}
+.mod .t span{display:block;font-size:12.5px;color:var(--dim)}
+.mod .star{font-size:16px;flex:none;opacity:.3}
+.mod.cleared{border-color:#7fd8b4;background:linear-gradient(160deg,#fff,#eafaf3)}
+.mod.cleared .star{opacity:1}
+.mod.focus{border-color:var(--sakura);background:linear-gradient(160deg,#fff,#fff2f8)}
+
+/* ---- クイズ ---- */
+.q-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim);margin-bottom:10px}
+.back{background:none;border:none;color:var(--dim);font:inherit;padding:4px 0;cursor:pointer}
+.card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:26px;padding:18px 16px;box-shadow:var(--shadow)}
+.qtext{font-size:17px;margin:0 0 14px;white-space:pre-wrap}
+.opts{margin:0}
+.opt{display:block;width:100%;margin-bottom:9px;padding:14px;border-radius:16px;border:1px solid var(--line);
+  background:#fff;color:var(--ink);font:inherit;font-size:17px;text-align:center;cursor:pointer;
+  box-shadow:0 2px 6px rgba(120,170,205,.14)}
+.opt.ok{background:#e6f9f1;border-color:#7fd8b4}
+.opt.ng{background:#ffeff5;border-color:var(--sakura)}
+.inputs{text-align:center}
+.inputs label{font-size:14px;color:var(--dim);margin:0 6px}
+input[type=text]{width:120px;padding:12px;border-radius:14px;border:1px solid var(--line);
+  background:#fff;color:var(--ink);font:inherit;font-size:22px;text-align:center}
+input:focus{outline:2px solid var(--mizu);outline-offset:1px}
+.digits{text-align:center;margin:6px 0 14px}
+.digit{font-size:34px;display:inline-block;padding:0 1px}
+.gap{width:26px;height:44px;border:none;background:none;cursor:pointer;border-radius:8px;
+  color:var(--dim);font-size:26px;line-height:1;vertical-align:middle}
+.gap.sel{background:#fff2d2;color:#f0a43c}
+.go{display:block;width:100%;margin-top:16px;padding:15px;border-radius:18px;border:none;
+  background:linear-gradient(100deg,var(--mizu),var(--sakura));color:#2f4a63;
+  font:inherit;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(142,211,244,.45)}
+.go[disabled]{opacity:.45}
+.fb{margin-top:14px;padding:14px;border-radius:16px;font-size:14.5px;display:none}
+.fb.show{display:block}
+.fb.right{background:#eafaf3;border:1px solid #9adcc0}
+.fb.wrong{background:#fff1f6;border:1px solid var(--sakura)}
+.fb h4{margin:0 0 6px;font-size:15px}
+.fb p{margin:0;white-space:pre-wrap}
+.fb .rule{margin-top:8px;font-size:13.5px;color:#d98b2b}
+.done{text-align:center;padding:30px 10px}
+.done .num{font-size:52px;color:#f0a43c}
+
+/* ---- お店 ---- */
+.buy{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:10px;padding:14px;
+  border-radius:18px;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  font:inherit;cursor:pointer;text-align:left;box-shadow:var(--shadow)}
+.buy .icon{font-size:26px}
+.buy .t{flex:1}
+.buy .t strong{display:block;font-size:15px}
+.buy .t span{font-size:12px;color:var(--dim)}
+.buy .cost{color:#f0a43c;font-size:14px;white-space:nowrap}
+.buy[disabled]{opacity:.4}
+
+/* ---- 図鑑（一覧） ---- */
+.row{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:8px;padding:10px 12px;
+  border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.85);
+  color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:62px}
+.row .no{width:24px;font-size:11.5px;color:var(--dim);flex:none}
+.row .now{font-size:32px;width:44px;text-align:center;flex:none}
+.row .t{flex:1;min-width:0}
+.row .t strong{display:block;font-size:15px}
+.row .t span{font-size:11.5px;color:var(--dim)}
+.row .evo{font-size:15px;white-space:nowrap;flex:none;color:var(--dim)}
+.row.locked{background:rgba(255,255,255,.45);color:#a8bccd}
+.row.locked .t strong{color:#a8bccd}
+.row.rare{border-color:#f5c66b}
+.row.on{border-color:var(--mizu);box-shadow:0 0 0 2px rgba(142,211,244,.45)}
+
+.toast{position:fixed;left:16px;right:16px;bottom:22px;margin:0 auto;max-width:400px;
+  background:#fff;border:1px solid var(--line);border-radius:18px;color:var(--ink);
+  padding:12px 18px;font-size:14px;text-align:center;z-index:9;
+  box-shadow:0 10px 28px rgba(120,170,205,.4)}
+.mini{font-size:12px;color:var(--dim);text-align:center;margin-top:18px}
+.note{font-size:12.5px;color:var(--dim);margin-top:20px;text-align:center}
+textarea{width:100%;height:70px;border-radius:12px;background:#fff;color:var(--ink);
+  border:1px solid var(--line);font-size:12px;padding:8px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 勉強 -->
+<section id="home">
+  <div class="stage"><div class="blob" id="homeblob"></div></div>
+  <p class="petname" id="homename"></p>
+  <p class="petsub" id="homesub"></p>
+  <div class="bar">光の粒 <b id="crystal">0</b></div>
+  <div class="nav">
+    <button id="t1" class="on">勉強</button><button id="t2">ペット</button><button id="t3">図鑑</button>
+  </div>
+  <div class="mods" id="mods"></div>
+  <p class="note">まちがえた問題は、なんども出てくるよ。</p>
+</section>
+
+<!-- ペット -->
+<section id="pet" class="hide">
+  <div class="bar">光の粒 <b id="crystal2">0</b></div>
+  <div class="nav">
+    <button id="p1">勉強</button><button id="p2" class="on">ペット</button><button id="p3">図鑑</button>
+  </div>
+  <div id="petview"></div>
+  <div id="shop"></div>
+  <p class="mini">えさをあげてLv4とLv7になると、すがたが変わるよ。</p>
+</section>
+
+<!-- 図鑑 -->
+<section id="dex" class="hide">
+  <div class="bar">あつめた精霊 <b id="dexcount">0</b> / 30</div>
+  <div class="nav">
+    <button id="d1">勉強</button><button id="d2">ペット</button><button id="d3" class="on">図鑑</button>
+  </div>
+  <p class="mini" id="dexinfo">タップすると、その子が相棒になるよ</p>
+  <div id="dexlist"></div>
+  <p class="mini">きろくのバックアップ（コピーして保存／はりつけて復元）</p>
+  <textarea id="bk"></textarea>
+  <button class="go" id="restore" style="margin-top:8px">はりつけた記録から復元</button>
+</section>
+
+<!-- クイズ -->
+<section id="quiz" class="hide">
+  <div class="q-head"><button class="back" id="back">← もどる</button><span id="prog"></span></div>
+  <div class="card">
+    <p class="qtext" id="qtext"></p>
+    <div id="body"></div>
+    <button class="go" id="go">こたえる</button>
+    <div class="fb" id="fb"><h4 id="fbh"></h4><p id="fbp"></p><p class="rule" id="fbr"></p></div>
+  </div>
+</section>
+
+<!-- おわり -->
+<section id="end" class="hide">
+  <div class="done">
+    <div class="num" id="score"></div>
+    <p id="endmsg"></p>
+    <button class="go" id="again">ホームへ</button>
+  </div>
+</section>
+
+</div>
+<script>
+/* ---------- 保存 ---------- */
+var KEY='otoha_shosu_v2';
+var save={crystal:0,cleared:{},pets:{},active:null};
+try{var _s=localStorage.getItem(KEY); if(_s){var o=JSON.parse(_s); for(var k in o) save[k]=o[k];}}catch(e){}
+function store(){try{localStorage.setItem(KEY,JSON.stringify(save));}catch(e){}}
+
+/* ---------- 問題 ---------- */
+const M=[
+{id:'naoshi',icon:'🩹',name:'テストの直し',sub:'9/3のテストでまちがえた8問',q:[
+ {t:'in',q:'3 ÷ 0.06 =',a:'50',
+  fb:'両方を100倍して 300÷6 = 50。',rule:'わる数が1より小さいと、答えはわられる数より大きくなる。'},
+ {t:'in',q:'5.6 ÷ 8.75 =',a:'0.64',
+  fb:'両方を100倍して 560÷875 = 0.64。',rule:'わる数のほうが大きいと、答えは1より小さくなる。'},
+ {t:'in',q:'12 ÷ 2.5 =',a:'4.8',
+  fb:'両方を10倍して 120÷25 = 4.8。',rule:'わる数の小数点を動かした分だけ、わられる数も同じだけ動かす。'},
+ {t:'in',q:'2.8 × 1.4 =',a:'3.92',
+  fb:'28×14 = 392。小数点は合わせて2つ分なので 3.92。',rule:'かけ算は「小数点の数をたす」。'},
+ {t:'in',q:'5.45 × 29.6 − 4.95 × 29.6 =',a:'14.8',
+  fb:'(5.45−4.95)×29.6 = 0.5×29.6。0.5倍は半分だから 14.8。',rule:'0.5をかける＝半分にする。'},
+ {t:'ch',q:'5.6mの重さが1.4gのはり金。\n1mあたりの重さを出す式は？',o:['1.4 ÷ 5.6','5.6 ÷ 1.4'],a:0,
+  fb:'1mあたり＝mの数でわる。1.4÷5.6 = 0.25g。',rule:'「1◯あたり」は、◯の数でわる。'},
+ {t:'ch',q:'同じはり金で、1gあたりの長さを出す式は？',o:['1.4 ÷ 5.6','5.6 ÷ 1.4'],a:1,
+  fb:'1gあたり＝gの数でわる。5.6÷1.4 = 4m。',rule:'ほしいのが長さなら、長さ ÷ 重さ。'},
+ {t:'in',q:'海水1kgに塩が30.4g。\n288.8gの塩をとるには何kgの海水？',a:'9.5',unit:'kg',
+  fb:'288.8 ÷ 30.4 = 9.5kg。',rule:'「1kgあたり30.4g」だから、ほしい量 ÷ 1あたりの量。'}
+]},
+
+{id:'ten',icon:'✨',name:'小数点ダンス',sub:'わり算は、わる数を整数にしてから',q:[
+ {t:'ch',q:'3 ÷ 0.06 を筆算にするには？',o:['30 ÷ 0.6','300 ÷ 6','3 ÷ 6'],a:1,
+  fb:'0.06を6にするには100倍。3も100倍して300。',rule:'わる数を整数にする分だけ、両方うごかす。'},
+ {t:'ch',q:'0.9 ÷ 0.34 を筆算にするには？',o:['9 ÷ 3.4','90 ÷ 34','0.9 ÷ 34'],a:1,
+  fb:'0.34→34は100倍。0.9も100倍で90。',rule:'動かすのはいつも「両方」。'},
+ {t:'ch',q:'7.15 ÷ 3.2 を筆算にするには？',o:['71.5 ÷ 32','715 ÷ 32','7.15 ÷ 32'],a:0,
+  fb:'3.2→32は10倍。7.15も10倍で71.5。',rule:'10倍なら10倍、100倍なら100倍。ずらす数は同じ。'},
+ {t:'ch',q:'23.48 ÷ 2.8 を筆算にするには？',o:['234.8 ÷ 28','2348 ÷ 28','23.48 ÷ 28'],a:0,
+  fb:'2.8→28は10倍。23.48も10倍で234.8。',rule:'わられる数の小数点は、そのまま上にあげる。'},
+ {t:'ch',q:'4.8 ÷ 4.92 を筆算にするには？',o:['48 ÷ 49.2','480 ÷ 492','4.8 ÷ 492'],a:1,
+  fb:'4.92→492は100倍。4.8も100倍で480。',rule:'わられる数の位が足りないときは0をつけたす。'}
+]},
+
+{id:'size',icon:'⚖️',name:'大きくなる？小さくなる？',sub:'計算する前に答えを予想する',q:[
+ {t:'ch',q:'8 ÷ 0.4 の答えは？',o:['8より大きい','8より小さい'],a:0,
+  fb:'8の中に0.4は20個ある。答えは20。',rule:'1より小さい数でわると、答えは大きくなる。'},
+ {t:'ch',q:'8 ÷ 1.6 の答えは？',o:['8より大きい','8より小さい'],a:1,
+  fb:'8÷1.6 = 5。',rule:'1より大きい数でわると、答えは小さくなる。'},
+ {t:'ch',q:'8 × 0.4 の答えは？',o:['8より大きい','8より小さい'],a:1,
+  fb:'8×0.4 = 3.2。',rule:'1より小さい数をかけると、答えは小さくなる。'},
+ {t:'ch',q:'3 ÷ 0.06 の答えは？',o:['3より小さい','3と5のあいだ','3よりずっと大きい'],a:2,
+  fb:'0.06は3よりずっと小さいから、いくつも入る。答えは50。',rule:'「5」と答えたくなったら、ここで一度止まる。'},
+ {t:'ch',q:'5.6 ÷ 8.75 の答えは？',o:['1より大きい','1より小さい'],a:1,
+  fb:'わる数のほうが大きいから、1こ分も入らない。答えは0.64。',rule:'わられる数 < わる数 なら、答えは0.◯◯。'}
+]},
+
+{id:'atari',icon:'🧭',name:'どっちでわる？',sub:'単位量あたり — テストで全部落とした所',q:[
+ {t:'ch',q:'0.4Lのペンキで5.7m²ぬれる。\n1Lあたり何m²ぬれる？',o:['5.7 ÷ 0.4','0.4 ÷ 5.7'],a:0,
+  fb:'1Lあたり＝Lの数でわる。5.7÷0.4 = 14.25m²。',rule:'「1◯あたり」は、◯の数でわる。'},
+ {t:'ch',q:'同じペンキで、1m²あたり何L使う？',o:['5.7 ÷ 0.4','0.4 ÷ 5.7'],a:1,
+  fb:'1m²あたり＝m²の数でわる。0.4÷5.7 ≒ 0.07L。',rule:'あたりの相手がかわると、わる数もかわる。'},
+ {t:'ch',q:'3.5kgで490円のお米。1kgあたり何円？',o:['490 ÷ 3.5','3.5 ÷ 490'],a:0,
+  fb:'490÷3.5 = 140円。',rule:'ほしいのが「円」なら、円のほうがわられる数。'},
+ {t:'ch',q:'2.5mのリボンの重さが2gのとき、1gあたりの長さは？',o:['2.5 ÷ 2','2 ÷ 2.5'],a:0,
+  fb:'1gあたり＝gの数でわる。2.5÷2 = 1.25m。',rule:'ほしい単位が上、あたりの単位が下。'},
+ {t:'in',q:'0.4Lで5.7m²ぬれるペンキ。\n38m²ぬるには約何L？（小数第一位まで）',a:'2.7',unit:'L',
+  fb:'1Lで14.25m²。38÷14.25 = 2.66… → 約2.7L。',rule:'まず「1あたり」を出してから、ほしい数でわる（かける）。'}
+]},
+
+{id:'kake',icon:'🎯',name:'小数点はどこ？',sub:'かけ算の筆算、最後の一手',q:[
+ {t:'pt',q:'2.78 × 3.6\n278×36 = 10008',d:'10008',a:2,
+  fb:'小数点は 2.78 に2つ、3.6 に1つ。合わせて3つ分うしろから → 10.008。',rule:'かけ算は「小数点の数をたして、右から数える」。'},
+ {t:'pt',q:'2.5 × 4.78\n25×478 = 11950 → 1195',d:'1195',a:2,
+  fb:'合わせて3つ分…でも末尾の0を消したので 11.95。',rule:'0を消す前に小数点を打つと安全。'},
+ {t:'pt',q:'5.79 × 3.46\n579×346 = 200334',d:'200334',a:2,
+  fb:'合わせて4つ分うしろから → 20.0334。',rule:'テストで 20.0234 と書いた所。けたを声に出して数える。'},
+ {t:'pt',q:'2.83 × 1.74\n283×174 = 49242',d:'49242',a:1,
+  fb:'合わせて4つ分うしろから → 4.9242。',rule:'たし算の途中でくり上がりを落としていないか確認。'},
+ {t:'pt',q:'0.08 × 0.64\n8×64 = 512 → けたが足りないので 00512',d:'00512',a:1,
+  fb:'合わせて4つ分。前に0をたして 0.0512。',rule:'けたが足りないときは、前に0をたす。'}
+]},
+
+{id:'kufu',icon:'🪄',name:'工夫して計算',sub:'式を組みかえて、暗算でいける形に',q:[
+ {t:'in',q:'5.45 × 29.6 − 4.95 × 29.6 =',a:'14.8',
+  fb:'(5.45−4.95)×29.6 = 0.5×29.6 = 14.8。',rule:'0.5倍＝半分。1.48にはならない。'},
+ {t:'in',q:'4.6 × 1.9 + 5.4 × 1.9 =',a:'19',
+  fb:'(4.6+5.4)×1.9 = 10×1.9 = 19。',rule:'同じ数をかけているものは、まとめてから。'},
+ {t:'in',q:'4 × 9.2 × 0.25 =',a:'9.2',
+  fb:'4×0.25 = 1 を先に。1×9.2 = 9.2。',rule:'かける順番はかえてよい。1になる組を探す。'},
+ {t:'in',q:'100.8 × 3 =',a:'302.4',
+  fb:'(100+0.8)×3 = 300+2.4 = 302.4。',rule:'切りのいい数に分けてからかける。'},
+ {t:'in',q:'2.5 × 7 × 4 =',a:'70',
+  fb:'2.5×4 = 10 を先に。10×7 = 70。',rule:'2.5と4、0.25と4はセットで10と1。'}
+]},
+
+{id:'amari',icon:'🔍',name:'あまりと四捨五入',sub:'あまりの小数点でひっかかる所',q:[
+ {t:'two',q:'0.9 ÷ 0.34\n商は小数第一位まで、あまりも出す',a:'2.6',a2:'0.016',l1:'商',l2:'あまり',
+  fb:'90÷34で商2.6。あまりの小数点は、動かす前の0.9の位置に合わせて0.016。',rule:'あまりの小数点は「もとの小数点」の位置。'},
+ {t:'two',q:'4.8 ÷ 4.92\n商は小数第一位まで、あまりも出す',a:'0.9',a2:'0.372',l1:'商',l2:'あまり',
+  fb:'480÷492で商0.9。4.92×0.9 = 4.428、4.8−4.428 = 0.372。',rule:'たしかめ算：わる数×商＋あまり＝わられる数。'},
+ {t:'in',q:'23.48 ÷ 2.8\n小数第二位を四捨五入して、小数第一位まで',a:'8.4',
+  fb:'234.8÷28 = 8.38… → 8.4。',rule:'四捨五入は「1つ下の位まで」計算してから。'},
+ {t:'in',q:'7.15 ÷ 3.2\n小数第二位を四捨五入して、小数第一位まで',a:'2.2',
+  fb:'71.5÷32 = 2.23… → 2.2。',rule:'2.23の3を見て切りすて。'},
+ {t:'in',q:'5.6 ÷ 8.75\nわりきれるまで計算',a:'0.64',
+  fb:'560÷875 = 0.64。',rule:'0をおろしてわり進める。'}
+]}
+];
+/* ---------- 精霊30種（Lv1-3 / Lv4-6 / Lv7-9 ですがたが変わる） ---------- */
+var SP=[
+ {id:1,n:'わたゆき',t:'ふわふわ',s:['☁️','🌨️','❄️']},
+ {id:2,n:'もこひつじ',t:'モコモコ',s:['🐑','🐏','🦙']},
+ {id:3,n:'ましろうさ',t:'ふわふわ',s:['🐰','🐇','🦌']},
+ {id:4,n:'ふわばね',t:'ふわふわ',s:['🪶','🐦','🦚']},
+ {id:5,n:'くまもこ',t:'モコモコ',s:['🧸','🐻','🐼']},
+ {id:6,n:'だんごの子',t:'モコモコ',s:['🍡','🍥','🍨']},
+ {id:7,n:'きらら',t:'キラキラ',s:['✨','💫','🌟']},
+ {id:8,n:'ほしのかけら',t:'キラキラ',s:['⭐️','🌠','🎆']},
+ {id:9,n:'ゆめだま',t:'キラキラ',s:['🫧','💎','👑']},
+ {id:10,n:'みらいのたま',t:'キラキラ',s:['🔮','🪄','🧙']},
+ {id:11,n:'こぼれ星',t:'キラキラ',s:['🌛','🌜','🌝']},
+ {id:12,n:'みかづき',t:'キラキラ',s:['🌙','🌗','🌕']},
+ {id:13,n:'さくらこ',t:'ふわふわ',s:['🌱','🌸','💮']},
+ {id:14,n:'チューリップ妖精',t:'ふわふわ',s:['🌷','💐','🏵️']},
+ {id:15,n:'よつばの精',t:'ふわふわ',s:['🍀','🌿','🌳']},
+ {id:16,n:'きのこの子',t:'モコモコ',s:['🍄','🌰','🍁']},
+ {id:17,n:'ひまわり妖精',t:'キラキラ',s:['🌻','☀️','🌞']},
+ {id:18,n:'はいびすか',t:'ふわふわ',s:['🌺','🌴','🏝️']},
+ {id:19,n:'ちょうの精',t:'キラキラ',s:['🐛','🦋','🎐']},
+ {id:20,n:'ねこまじょ',t:'ふわふわ',s:['🐱','🐈','🦁']},
+ {id:21,n:'ぺんぺん',t:'モコモコ',s:['🐧','⛄️','🧊']},
+ {id:22,n:'あわうお',t:'キラキラ',s:['🐟','🐠','🐬']},
+ {id:23,n:'みつばち',t:'モコモコ',s:['🐝','🍯','🌼']},
+ {id:24,n:'はりねずみ',t:'モコモコ',s:['🦔','🐿️','🦉']},
+ {id:25,n:'ユニコーン',t:'キラキラ',r:1,s:['🐴','🦄','🎠']},
+ {id:26,n:'こりゅう',t:'キラキラ',r:1,s:['🥚','🦎','🐉']},
+ {id:27,n:'フェアリークイーン',t:'キラキラ',r:1,s:['🧚','👸','👑']},
+ {id:28,n:'ひかりのとり',t:'ふわふわ',r:1,s:['🐣','🕊️','🦢']},
+ {id:29,n:'スイーツの精',t:'モコモコ',r:1,s:['🍬','🧁','🎂']},
+ {id:30,n:'にじの精',t:'キラキラ',r:1,s:['💧','🌦️','🌈']}
+];
+function sp(id){for(var i=0;i<SP.length;i++) if(SP[i].id===id) return SP[i]; return null;}
+function stage(lv){return lv>=7?3:lv>=4?2:1;}
+function face(s,lv){return s.s[stage(lv)-1];}
+function fullname(s,lv){var st=stage(lv);return st===1?'ぷち'+s.n:st===2?s.n:s.n+'だいせいれい';}
+
+var $=function(id){return document.getElementById(id);};
+function toast(msg){
+  var d=document.createElement('div'); d.className='toast'; d.textContent=msg;
+  document.body.appendChild(d); setTimeout(function(){d.parentNode&&d.parentNode.removeChild(d);},2600);
+}
+
+/* ---------- 勉強トップ ---------- */
+function renderHome(){
+  var b=$('homeblob');
+  if(!save.active||!save.pets[save.active]){
+    b.className='blob'; b.innerHTML='<span class="face">🥚</span>';
+    $('homename').textContent='たまごを かえそう';
+    $('homesub').textContent='問題を解くと光の粒がたまるよ';
+  }else{
+    var p=save.pets[save.active], s=sp(save.active), st=stage(p.lv);
+    b.className='blob'+(st===3?' lv3':'');
+    b.innerHTML='<span class="face">'+face(s,p.lv)+'</span>';
+    $('homename').textContent=fullname(s,p.lv);
+    $('homesub').textContent='Lv.'+p.lv+' ／ '+s.t+'の精霊';
+  }
+  $('crystal').textContent=save.crystal;
+}
+
+/* ---------- ペット ---------- */
+function renderPet(){
+  $('crystal2').textContent=save.crystal;
+  var v=$('petview'), h='';
+  if(!save.active||!save.pets[save.active]){
+    h='<div class="stage"><div class="blob"><span class="face">🥚</span></div></div>'+
+      '<p class="petname">たまごを かえそう</p>'+
+      '<p class="petsub">1問10・全問正解＋30の光の粒がもらえるよ</p>';
+  }else{
+    var p=save.pets[save.active], s=sp(save.active), st=stage(p.lv);
+    h='<div class="stage"><div class="blob'+(st===3?' lv3':'')+'"><span class="face">'+face(s,p.lv)+'</span></div></div>'+
+      '<p class="petname">'+fullname(s,p.lv)+'</p>'+
+      '<p class="petsub">Lv.'+p.lv+' ／ '+s.t+'の精霊'+(st<3?'（Lv.'+(st===1?4:7)+'ですがたが変わる）':' ・ さいこうLv')+'</p>'+
+      '<div class="lvbar"><i style="width:'+(p.lv/9*100)+'%"></i></div>'+
+      '<p class="petsub">'+s.s[0]+' → '+s.s[1]+' → '+s.s[2]+'</p>';
+  }
+  v.innerHTML=h;
+  var shop=$('shop'); shop.innerHTML='';
+  var items=[
+    {i:'🥚',n:'ふつうのたまご',d:'24種のどれかがかえる',c:50,f:function(){hatch(false);}},
+    {i:'🌟',n:'レアなたまご',d:'レア6種が出やすい',c:150,f:function(){hatch(true);}},
+    {i:'🍬',n:'ひかりのえさ',d:'Lvが1あがる（最大9）',c:30,f:feed}
+  ];
+  items.forEach(function(it){
+    var b=document.createElement('button'); b.className='buy';
+    b.innerHTML='<span class="icon">'+it.i+'</span><span class="t"><strong>'+it.n+'</strong><span>'+it.d+'</span></span><span class="cost">'+it.c+'</span>';
+    var noPet=(it.c===30)&&(!save.active||!save.pets[save.active]||save.pets[save.active].lv>=9);
+    b.disabled=(save.crystal<it.c)||noPet;
+    b.onclick=function(){ if(save.crystal<it.c||noPet)return; save.crystal-=it.c; it.f(); store(); renderPet(); };
+    shop.appendChild(b);
+  });
+}
+function hatch(rare){
+  var pool=SP.filter(function(s){return rare?true:!s.r;});
+  var pick=null;
+  if(rare&&Math.random()<0.6){
+    var ru=SP.filter(function(s){return s.r&&!save.pets[s.id];});
+    if(ru.length) pick=ru[Math.floor(Math.random()*ru.length)];
+  }
+  if(!pick){
+    var un=pool.filter(function(s){return !save.pets[s.id];});
+    pick=un.length?un[Math.floor(Math.random()*un.length)]:pool[Math.floor(Math.random()*pool.length)];
+  }
+  if(save.pets[pick.id]){ save.crystal+=40; toast(pick.n+'はもういるので、光の粒を40こもらった'); return; }
+  save.pets[pick.id]={lv:1}; save.active=pick.id;
+  toast(pick.s[0]+' ぷち'+pick.n+' がうまれた！'+(pick.r?' ✨レア✨':''));
+}
+function feed(){
+  var p=save.pets[save.active]; if(!p||p.lv>=9)return;
+  var before=stage(p.lv); p.lv++;
+  if(stage(p.lv)>before) toast('すがたが変わった！ '+face(sp(save.active),p.lv)+' '+fullname(sp(save.active),p.lv));
+}
+
+/* ---------- 図鑑（一覧） ---------- */
+function renderDex(){
+  var g=$('dexlist'); g.innerHTML='';
+  var n=0;
+  SP.forEach(function(s){
+    var have=save.pets[s.id]; if(have)n++;
+    var r=document.createElement('button');
+    r.className='row'+(have?'':' locked')+(s.r?' rare':'')+(save.active===s.id?' on':'');
+    var num=('0'+s.id).slice(-2);
+    if(have){
+      r.innerHTML='<span class="no">'+num+'</span><span class="now">'+face(s,have.lv)+'</span>'+
+        '<span class="t"><strong>'+fullname(s,have.lv)+'</strong><span>Lv.'+have.lv+' ／ '+s.t+(s.r?' ／ ✨レア':'')+'</span></span>'+
+        '<span class="evo">'+s.s[0]+s.s[1]+s.s[2]+'</span>';
+      r.onclick=function(){ save.active=s.id; store(); renderDex(); $('dexinfo').textContent=fullname(s,have.lv)+'を相棒にした'; };
+    }else{
+      r.innerHTML='<span class="no">'+num+'</span><span class="now">？</span>'+
+        '<span class="t"><strong>？？？</strong><span>'+s.t+'の精霊'+(s.r?' ／ ✨レア':'')+'</span></span>';
+      r.onclick=function(){ $('dexinfo').textContent='まだ会えていない精霊だよ'; };
+    }
+    g.appendChild(r);
+  });
+  $('dexcount').textContent=n;
+  try{ $('bk').value=JSON.stringify(save); }catch(e){}
+}
+
+/* ---------- 画面切りかえ ---------- */
+function show(which){
+  ['home','pet','dex','quiz','end'].forEach(function(s){$(s).className='hide';});
+  $(which).className='';
+  try{
+    if(which==='home')renderHome();
+    if(which==='pet')renderPet();
+    if(which==='dex')renderDex();
+  }catch(e){ toast('エラー: '+e.message); }
+  window.scrollTo(0,0);
+}
+function home(){
+  renderMods();
+  show('home');
+}
+function renderMods(){
+  var box=$('mods'); box.innerHTML='';
+  M.forEach(function(m,i){
+    var b=document.createElement('button');
+    b.className='mod'+(save.cleared[m.id]?' cleared':'')+(i===0?' focus':'');
+    b.innerHTML='<span class="icon">'+m.icon+'</span><span class="t"><strong>'+m.name+'</strong><span>'+m.sub+'</span></span><span class="star">⭐️</span>';
+    b.onclick=function(){start(m);};
+    box.appendChild(b);
+  });
+}
+
+/* ---------- クイズ ---------- */
+var cur=null,idx=0,ok=0,answered=false,sel=null;
+function start(m){ cur=m; idx=0; ok=0; show('quiz'); render(); }
+function norm(s){return String(s).trim().replace(/[０-９．]/g,function(c){return '0123456789.'['０１２３４５６７８９．'.indexOf(c)];});}
+function same(a,b){var x=parseFloat(norm(a)),y=parseFloat(norm(b));return !isNaN(x)&&Math.abs(x-y)<1e-9;}
+function render(){
+  answered=false; sel=null;
+  var q=cur.q[idx];
+  $('prog').textContent=cur.name+' '+(idx+1)+' / '+cur.q.length;
+  $('qtext').textContent=q.q;
+  $('fb').className='fb';
+  $('go').textContent='こたえる'; $('go').disabled=false;
+  var b=$('body'); b.innerHTML='';
+  if(q.t==='ch'){
+    var d=document.createElement('div'); d.className='opts';
+    q.o.forEach(function(o,i){
+      var btn=document.createElement('button'); btn.className='opt'; btn.textContent=o;
+      btn.onclick=function(){ if(answered)return; sel=i;
+        for(var k=0;k<d.children.length;k++) d.children[k].className='opt';
+        btn.className='opt ok'; };
+      d.appendChild(btn);
+    });
+    b.appendChild(d);
+  }else if(q.t==='pt'){
+    var d2=document.createElement('div'); d2.className='digits';
+    for(var i=0;i<q.d.length;i++){
+      if(i>0){
+        (function(i){
+          var g=document.createElement('button'); g.className='gap'; g.textContent='·';
+          g.onclick=function(){ if(answered)return; sel=i;
+            var gs=d2.getElementsByTagName('button');
+            for(var k=0;k<gs.length;k++) gs[k].className='gap';
+            g.className='gap sel'; };
+          d2.appendChild(g);
+        })(i);
+      }
+      var sp2=document.createElement('span'); sp2.className='digit'; sp2.textContent=q.d[i]; d2.appendChild(sp2);
+    }
+    b.appendChild(d2);
+    var p=document.createElement('p'); p.className='mini'; p.textContent='小数点を打つ場所をタップ'; b.appendChild(p);
+  }else if(q.t==='two'){
+    var d3=document.createElement('div'); d3.className='inputs';
+    d3.innerHTML='<label>'+q.l1+'</label><input type="text" inputmode="decimal" id="i1"> <label>'+q.l2+'</label><input type="text" inputmode="decimal" id="i2">';
+    b.appendChild(d3);
+  }else{
+    var d4=document.createElement('div'); d4.className='inputs';
+    d4.innerHTML='<input type="text" inputmode="decimal" id="i1">'+(q.unit?'<label>'+q.unit+'</label>':'');
+    b.appendChild(d4);
+  }
+  window.scrollTo(0,0);
+}
+$('go').onclick=function(){
+  var q=cur.q[idx];
+  if(answered){ next(); return; }
+  var right=false;
+  if(q.t==='ch'){
+    if(sel===null)return; right=(sel===q.a);
+    var os=document.getElementsByClassName('opt');
+    for(var i=0;i<os.length;i++){ os[i].className='opt'+(i===q.a?' ok':'')+(i===sel&&!right?' ng':''); }
+  }else if(q.t==='pt'){ if(sel===null)return; right=(sel===q.a);
+  }else if(q.t==='two'){ right=same($('i1').value,q.a)&&same($('i2').value,q.a2);
+  }else{ right=same($('i1').value,q.a); }
+  answered=true;
+  $('fb').className='fb show '+(right?'right':'wrong');
+  $('fbh').textContent=right?'せいかい ✨':'おしい！ここを見よう';
+  var ans = q.t==='pt' ? q.d.slice(0,q.a)+'.'+q.d.slice(q.a)
+          : q.t==='ch' ? q.o[q.a]
+          : q.t==='two'? q.l1+' '+q.a+' / '+q.l2+' '+q.a2
+          : q.a+(q.unit||'');
+  $('fbp').textContent=(right?'':'こたえ： '+ans+'\n')+q.fb;
+  $('fbr').textContent='📌 '+q.rule;
+  if(right){ ok++; save.crystal+=10; store(); }
+  $('go').textContent=(idx+1<cur.q.length)?'つぎへ →':'けっかを見る';
+};
+function next(){
+  idx++;
+  if(idx<cur.q.length){ render(); return; }
+  var full=(ok===cur.q.length);
+  if(full){ save.cleared[cur.id]=true; save.crystal+=30; }
+  store(); show('end');
+  $('score').textContent=ok+' / '+cur.q.length;
+  $('endmsg').textContent = full ? '全問せいかい！光の粒を30こボーナス ✨'
+    : (ok>=cur.q.length-1) ? 'あと1問！もう一回やれば⭐️がつくよ。'
+    : 'まちがえた所が今日の宝物。ルールを1つ覚えて、もう一回。';
+}
+
+/* ---------- ボタン ---------- */
+['t1','p1','d1'].forEach(function(i){$(i).onclick=home;});
+['t2','p2','d2'].forEach(function(i){$(i).onclick=function(){show('pet');};});
+['t3','p3','d3'].forEach(function(i){$(i).onclick=function(){show('dex');};});
+$('back').onclick=home;
+$('again').onclick=home;
+$('restore').onclick=function(){
+  try{ var o=JSON.parse($('bk').value); if(!o||typeof o!=='object')throw new Error('x');
+    save={crystal:0,cleared:{},pets:{},active:null};
+    for(var k in o) save[k]=o[k];
+    store(); renderDex(); toast('記録を復元した');
+  }catch(e){ toast('その文字では復元できない。コピーしなおしてね'); }
+};
+home();
+</script>
+</body>
+</html>
