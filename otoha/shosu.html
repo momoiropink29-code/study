@@ -6,17 +6,19 @@
 <title>小数まほう学校 — 乙葉</title>
 <style>
 :root{
-  --sky1:#221a3a; --sky2:#3d2c66; --ink:#fdfbff;
-  --mint:#8ef2d0; --sakura:#ffb3d1; --lemon:#ffe38a; --lav:#c9b6ff;
-  --dim:rgba(253,251,255,.62);
-  --panel:rgba(255,255,255,.07);
-  --line:rgba(255,255,255,.16);
+  --sky1:#eaf6ff; --sky2:#ffffff; --ink:#42556e;
+  --mint:#a8e6cf; --sakura:#ffc6de; --lemon:#ffe3a3; --lav:#cfc7ff;
+  --mizu:#8ed3f4;
+  --dim:rgba(66,85,110,.62);
+  --panel:rgba(255,255,255,.78);
+  --line:#dcebf7;
+  --shadow:0 6px 18px rgba(120,170,205,.22);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   min-height:100dvh;
-  background:radial-gradient(120% 80% at 20% 0%, #4a3577 0%, var(--sky2) 40%, var(--sky1) 100%);
+  background:linear-gradient(170deg,#dff1ff 0%, #f6fbff 38%, #fff4f9 100%) fixed;
   color:var(--ink);
   font-family:"Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4","YuGothic","Yu Gothic",system-ui,sans-serif;
   padding:18px 16px 60px; line-height:1.6;
@@ -28,26 +30,26 @@ body{
 .hero h1{font-size:26px;margin:0 0 2px;letter-spacing:.02em}
 .hero p{margin:0;color:var(--dim);font-size:13.5px}
 .spell{
-  margin:16px 0 4px;padding:16px 14px;border-radius:20px;
-  background:var(--panel);border:1px solid var(--line);
+  margin:16px 0 4px;padding:16px 14px;border-radius:24px;
+  background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);
   font-size:26px;text-align:center;letter-spacing:.04em;
   font-variant-numeric:tabular-nums;
 }
-.spell .dot{display:inline-block;color:var(--lemon);animation:hop 2.4s ease-in-out infinite}
+.spell .dot{display:inline-block;color:#f0a43c;animation:hop 2.4s ease-in-out infinite}
 @keyframes hop{0%,55%{transform:translate(0,0)}70%,100%{transform:translate(1.15em,-.5em)}}
 @media (prefers-reduced-motion:reduce){.spell .dot{animation:none}}
 .spell small{display:block;font-size:12.5px;color:var(--dim);margin-top:8px;letter-spacing:0}
 
 /* crystals */
 .bar{display:flex;align-items:center;gap:10px;margin:14px 0 6px;font-size:14px;color:var(--dim)}
-.bar b{color:var(--lemon);font-size:17px}
+.bar b{color:#f0a43c;font-size:17px}
 
 /* module list */
 .mods{display:grid;gap:10px;margin-top:14px}
 .mod{
   display:flex;align-items:center;gap:12px;width:100%;text-align:left;
-  padding:14px 14px;border-radius:18px;border:1px solid var(--line);
-  background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;
+  padding:14px 14px;border-radius:22px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;box-shadow:var(--shadow);
 }
 .mod:active{transform:scale(.985)}
 .mod .icon{font-size:24px;width:34px;text-align:center;flex:none}
@@ -55,34 +57,34 @@ body{
 .mod .t strong{display:block;font-size:16px;font-weight:600}
 .mod .t span{display:block;font-size:12.5px;color:var(--dim)}
 .mod .star{font-size:16px;flex:none;opacity:.35}
-.mod.cleared{border-color:rgba(142,242,208,.55)}
+.mod.cleared{border-color:#7fd8b4;background:linear-gradient(160deg,#fff,#eafaf3)}
 .mod.cleared .star{opacity:1}
-.mod.focus{border-color:var(--sakura);background:rgba(255,179,209,.13)}
+.mod.focus{border-color:var(--sakura);background:linear-gradient(160deg,#fff,#fff2f8)}
 
 /* quiz */
 .q-head{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim);margin-bottom:10px}
 .back{background:none;border:none;color:var(--dim);font:inherit;padding:4px 0;cursor:pointer}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px 16px}
+.card{background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:26px;padding:18px 16px;box-shadow:var(--shadow)}
 .qtext{font-size:17px;margin:0 0 14px;white-space:pre-wrap}
 .big{font-size:30px;text-align:center;margin:10px 0 18px;font-variant-numeric:tabular-nums;letter-spacing:.03em}
 
 .opts{display:grid;gap:9px}
 .opt{
   padding:14px;border-radius:15px;border:1px solid var(--line);
-  background:rgba(255,255,255,.05);color:var(--ink);font:inherit;font-size:17px;
+  background:#fff;color:var(--ink);font:inherit;font-size:17px;box-shadow:0 2px 6px rgba(120,170,205,.14);
   text-align:center;cursor:pointer;font-variant-numeric:tabular-nums;
 }
-.opt.ok{background:rgba(142,242,208,.22);border-color:var(--mint)}
-.opt.ng{background:rgba(255,179,209,.2);border-color:var(--sakura)}
+.opt.ok{background:#e6f9f1;border-color:#7fd8b4}
+.opt.ng{background:#ffeff5;border-color:var(--sakura)}
 
 .inputs{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
 .inputs label{font-size:14px;color:var(--dim)}
 input[type=text]{
   width:120px;padding:12px;border-radius:14px;border:1px solid var(--line);
-  background:rgba(0,0,0,.22);color:var(--ink);font:inherit;font-size:22px;text-align:center;
+  background:#fff;color:var(--ink);font:inherit;font-size:22px;text-align:center;
   font-variant-numeric:tabular-nums;
 }
-input:focus{outline:2px solid var(--lav);outline-offset:1px}
+input:focus{outline:2px solid var(--mizu);outline-offset:1px}
 
 /* point placement */
 .digits{display:flex;justify-content:center;align-items:flex-end;gap:0;margin:6px 0 18px;flex-wrap:wrap}
@@ -91,25 +93,25 @@ input:focus{outline:2px solid var(--lav);outline-offset:1px}
   width:26px;height:44px;border:none;background:none;cursor:pointer;
   border-radius:8px;color:var(--dim);font-size:26px;line-height:1;
 }
-.gap:active,.gap.sel{background:rgba(255,227,138,.25);color:var(--lemon)}
+.gap:active,.gap.sel{background:#fff2d2;color:#f0a43c}
 
 .go{
   display:block;width:100%;margin-top:16px;padding:15px;border-radius:16px;border:none;
-  background:linear-gradient(100deg,var(--lav),var(--sakura));color:#241a3f;
-  font:inherit;font-size:17px;font-weight:700;cursor:pointer;
+  background:linear-gradient(100deg,var(--mizu),var(--sakura));color:#2f4a63;
+  font:inherit;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(142,211,244,.45);
 }
 .go[disabled]{opacity:.45}
 
 .fb{margin-top:14px;padding:14px;border-radius:16px;font-size:14.5px;display:none}
 .fb.show{display:block}
-.fb.right{background:rgba(142,242,208,.16);border:1px solid rgba(142,242,208,.5)}
-.fb.wrong{background:rgba(255,179,209,.14);border:1px solid rgba(255,179,209,.5)}
+.fb.right{background:#eafaf3;border:1px solid #9adcc0}
+.fb.wrong{background:#fff1f6;border:1px solid var(--sakura)}
 .fb h4{margin:0 0 6px;font-size:15px}
 .fb p{margin:0;color:var(--ink)}
-.fb .rule{margin-top:8px;font-size:13.5px;color:var(--lemon)}
+.fb .rule{margin-top:8px;font-size:13.5px;color:#d98b2b}
 
 .done{text-align:center;padding:30px 10px}
-.done .num{font-size:52px;color:var(--lemon);font-variant-numeric:tabular-nums}
+.done .num{font-size:52px;color:#f0a43c;font-variant-numeric:tabular-nums}
 .hide{display:none}
 .note{font-size:12.5px;color:var(--dim);margin-top:22px;text-align:center}
 
@@ -117,14 +119,14 @@ input:focus{outline:2px solid var(--lav);outline-offset:1px}
 .nav{display:flex;gap:8px;margin:12px 0 4px}
 .nav button{
   flex:1;padding:11px;border-radius:999px;border:1px solid var(--line);
-  background:rgba(255,255,255,.05);color:var(--ink);font:inherit;font-size:13.5px;cursor:pointer;
+  background:rgba(255,255,255,.8);color:var(--ink);font:inherit;font-size:13.5px;cursor:pointer;
 }
-.nav button.on{background:linear-gradient(100deg,var(--lav),var(--sakura));color:#241a3f;border-color:transparent;font-weight:700}
+.nav button.on{background:linear-gradient(100deg,var(--mizu),var(--lav));color:#2f4a63;border-color:transparent;font-weight:700}
 
 .petmini{
   display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;
-  background:linear-gradient(160deg,rgba(201,182,255,.18),rgba(255,179,209,.12));
-  border:1px solid var(--line);margin-top:14px;
+  background:linear-gradient(160deg,#ffffff,#eef8ff);
+  border:1px solid var(--line);margin-top:14px;box-shadow:var(--shadow);
 }
 .petmini .face{font-size:30px;line-height:1}
 .petmini .t{flex:1;min-width:0}
@@ -136,9 +138,9 @@ input:focus{outline:2px solid var(--lav);outline-offset:1px}
 .blob{
   width:190px;height:190px;display:grid;place-items:center;
   border-radius:46% 54% 52% 48% / 50% 46% 54% 50%;
-  background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.55), rgba(201,182,255,.30) 45%, rgba(255,179,209,.18) 75%);
-  box-shadow:0 0 0 10px rgba(255,255,255,.05), 0 0 34px rgba(201,182,255,.45),
-             inset 0 -10px 24px rgba(255,255,255,.25);
+  background:radial-gradient(circle at 34% 26%, #ffffff 0%, #eaf7ff 45%, #ffeef6 100%);
+  box-shadow:0 0 0 12px rgba(255,255,255,.6), 0 10px 30px rgba(142,190,225,.35),
+             inset 0 -12px 26px rgba(190,225,245,.35);
   animation:morph 9s ease-in-out infinite, float 4.5s ease-in-out infinite;
 }
 @keyframes morph{
@@ -146,49 +148,69 @@ input:focus{outline:2px solid var(--lav);outline-offset:1px}
   50%{border-radius:56% 44% 46% 54% / 44% 56% 44% 56%}
 }
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.blob .face{font-size:78px;line-height:1;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35))}
-.blob.lv3{box-shadow:0 0 0 12px rgba(255,227,138,.12), 0 0 48px rgba(255,227,138,.55), inset 0 -10px 24px rgba(255,255,255,.3)}
+.blob .face{font-size:78px;line-height:1;filter:drop-shadow(0 6px 10px rgba(120,170,205,.35))}
+.blob img{object-fit:contain;filter:drop-shadow(0 6px 10px rgba(120,170,205,.35))}
+.blob.lv3{box-shadow:0 0 0 14px rgba(255,240,200,.75), 0 12px 40px rgba(245,200,120,.5), inset 0 -12px 26px rgba(255,238,205,.5)}
 
 .sparkles{position:absolute;inset:0;pointer-events:none}
-.sparkles i{position:absolute;font-style:normal;font-size:14px;opacity:0;animation:twinkle 3.2s ease-in-out infinite}
+.sparkles i{position:absolute;font-style:normal;font-size:15px;color:#f5c66b;opacity:0;animation:twinkle 3.2s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}}
 @media (prefers-reduced-motion:reduce){.blob,.sparkles i{animation:none}.sparkles i{opacity:.8}}
 
 .petname{text-align:center;font-size:20px;margin:6px 0 2px}
 .petsub{text-align:center;font-size:12.5px;color:var(--dim);margin:0 0 12px}
-.lvbar{height:9px;border-radius:999px;background:rgba(0,0,0,.28);overflow:hidden;margin:0 auto 6px;max-width:240px}
-.lvbar i{display:block;height:100%;background:linear-gradient(90deg,var(--mint),var(--lemon));border-radius:999px}
+.lvbar{height:9px;border-radius:999px;background:#e3eef7;overflow:hidden;margin:0 auto 6px;max-width:240px}
+.lvbar i{display:block;height:100%;background:linear-gradient(90deg,var(--mizu),var(--sakura));border-radius:999px}
 
 .shop{display:grid;gap:10px;margin-top:16px}
 .buy{
   display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;
-  border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;text-align:left;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;cursor:pointer;text-align:left;box-shadow:var(--shadow);
 }
 .buy .icon{font-size:26px}
 .buy .t{flex:1}
 .buy .t strong{display:block;font-size:15px}
 .buy .t span{font-size:12px;color:var(--dim)}
-.buy .cost{color:var(--lemon);font-size:14px;white-space:nowrap}
+.buy .cost{color:#f0a43c;font-size:14px;white-space:nowrap}
 .buy[disabled]{opacity:.4}
 
 .dex{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
 .cell{
   aspect-ratio:1;display:grid;place-items:center;border-radius:16px;font-size:24px;
-  background:rgba(255,255,255,.05);border:1px solid var(--line);cursor:pointer;
+  background:rgba(255,255,255,.85);border:1px solid var(--line);cursor:pointer;overflow:hidden;
 }
-.cell.got{background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.3), rgba(201,182,255,.14))}
-.cell.locked{color:rgba(253,251,255,.18)}
-.cell.rare.got{border-color:var(--lemon);box-shadow:0 0 14px rgba(255,227,138,.35)}
-.cell.on{outline:2px solid var(--mint)}
+.cell img{width:80%;height:80%;object-fit:contain}
+.cell.got{background:radial-gradient(circle at 35% 28%, #fff, #eaf7ff)}
+.cell.locked{color:#c4d8e8;background:rgba(255,255,255,.45)}
+.cell.rare.got{border-color:#f5c66b;box-shadow:0 0 14px rgba(245,198,107,.5)}
+.cell.on{outline:2px solid var(--mizu)}
 
 .toast{
   position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
-  background:rgba(34,26,58,.96);border:1px solid var(--line);border-radius:16px;
+  background:#fff;border:1px solid var(--line);border-radius:18px;color:var(--ink);
   padding:12px 18px;font-size:14px;max-width:88%;text-align:center;z-index:9;
-  box-shadow:0 8px 28px rgba(0,0,0,.4);
+  box-shadow:0 10px 28px rgba(120,170,205,.4);
 }
 .mini{font-size:12px;color:var(--dim);text-align:center;margin-top:16px}
-textarea{width:100%;height:80px;border-radius:12px;background:rgba(0,0,0,.25);color:var(--ink);border:1px solid var(--line);font-size:12px;padding:8px;margin-top:8px}
+/* トップの大きい絵 */
+.topcard{display:grid;place-items:center;padding:6px 0 2px}
+.tophalo{
+  width:210px;height:210px;display:grid;place-items:center;
+  border-radius:46% 54% 52% 48% / 50% 46% 54% 50%;
+  background:radial-gradient(circle at 34% 26%, #ffffff 0%, #eaf7ff 48%, #ffeef6 100%);
+  box-shadow:0 0 0 12px rgba(255,255,255,.6), 0 12px 32px rgba(142,190,225,.35),
+             inset 0 -12px 26px rgba(190,225,245,.3);
+  animation:morph 9s ease-in-out infinite, float 4.5s ease-in-out infinite;
+  position:relative;overflow:hidden;
+}
+.tophalo img{width:84%;height:84%;object-fit:contain}
+.tophalo .face{font-size:76px;line-height:1}
+.imgbtn{
+  margin-top:10px;padding:9px 18px;border-radius:999px;border:1px solid var(--line);
+  background:#fff;color:#3ba0d6;font:inherit;font-size:13px;cursor:pointer;box-shadow:var(--shadow);
+}
+.dexhead{font-size:15px;margin:16px 0 0;text-align:center}
+textarea{width:100%;height:80px;border-radius:12px;background:#fff;color:var(--ink);border:1px solid var(--line);font-size:12px;padding:8px;margin-top:8px}
 
 /* まほうのすみか */
 .home2{margin-top:26px;border-top:1px solid var(--line);padding-top:20px}
@@ -231,6 +253,10 @@ textarea{width:100%;height:80px;border-radius:12px;background:rgba(0,0,0,.25);co
 
 <!-- ホーム -->
 <section id="home">
+  <div class="topcard">
+    <div class="tophalo" id="tophalo"></div>
+    <button class="imgbtn" id="topchg">🖼 このえをかえる</button>
+  </div>
   <div class="hero">
     <h1>小数まほう学校</h1>
     <p>小数点をあやつれたら、小数はぜんぶ味方になる。</p>
@@ -311,6 +337,7 @@ textarea{width:100%;height:80px;border-radius:12px;background:rgba(0,0,0,.25);co
     <button id="d2">ペット</button>
     <button id="d3" class="on">ずかん</button>
   </div>
+  <p class="dexhead">ぜんぶで30ひき。タップすると相棒になるよ</p>
   <div class="dex" id="dexgrid"></div>
   <p class="petsub" id="dexinfo" style="margin-top:14px"></p>
   <p class="mini">きろくのバックアップ（コピーして保存 / はりつけて復元）</p>
@@ -443,6 +470,7 @@ function home(){
   ['quiz','end','pet','dex'].forEach(s=>$(s).classList.add('hide'));
   $('home').classList.remove('hide');
   $('crystal').textContent=save.crystal;
+  renderTop();
   renderPetMini();
   const box=$('mods'); box.innerHTML='';
   M.forEach((m,i)=>{
@@ -573,11 +601,58 @@ function toast(msg){
   const d=document.createElement('div'); d.className='toast'; d.textContent=msg;
   document.body.appendChild(d); setTimeout(()=>d.remove(),2600);
 }
+save.img=save.img||{};
+function imgFail(el,e,size){
+  const sp=document.createElement('span'); sp.className='face';
+  sp.style.fontSize=size+'px'; sp.style.lineHeight=1; sp.textContent=e; el.replaceWith(sp);
+}
+/* 絵：1)自分で設定した画像 2)img/<番号>.png 3)絵文字 の順に表示 */
+function art(s,size){
+  const u=save.img[s.id];
+  const src=u||`img/${s.id}.png`;
+  return `<img src="${src}" data-fb="${s.e}" data-sz="${size}" style="width:${size}px;height:${size}px;object-fit:contain">`;
+}
+/* 画像が無ければ絵文字にもどす（onerror属性を使わない安全版） */
+function wireImgs(root){
+  if(!root)return;
+  root.querySelectorAll('img[data-fb]').forEach(im=>{
+    im.addEventListener('error',()=>imgFail(im,im.dataset.fb,+im.dataset.sz||40));
+    if(im.complete && im.naturalWidth===0) imgFail(im,im.dataset.fb,+im.dataset.sz||40);
+  });
+}
+function pickImage(id,after){
+  const f=document.createElement('input'); f.type='file'; f.accept='image/*';
+  f.onchange=()=>{
+    const file=f.files[0]; if(!file)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      const im=new Image();
+      im.onload=()=>{
+        const max=240, k=Math.min(max/im.width,max/im.height,1);
+        const c=document.createElement('canvas'); c.width=im.width*k; c.height=im.height*k;
+        c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+        try{ save.img[id]=c.toDataURL('image/png'); store(); toast('絵を設定した'); after&&after(); }
+        catch(e){ toast('この絵は保存できなかった。もう少し小さい画像で試してね'); }
+      };
+      im.src=r.result;
+    };
+    r.readAsDataURL(file);
+  };
+  f.click();
+}
 function sparkleHTML(){
   const pos=[[10,18],[78,12],[88,58],[16,72],[46,4],[62,84]];
   return '<div class="sparkles">'+pos.map((p,i)=>
     `<i style="left:${p[0]}%;top:${p[1]}%;animation-delay:${i*0.42}s">✧</i>`).join('')+'</div>';
 }
+
+function renderTop(){
+  const h=$('tophalo');
+  const src=save.img.top||'img/top.png';
+  h.innerHTML=`<img src="${src}" data-fb="🐾" data-sz="76">`;
+  wireImgs(h);
+}
+$('topchg').onclick=()=>pickImage('top',renderTop);
 
 function renderPetMini(){
   const box=$('petmini');
@@ -587,8 +662,9 @@ function renderPetMini(){
     return;
   }
   const p=save.pets[save.active], s=sp(save.active);
-  box.innerHTML=`<div class="petmini"><span class="face">${s.e}</span><span class="t">
+  box.innerHTML=`<div class="petmini">${art(s,34)}<span class="t">
     <strong>${fullname(s,p.lv)}</strong><span>Lv.${p.lv} ／ ${s.t}の精霊</span></span></div>`;
+  wireImgs(box);
 }
 
 function renderPet(){
@@ -597,15 +673,23 @@ function renderPet(){
   if(!save.active){
     v.innerHTML=`<div class="stage"><div class="blob"><span class="face">🥚</span>${sparkleHTML()}</div></div>
       <p class="petname">たまごを かえそう</p>
-      <p class="petsub">問題を解くと光の粒がたまるよ（1問10・全問正解＋30）</p>`;
+      <p class="petsub">問題を解くと光の粒がたまるよ（1問10・全問正解＋30）<br>
+      たまごがかえると「🖼 この子のえをかえる」が出るよ</p>`;
   }else{
     const p=save.pets[save.active], s=sp(save.active), st=stage(p.lv);
     v.innerHTML=`<div class="stage"><div class="blob${st===3?' lv3':''}">
-        <span class="face" style="font-size:${58+st*12}px">${s.e}</span>${sparkleHTML()}</div></div>
+        ${art(s,58+st*14)}${sparkleHTML()}</div></div>
       <p class="petname">${fullname(s,p.lv)}</p>
       <p class="petsub">Lv.${p.lv} ／ ${s.t}の精霊${st<3?'（Lv.'+(st===1?4:7)+'でしんか）':' ・ さいこうLv'}</p>
-      <div class="lvbar"><i style="width:${p.lv/9*100}%"></i></div>`;
+      <div class="lvbar"><i style="width:${p.lv/9*100}%"></i></div>
+      <p style="text-align:center;margin:12px 0 0">
+        <button id="chg" class="imgbtn">🖼 この子のえをかえる</button>
+        ${save.img[s.id]?'<button id="rst" class="imgbtn" style="color:var(--dim);margin-left:8px">もとにもどす</button>':''}
+      </p>`;
   }
+  wireImgs(v);
+  if(save.active && $('chg')) $('chg').onclick=()=>pickImage(save.active,renderPet);
+  if(save.active && $('rst')) $('rst').onclick=()=>{delete save.img[save.active];store();renderPet();};
   const shop=$('shop'); shop.innerHTML='';
   const items=[
     {i:'🥚',n:'ふつうのたまご',s:'24種のどれかがかえる',c:50,f:()=>hatch(false)},
@@ -647,22 +731,26 @@ function renderDex(){
     const got=!!save.pets[s.id];
     const c=document.createElement('button');
     c.className='cell'+(got?' got':' locked')+(s.r?' rare':'')+(save.active===s.id?' on':'');
-    c.textContent=got?s.e:'？';
+    if(got) c.innerHTML=art(s,30); else c.textContent='？';
     c.onclick=()=>{
       if(!got){ $('dexinfo').textContent='まだ会えていない精霊'; return; }
       save.active=s.id; store(); renderDex();
-      $('dexinfo').textContent=`${fullname(s,save.pets[s.id].lv)}（Lv.${save.pets[s.id].lv}・${s.t}）を相棒にした`;
+      $('dexinfo').innerHTML=`${fullname(s,save.pets[s.id].lv)}（Lv.${save.pets[s.id].lv}・${s.t}）を相棒にした<br>
+        <button class="imgbtn" id="dchg">🖼 この子のえをかえる</button>`;
+      $('dchg').onclick=()=>pickImage(s.id,renderDex);
     };
     g.appendChild(c);
   });
+  wireImgs(g);
   $('dexcount').textContent=Object.keys(save.pets).length;
-  $('bk').value=JSON.stringify(save);
+  $('bk').value=JSON.stringify(Object.assign({},save,{img:{}}));
 }
 
 function show(which){
   ['home','pet','dex','quiz','end'].forEach(s=>$(s).classList.add('hide'));
   $(which).classList.remove('hide');
-  if(which==='pet')renderPet(); if(which==='dex')renderDex();
+  try{ if(which==='pet')renderPet(); if(which==='dex')renderDex(); }
+  catch(e){ toast('うまく開けなかった：'+e.message); }
   window.scrollTo(0,0);
 }
 ['t1','p1','d1'].forEach(i=>$(i).onclick=home);
@@ -670,7 +758,8 @@ function show(which){
 ['t3','p3','d3'].forEach(i=>$(i).onclick=()=>show('dex'));
 $('restore').onclick=()=>{
   try{ const o=JSON.parse($('bk').value); if(!o||typeof o!=='object')throw 0;
-    save=Object.assign({crystal:0,cleared:{},pets:{},active:null},o); store(); renderDex(); toast('記録を復元した');
+    const keepImg=save.img||{};
+    save=Object.assign({crystal:0,cleared:{},pets:{},active:null},o); save.img=keepImg; store(); renderDex(); toast('記録を復元した');
   }catch(e){ toast('その文字では復元できない。コピーしなおしてね'); }
 };
 
