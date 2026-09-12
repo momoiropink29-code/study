@@ -126,6 +126,10 @@ button:focus-visible{outline:3px dashed var(--purple);outline-offset:3px}
 .mapbox{background:linear-gradient(#DCF1FB,#EAF6FF);border-radius:22px;margin-top:13px;padding:8px;
   box-shadow:0 5px 0 #D5E9F5}
 .mapbox svg{display:block;width:100%;height:auto}
+.figbox{background:linear-gradient(#FFF8FD,#FFFDF4);border-radius:22px;margin-top:13px;padding:8px;
+  box-shadow:0 5px 0 #F0DCEA}
+.figbox svg{display:block;width:100%;height:auto}
+.figbox.wide{padding:6px 4px}
 .jp{fill:#FFF7E9;stroke:#F0C7A8;stroke-width:2;stroke-linejoin:round}
 .ring{fill:none;stroke:#FF6E9C;stroke-width:3;animation:pulse 1.7s ease-out infinite}
 @keyframes pulse{0%{r:8;opacity:.95}100%{r:30;opacity:0}}
@@ -178,7 +182,10 @@ const UNITS = {
   kubun  :{name:"気候区分と雨温図",        ic:"🗾", col:"#8FDCA6", dk:"#63B87D"},
   mSan   :{name:"地図｜山地・山脈・高地",  ic:"🏔️", col:"#7FC9EC", dk:"#54A6CC"},
   mHei   :{name:"地図｜平野・盆地",        ic:"🌾", col:"#B4A8F5", dk:"#8B7DDB"},
-  mKawa  :{name:"地図｜川",                ic:"💧", col:"#E29BE8", dk:"#BE74C6"}
+  mKawa  :{name:"地図｜川",                ic:"💧", col:"#E29BE8", dk:"#BE74C6"},
+  ame    :{name:"雨温図を読む",            ic:"📊", col:"#8ED3E8", dk:"#4FA5C0"},
+  zukei  :{name:"図・写真で答える",        ic:"🖼️", col:"#FFAFC9", dk:"#E2789A"},
+  kijutsu:{name:"記述の書き方",            ic:"✍️", col:"#C9BCF7", dk:"#8B7DDB"}
 };
 
 /* --- 4択問題 --- */
@@ -306,6 +313,131 @@ const GEO = [
 ["筑後川","ちくごがわ","mKawa",33.3,130.6,"筑紫平野を流れる九州最大の川。"]
 ];
 
+
+/* --- 雨温図データ [都市, 気候区分, 年平均気温, 年降水量, 月ごとの気温, 月ごとの降水量] --- */
+const AME=[
+["札幌","北海道の気候","9.2","1146.1",
+ [-3.2,-2.7,1.1,7.3,13.0,17.0,21.1,22.3,18.6,12.1,5.2,-0.9],
+ [108.4,91.9,77.6,54.6,55.5,60.4,90.7,126.8,142.2,109.9,113.8,114.5]],
+["新潟","日本海側の気候","13.9","1845.9",
+ [2.5,2.8,6.0,11.5,16.7,20.9,24.9,26.5,22.5,16.7,10.5,5.3],
+ [180.9,115.8,112.0,97.2,94.4,121.1,222.3,163.4,151.9,157.7,203.5,225.5]],
+["長野","中央高地の気候","12.3","965.1",
+ [-0.4,0.4,4.3,10.6,16.4,20.4,24.3,25.2,21.0,14.4,7.9,2.3],
+ [54.6,49.1,60.1,56.9,69.3,106.1,137.7,111.8,125.5,100.3,44.6,49.4]],
+["東京","太平洋側の気候","15.8","1598.2",
+ [5.4,6.1,9.4,14.3,18.8,21.9,25.7,26.9,23.3,18.0,12.5,7.7],
+ [52.3,56.1,117.5,124.5,137.8,182.5,153.5,171.0,224.9,234.8,92.5,54.8]],
+["高松","瀬戸内の気候","16.7","1150.1",
+ [5.9,6.3,9.4,14.7,19.8,23.3,27.5,28.6,24.7,19.0,13.2,8.1],
+ [39.4,45.8,81.4,74.6,100.9,153.1,159.8,106.0,167.4,120.1,55.0,46.7]],
+["那覇","南西諸島の気候","23.3","2161.0",
+ [17.3,17.5,19.1,21.5,24.2,27.2,29.1,29.0,27.9,25.5,22.5,19.0],
+ [101.6,114.5,142.8,161.0,245.3,284.4,188.1,240.0,275.2,179.2,119.1,110.0]]
+];
+
+/* --- 雨温図の問題 [都市番号, 問題文, 選たくし, 正かい, かいせつ] --- */
+const AMEQ=[
+[0,"この雨温図の都市はどこですか。",["札幌","新潟","東京","那覇"],0,"年平均気温が1けた（9.2℃）なのは札幌だけ。冬が0℃より下がるのも北海道のしるし。"],
+[1,"この雨温図の都市はどこですか。",["高松","新潟","長野","東京"],1,"12月〜2月のぼうグラフが高い＝冬の雪が多い＝日本海側＝新潟。"],
+[2,"この雨温図の都市はどこですか。",["新潟","長野","那覇","高松"],1,"年降水量が1000mmより少ない（965.1mm）のは長野だけ。中央高地の気候。"],
+[3,"この雨温図の都市はどこですか。",["東京","札幌","高松","長野"],0,"夏〜9・10月に多く、冬は少ない＝太平洋側＝東京。"],
+[4,"この雨温図の都市はどこですか。",["高松","札幌","新潟","那覇"],0,"あたたかい（16.7℃）のに雨が少ない（1150.1mm）＝瀬戸内＝高松。長野とのちがいは気温の高さ！"],
+[5,"この雨温図の都市はどこですか。",["東京","那覇","高松","新潟"],1,"年平均23.3℃・冬でも17℃くらい＝南西諸島＝那覇。"],
+[0,"この雨温図にあてはまる気候区分はどれですか。",["北海道の気候","日本海側の気候","瀬戸内の気候","南西諸島の気候"],0,"冬が長く寒さがきびしい。降水量は比かく的少ない＝北海道の気候（冷帯）。"],
+[1,"この雨温図にあてはまる気候区分はどれですか。",["太平洋側の気候","日本海側の気候","中央高地の気候","北海道の気候"],1,"冬の降水量（雪）が夏より多い＝日本海側の気候。"],
+[2,"この雨温図にあてはまる気候区分はどれですか。",["瀬戸内の気候","中央高地の気候","太平洋側の気候","日本海側の気候"],1,"夏と冬の気温差が大きく、降水量が少ない＝中央高地の気候。"],
+[3,"この雨温図にあてはまる気候区分はどれですか。",["太平洋側の気候","瀬戸内の気候","南西諸島の気候","北海道の気候"],0,"夏に雨が多く、冬は少なく乾燥する＝太平洋側の気候。"],
+[4,"この雨温図にあてはまる気候区分はどれですか。",["中央高地の気候","瀬戸内の気候","日本海側の気候","太平洋側の気候"],1,"1年を通じて降水量が少なく、気温の変化も小さい＝瀬戸内の気候。水ぶそく（干害）に注意。"],
+[5,"この雨温図にあてはまる気候区分はどれですか。",["南西諸島の気候","太平洋側の気候","瀬戸内の気候","中央高地の気候"],0,"冬でもあたたかく1年じゅう雨が多い＝南西諸島の気候。"],
+[4,"グラフの2つを見くらべます。長野（12.3℃・965mm）と高松（16.7℃・1150mm）を見分けるポイントは？",["年平均気温の高さ","冬の雪の量","台風の数","1月の風向き"],0,"どちらも降水量が少ないので、見分けは気温。高いほう＝高松（瀬戸内）、低いほう＝長野（中央高地）。"],
+[3,"この雨温図で9月ごろに降水量の山ができるのはなぜですか。",["台風の雨が多いから","つゆの雨が続くから","雪がとけるから","季節風が北西にかわるから"],0,"9月に降水量が多いのは台風がもたらす雨のため。P.46の重要資料に出ている！"]
+];
+
+/* --- 図・写真の問題 [図のID, 問題文, 選たくし, 正かい, かいせつ] --- */
+const FIGQ=[
+["suna","この海岸のようすを何といいますか。",["リアス海岸","砂浜海岸","磯浜海岸","人工海岸"],1,"波によって運ばれた砂がたまってできた、出入りの少ないまっすぐな海岸＝砂浜海岸。"],
+["rias","この海岸のようすを何といいますか。",["砂浜海岸","人工海岸","リアス海岸","三角州"],2,"起伏の大きな山地が海にしずみこんでできた、複雑に入り組んだ海岸＝リアス海岸。三陸海岸の南部が代表。"],
+["senjo","この地形を何といいますか。",["三角州","扇状地","台地","盆地"],1,"川が山から平地に流れ出るところに、土や砂がたまってできる＝扇状地。おうぎの形がヒント！"],
+["sankaku","この地形を何といいますか。",["扇状地","リアス海岸","三角州","丘陵"],2,"川が運んできた土や砂が河口付近にたまってできる＝三角州。川が何本にも分かれて海に出ている。"],
+["senjo","この地形ができる場所はどこですか。",["川が山から平地に出るところ","川の河口付近","海にしずんだ山地","火山のふん火口"],0,"扇状地＝山から平地に出るところ。三角州＝河口付近。この2つはセットで区別！"],
+["sankaku","この地形ができる場所はどこですか。",["山のちょう上","川の河口付近","湖のまん中","高原の上"],1,"三角州は河口付近。広島市の中心部も三角州の上にある。"],
+["keikan","図のア〜エのうち、扇状地はどれですか。",["ア","イ","ウ","エ"],0,"ア＝川が山から平地に出たところ＝扇状地。"],
+["keikan","図のア〜エのうち、三角州はどれですか。",["ア","イ","ウ","エ"],3,"エ＝川が海に出る河口＝三角州。"],
+["keikan","図のア〜エのうち、リアス海岸はどれですか。",["ア","イ","ウ","エ"],2,"ウ＝入り組んだギザギザの海岸＝リアス海岸。"],
+["keikan","図のア〜エのうち、山に囲まれた平地（盆地）はどれですか。",["ア","イ","ウ","エ"],1,"イ＝まわりを山に囲まれた平地＝盆地。平野は海に面した平地。"],
+["natsu","この図は、春・夏・秋・冬のどの季節のようすですか。",["春","夏","秋","冬"],1,"南東の季節風が太平洋からふき、太平洋側に雨をふらせている＝夏。"],
+["fuyu","この図は、春・夏・秋・冬のどの季節のようすですか。",["春","夏","秋","冬"],3,"北西の季節風が日本海からふき、日本海側に雪をふらせている＝冬。"],
+["natsu","夏の季節風は、どちらからふいてきますか。",["日本海（北西）","太平洋（南東）","オホーツク海","東シナ海"],1,"夏＝南東（太平洋）から。冬＝北西（日本海）から。「なつはみなみ」で覚える。"],
+["fuyu","冬の季節風で雪が多くなるのはどちら側ですか。",["太平洋側","日本海側","瀬戸内","南西諸島"],1,"日本海でしめった風になり、日本海側に大雪。山をこえると、かわいた風になって太平洋側は晴れる。"],
+["kairyu","地図のア〜エのうち、暖流の組み合わせとして正しいものはどれですか。",["アとイ","イとウ","ウとエ","アとエ"],0,"南から流れてくるのが暖流。ア＝対馬海流、イ＝日本海流［黒潮］がどちらも暖流。ウ＝千島海流［親潮］、エ＝リマン海流は寒流。"],
+["kairyu","地図のウの海流は何ですか。",["対馬海流","日本海流［黒潮］","千島海流［親潮］","リマン海流"],2,"北の太平洋から南へ流れる寒流＝千島海流［親潮］。"],
+["kairyu","地図のイの海流の、別のよび名は何ですか。",["親潮","黒潮","リマン","対馬"],1,"日本海流＝黒潮（暖流）。千島海流＝親潮（寒流）。"],
+["fossa","地図のア〜エのうち、フォッサマグナの西のはしの位置はどれですか。",["ア","イ","ウ","エ"],2,"ウ＝糸魚川（新潟県）－静岡をむすぶ線＝糸魚川－静岡構造線。ここがフォッサマグナの西のはし。"],
+["haru","この写真の季節はいつですか。",["春","夏","秋","冬"],0,"さくらがさく＝春。"],
+["natsus","この写真の季節はいつですか。",["春","夏","秋","冬"],1,"海水よく・気温30度をこえる＝夏。"],
+["akis","この写真の季節はいつですか。",["春","夏","秋","冬"],2,"木の葉が紅葉する＝秋。"],
+["fuyus","この写真の季節はいつですか。",["春","夏","秋","冬"],3,"雪がふる＝冬。"]
+];
+
+/* --- 記述の書き方 [問題文, 選たくし, 正かい, かいせつ] --- */
+const KIJ=[
+["【記述】気候区分の境界の多くが山地・山脈になっているのはなぜ？　正しい書き方はどれ？",
+ ["山地や山脈が季節風をさえぎるため、山をはさんだ両がわで降水量がちがってくるから。",
+  "山地や山脈は高くて寒いから。",
+  "山地や山脈には人が住んでいないから。",
+  "山地や山脈には川が流れているから。"],0,
+ "書き出しは「山地や山脈が季節風をさえぎるため、」。さえぎる→風がちがう→気候がちがう、の順で書く。"],
+["【記述】日本の平野には、地理的にどんな特ちょうがありますか。　正しい書き方はどれ？",
+ ["平野の多くは、川の河口付近に広がっている。",
+  "平野の多くは、山のちょう上にある。",
+  "平野の多くは、日本海側にしかない。",
+  "平野の多くは、火山のまわりにある。"],0,
+ "「川の河口付近に広がっている」がキーワード。関東平野＝利根川、越後平野＝信濃川。"],
+["【記述】つゆは、人々の生活にとってどんな役わりをはたしていますか。",
+ ["夏の農作業に必要なめぐみの水となる。",
+  "気温を下げて、すずしくする。",
+  "台風をふせいでくれる。",
+  "雪をとかしてくれる。"],0,
+ "「めぐみの水」という言い方をおぼえる。水害をおこすこともあるが、役わりは農業の水。"],
+["【記述】中央高地（長野）の気候の特色を、気温と降水量にふれて書くとどうなる？",
+ ["日本の平均的な地域に比べ、夏と冬の気温差が大きく、年間の降水量が少ない。",
+  "日本の平均的な地域に比べ、1年じゅう気温が高く、降水量も多い。",
+  "日本の平均的な地域に比べ、冬に雪が多く、降水量が多い。",
+  "日本の平均的な地域に比べ、気温の変化が小さく、降水量が多い。"],0,
+ "「気温と降水量にふれて」と言われたら、かならず両方に1回ずつふれる。気温差＝大きい／降水量＝少ない。"],
+["【記述】瀬戸内（高松）の気候の特色を、気温と降水量にふれて書くとどうなる？",
+ ["日本の平均的な地域に比べ、夏と冬の気温差が小さく、年間の降水量が少ない。",
+  "日本の平均的な地域に比べ、気温差が大きく、降水量が多い。",
+  "日本の平均的な地域に比べ、冬の寒さがきびしく、雪が多い。",
+  "日本の平均的な地域に比べ、1年じゅう雨が多く、台風も多い。"],0,
+ "瀬戸内＝気温差が小さい＋降水量が少ない。中央高地は「気温差が大きい」ので、ここでまちがえやすい！"],
+["【記述】瀬戸内の地域で、1年を通じて降水量が少ないのはなぜ？",
+ ["南北にある中国山地と四国山地が季節風をさえぎるから。",
+  "海から遠くはなれているから。",
+  "まわりに寒流が流れているから。",
+  "標高がとても高いから。"],0,
+ "北のかべ＝中国山地、南のかべ＝四国山地。だから季節風のしめった空気がとどきにくい。"]
+];
+
+/* --- 追加の4択（数字・組み合わせ・位置） --- */
+Q.push(
+["kokudo","日本の国土のうち、平地はおよそ何分のいくつをしめていますか。",["約4分の1","約4分の3","約2分の1","約3分の2"],0,"山地が約4分の3、平地が約4分の1。グラフでは山地73％・低地14％・台地11％。"],
+["kokudo","日本の国土の地形別割合で、いちばん大きいのはどれですか。",["低地","台地","山地","その他"],2,"山地73％。低地14％・台地11％・その他2％。"],
+["kokudo","川と平野の組み合わせとして正しいものはどれですか。",["信濃川－越後平野","最上川－仙台平野","石狩川－筑紫平野","筑後川－庄内平野"],0,"信濃川－越後平野が正しい。最上川－庄内平野／筑後川－筑紫平野／石狩川－石狩平野。"],
+["kokudo","表面が平らな山地を何といいますか。",["丘陵","高原","台地","盆地"],1,"高原＝表面が平らな山地。台地は「平地」のなかまなのでひっかからない！"],
+["kokudo","低く起伏が小さい山地を何といいますか。",["丘陵","高地","高原","台地"],0,"丘陵（きゅうりょう）＝低く起伏が小さい山地。"],
+["kokudo","海に面した平地を何といいますか。",["盆地","台地","平野","高地"],2,"平野＝海に面した平地。盆地＝山に囲まれた平地。"],
+["ranking","日本で最も長い信濃川の長さは何kmですか。",["249km","268km","322km","367km"],3,"信濃川367km。2位利根川322km、3位石狩川268km、5位北上川249km。"],
+["ranking","利根川の流域面積は約何km²ですか。",["11900km²","14330km²","16840km²","10150km²"],2,"利根川16840km²で1位。2位は石狩川14330km²。"],
+["ranking","利根川の河口がある2つの県はどこですか。",["茨城県と千葉県","千葉県と埼玉県","茨城県と栃木県","群馬県と埼玉県"],0,"利根川の河口は茨城県と千葉県の県境。"],
+["ranking","琵琶湖の面積はおよそ何km²ですか。",["169km²","669km²","1669km²","69km²"],1,"琵琶湖669km²。滋賀県の約6分の1をしめる。"],
+["ranking","琵琶湖は世界で何番目に古い古代湖ですか。",["1番目","2番目","3番目","5番目"],2,"世界で3番目に古い古代湖で、400万年の歴史をもつ。"],
+["kikou","フォッサマグナの西側にある、東北日本と西南日本を分ける断層を何といいますか。",["中央構造線","糸魚川－静岡構造線","日本海溝","南海トラフ"],1,"糸魚川（新潟県）－静岡構造線。フォッサマグナの西のはし。"],
+["kikou","つゆの時期として正しいものはどれですか。",["1月から2月","4月から5月","6月から7月","10月から11月"],2,"6月から7月。東北地方から南の地域でみられる（北海道はのぞく）。"],
+["kikou","台風が日本に接近するのは、おもにいつごろですか。",["冬から春","春から夏","夏から秋","秋から冬"],2,"夏から秋にかけて。7〜9月がおもな時期。"]
+);
+
 /* --- なかまたち（12ひき） --- */
 const PETS = [
   {name:"もちまる", kind:"ハムスター", style:"fluff",  ears:"round", ex:"",              body:"#FFDFB8",body2:"#FFCF9A",face:"#FFF4E6",ear:"#FFB9C4",accent:"#FF9EB5"},
@@ -339,6 +471,9 @@ load();
 const ITEMS=[];
 Q.forEach((q,i)=>ITEMS.push({id:"q"+i,unit:q[0],kind:"mc",text:q[1],choices:q[2],ans:q[3],exp:q[4]}));
 GEO.forEach((g,i)=>ITEMS.push({id:"g"+i,unit:g[2],kind:"map",geo:i}));
+AMEQ.forEach((a,i)=>ITEMS.push({id:"a"+i,unit:"ame",kind:"ame",ame:a[0],text:a[1],choices:a[2],ans:a[3],exp:a[4]}));
+FIGQ.forEach((f,i)=>ITEMS.push({id:"f"+i,unit:"zukei",kind:"fig",fig:f[0],text:f[1],choices:f[2],ans:f[3],exp:f[4]}));
+KIJ.forEach((k,i)=>ITEMS.push({id:"k"+i,unit:"kijutsu",kind:"mc",text:k[0],choices:k[1],ans:k[2],exp:k[3]}));
 const byId=id=>ITEMS.find(x=>x.id===id);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
 
@@ -355,7 +490,8 @@ function build(item){
     choices=o.map(i=>item.choices[i]); ans=o.indexOf(item.ans);
     text=item.text; exp=item.exp;
   }
-  return {id:item.id,unit:item.unit,text,choices,ans,exp,geo};
+  return {id:item.id,unit:item.unit,kind:item.kind,text,choices,ans,exp,geo,
+          fig:item.fig||null, ame:(item.ame===undefined?null:item.ame)};
 }
 
 /* =========================================================
@@ -379,6 +515,197 @@ function mapSVG(lat,lon){
       <path fill="#FF6E9C" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"
         d="M0,-11 L2.6,-3.6 L10.5,-3.6 L4.2,1.2 L6.6,8.8 L0,4.2 L-6.6,8.8 L-4.2,1.2 L-10.5,-3.6 L-2.6,-3.6 Z"/>
     </g></svg>`;
+}
+
+/* =========================================================
+   4-b. 雨温図
+   ========================================================= */
+function ameSVG(i){
+  const a=AME[i],T=a[4],P=a[5];
+  const x0=46,x1=266,y0=26,y1=176,w=(x1-x0)/12;
+  const ty=t=>(y1-(t+20)*(y1-y0)/50).toFixed(1);
+  const py=v=>(y1-Math.min(v,500)*(y1-y0)/500).toFixed(1);
+  let g="",bars="",line="";
+  [-20,-10,0,10,20,30].forEach(t=>{
+    g+=`<line x1="${x0}" y1="${ty(t)}" x2="${x1}" y2="${ty(t)}" stroke="#E8DCEF" stroke-width="1"/>`;
+    g+=`<text x="${x0-5}" y="${(+ty(t)+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#9A8AA6">${t}</text>`;
+  });
+  [0,100,200,300,400,500].forEach(v=>{
+    g+=`<text x="${x1+5}" y="${(+py(v)+4).toFixed(1)}" font-size="9" fill="#9A8AA6">${v}</text>`;
+  });
+  P.forEach((v,m)=>{const cx=x0+w*m+w/2;
+    bars+=`<rect x="${(cx-w*0.34).toFixed(1)}" y="${py(v)}" width="${(w*0.68).toFixed(1)}" height="${(y1-py(v)).toFixed(1)}" rx="2.5" fill="#9BD3F0"/>`;});
+  T.forEach((t,m)=>{const cx=(x0+w*m+w/2).toFixed(1);line+=(m?"L":"M")+cx+","+ty(t);});
+  let dots="";
+  T.forEach((t,m)=>{dots+=`<circle cx="${(x0+w*m+w/2).toFixed(1)}" cy="${ty(t)}" r="2.2" fill="#E86D93"/>`;});
+  return `<svg viewBox="0 0 300 200" role="img" aria-label="雨温図。年平均気温${a[2]}度、年降水量${a[3]}ミリ。">
+    <rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="#FFFDF2" stroke="#E8DCEF"/>
+    ${g}${bars}
+    <path d="${line}" fill="none" stroke="#E86D93" stroke-width="2.4" stroke-linejoin="round"/>${dots}
+    <rect x="${x0+12}" y="${y0+6}" width="118" height="17" rx="8" fill="#FFF3B0" opacity=".9"/>
+    <text x="${x0+18}" y="${y0+19}" font-size="10.5" font-weight="700" fill="#7A6A46">年平均気温 ${a[2]}℃</text>
+    <rect x="${x0+12}" y="${y1-46}" width="128" height="17" rx="8" fill="#DCF0FB" opacity=".95"/>
+    <text x="${x0+18}" y="${y1-33}" font-size="10.5" font-weight="700" fill="#3E7A96">年降水量 ${a[3]}mm</text>
+    <text x="${x0-30}" y="${y0-8}" font-size="10" fill="#9A8AA6">気温(℃)</text>
+    <text x="${x1-30}" y="${y0-8}" font-size="10" fill="#9A8AA6">降水量(mm)</text>
+    <text x="${x0}" y="${y1+16}" font-size="10" fill="#9A8AA6">1月</text>
+    <text x="${(x0+w*6).toFixed(0)}" y="${y1+16}" font-size="10" fill="#9A8AA6">7</text>
+    <text x="${x1-10}" y="${y1+16}" font-size="10" fill="#9A8AA6">12</text>
+  </svg>`;
+}
+
+/* =========================================================
+   4-c. 地形・季節風・海流の図
+   ========================================================= */
+function arrowSVG(x1,y1,x2,y2,col,wd){
+  const a=Math.atan2(y2-y1,x2-x1),L=(wd||4)*3.4;
+  const p1=[x2-Math.cos(a-0.4)*L,y2-Math.sin(a-0.4)*L],p2=[x2-Math.cos(a+0.4)*L,y2-Math.sin(a+0.4)*L];
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${wd||4}" stroke-linecap="round"/>
+    <path d="M${x2},${y2} L${p1[0].toFixed(1)},${p1[1].toFixed(1)} L${p2[0].toFixed(1)},${p2[1].toFixed(1)} Z" fill="${col}"/>`;
+}
+function figSVG(k){
+  const S0=`<svg viewBox="0 0 320 200" role="img" aria-label="図">`;
+  const house=(x,y,c)=>`<rect x="${x}" y="${y}" width="11" height="8" rx="1.5" fill="#fff"/><path d="M${x-1.5},${y} L${x+5.5},${y-5} L${x+12.5},${y} Z" fill="${c}"/>`;
+  const tree=(x,y)=>`<rect x="${x-1}" y="${y}" width="2.5" height="6" fill="#B08968"/><circle cx="${x}" cy="${y-1}" r="5" fill="#8FD39B"/>`;
+  if(k==="suna")return S0+`
+    <rect width="320" height="200" fill="#CFE9B8"/>
+    <path d="M0,132 C80,116 160,102 320,80 L320,200 L0,200 Z" fill="#F7E3B8"/>
+    <path d="M0,166 C80,150 160,136 320,114 L320,200 L0,200 Z" fill="#6FB6E0"/>
+    <path d="M0,162 C80,146 160,132 320,110" fill="none" stroke="#fff" stroke-width="5" opacity=".9"/>
+    <path d="M0,176 C80,160 160,146 320,124" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/>
+    ${house(40,120,"#FF9EB5")}${house(72,110,"#9BD3F0")}${house(110,104,"#FFD766")}${house(150,96,"#FF9EB5")}
+    ${tree(28,132)}${tree(95,116)}${tree(180,96)}${tree(215,90)}
+    <text x="248" y="176" font-size="12" font-weight="700" fill="#fff">海</text></svg>`;
+  if(k==="rias")return S0+`
+    <rect width="320" height="200" fill="#6FB6E0"/>
+    <path d="M0,0 L320,0 L320,52 L292,60 L286,96 L262,66 L246,104 L226,70 L206,118 L186,74 L168,126 L146,78 L128,134 L106,80 L88,128 L68,76 L48,116 L30,70 L0,64 Z" fill="#CFE9B8" stroke="#9CC98A" stroke-width="2"/>
+    ${tree(60,40)}${tree(120,44)}${tree(200,38)}${tree(268,36)}
+    ${house(150,20,"#FF9EB5")}${house(96,18,"#FFD766")}
+    <text x="150" y="176" font-size="12" font-weight="700" fill="#fff">海</text></svg>`;
+  if(k==="senjo")return S0+`
+    <rect width="320" height="200" fill="#EFF8EA"/>
+    <path d="M0,74 L48,14 L96,70 L140,8 L196,74 L252,20 L320,78 L320,0 L0,0 Z" fill="#8FBF86"/>
+    <path d="M0,74 L48,14 L96,70 L140,8 L196,74 L252,20 L320,78" fill="none" stroke="#6F9E68" stroke-width="2"/>
+    <path d="M152,56 L152,84" stroke="#7FC9EC" stroke-width="5" stroke-linecap="round"/>
+    <path d="M152,84 L64,176 L240,176 Z" fill="#F0E0BE" stroke="#D9C296" stroke-width="2"/>
+    <path d="M152,84 L108,176 M152,84 L152,176 M152,84 L196,176" stroke="#D9C296" stroke-width="1.6"/>
+    <path d="M152,84 C146,120 140,150 130,176" fill="none" stroke="#9BD3F0" stroke-width="4"/>
+    ${tree(88,166)}${tree(214,166)}${house(178,158,"#FF9EB5")}
+    <text x="126" y="196" font-size="11" font-weight="700" fill="#9A8AA6">おうぎの形</text></svg>`;
+  if(k==="sankaku")return S0+`
+    <rect width="320" height="200" fill="#6FB6E0"/>
+    <path d="M0,0 L320,0 L320,44 L236,52 L196,120 L128,120 L88,52 L0,44 Z" fill="#CFE9B8"/>
+    <path d="M158,0 L158,50" stroke="#7FC9EC" stroke-width="8" stroke-linecap="round"/>
+    <path d="M158,50 L104,116 M158,50 L158,118 M158,50 L212,116" stroke="#7FC9EC" stroke-width="6" stroke-linecap="round"/>
+    <path d="M120,62 L126,110 M190,62 L184,110" stroke="#9BD3F0" stroke-width="3"/>
+    ${house(134,74,"#FF9EB5")}${house(170,88,"#FFD766")}${tree(112,96)}${tree(206,92)}
+    <text x="20" y="176" font-size="12" font-weight="700" fill="#fff">海</text>
+    <text x="204" y="20" font-size="11" font-weight="700" fill="#3E7A96">川</text></svg>`;
+  if(k==="keikan")return S0+`
+    <rect width="320" height="200" fill="#EFF8EA"/>
+    <path d="M0,58 L36,10 L78,52 L116,6 L160,50 L206,10 L252,52 L300,14 L320,40 L320,0 L0,0 Z" fill="#8FBF86"/>
+    <ellipse cx="228" cy="52" rx="48" ry="21" fill="#F6EFD2" stroke="#D9C296" stroke-width="1.8"/>
+    <path d="M120,44 L120,68" stroke="#7FC9EC" stroke-width="4"/>
+    <path d="M120,68 L74,126 L166,126 Z" fill="#F0E0BE" stroke="#D9C296" stroke-width="1.8"/>
+    <path d="M120,68 L98,126 M120,68 L120,126 M120,68 L142,126" stroke="#D9C296" stroke-width="1.4"/>
+    <rect x="0" y="126" width="320" height="30" fill="#DCEFCB"/>
+    <path d="M120,68 C126,104 152,132 186,146 L226,156" fill="none" stroke="#7FC9EC" stroke-width="5"/>
+    <rect x="0" y="156" width="320" height="44" fill="#6FB6E0"/>
+    <path d="M0,150 L20,128 L30,156 L52,124 L62,156 L84,122 L96,156 L116,134 L124,158 L0,160 Z" fill="#CFE9B8" stroke="#9CC98A" stroke-width="1.8"/>
+    <path d="M226,156 L198,192 L274,192 Z" fill="#E9D9B4" stroke="#D9C296" stroke-width="1.6"/>
+    <path d="M226,156 L212,192 M226,156 L240,192" stroke="#7FC9EC" stroke-width="3"/>
+    <text x="286" y="186" font-size="11" font-weight="700" fill="#fff">海</text>
+    <circle cx="120" cy="104" r="12" fill="#fff" stroke="#E2789A" stroke-width="2.2"/><text x="120" y="109" text-anchor="middle" font-size="13" font-weight="800" fill="#E2789A">ア</text>
+    <circle cx="228" cy="52" r="12" fill="#fff" stroke="#E2789A" stroke-width="2.2"/><text x="228" y="57" text-anchor="middle" font-size="13" font-weight="800" fill="#E2789A">イ</text>
+    <circle cx="58" cy="146" r="12" fill="#fff" stroke="#E2789A" stroke-width="2.2"/><text x="58" y="151" text-anchor="middle" font-size="13" font-weight="800" fill="#E2789A">ウ</text>
+    <circle cx="236" cy="178" r="12" fill="#fff" stroke="#E2789A" stroke-width="2.2"/><text x="236" y="183" text-anchor="middle" font-size="13" font-weight="800" fill="#E2789A">エ</text></svg>`;
+  if(k==="natsu"||k==="fuyu"){
+    const nat=(k==="natsu");
+    return S0+`
+    <rect width="320" height="200" fill="${nat?"#EAF6E4":"#EDF4FB"}"/>
+    <rect x="0" y="150" width="86" height="50" fill="#6FB6E0"/>
+    <rect x="234" y="150" width="86" height="50" fill="#6FB6E0"/>
+    <rect x="70" y="150" width="180" height="50" fill="#D8C6A8"/>
+    <path d="M62,158 L112,74 L160,48 L208,74 L258,158 Z" fill="#C7A98A"/>
+    <path d="M112,74 L160,48 L208,74 Z" fill="${nat?"#B59B80":"#FFFFFF"}"/>
+    <text x="6" y="192" font-size="11" font-weight="800" fill="#fff">日本海</text>
+    <text x="262" y="192" font-size="11" font-weight="800" fill="#fff">太平洋</text>
+    ${nat?`
+      <ellipse cx="250" cy="70" rx="44" ry="19" fill="#AFBECD"/><ellipse cx="220" cy="78" rx="26" ry="14" fill="#C3CFDA"/>
+      <g stroke="#7FC9EC" stroke-width="2.6" stroke-linecap="round">
+        <line x1="214" y1="90" x2="208" y2="106"/><line x1="232" y1="90" x2="226" y2="106"/>
+        <line x1="250" y1="90" x2="244" y2="106"/><line x1="268" y1="88" x2="262" y2="104"/></g>
+      ${arrowSVG(314,140,268,104,"#E8914F",5)}
+      ${arrowSVG(152,42,74,86,"#E8914F",5)}
+      <text x="196" y="132" font-size="11.5" font-weight="800" fill="#C06A28">南東季節風</text>
+      <text x="212" y="148" font-size="11" font-weight="700" fill="#C06A28">しめった風</text>
+      <text x="16" y="74" font-size="11.5" font-weight="800" fill="#C06A28">かわいた風</text>
+    `:`
+      <ellipse cx="70" cy="70" rx="44" ry="19" fill="#AFBECD"/><ellipse cx="100" cy="78" rx="26" ry="14" fill="#C3CFDA"/>
+      <g fill="#fff">
+        <circle cx="54" cy="94" r="3.4"/><circle cx="74" cy="102" r="3.4"/><circle cx="94" cy="92" r="3.4"/>
+        <circle cx="62" cy="114" r="3.4"/><circle cx="86" cy="118" r="3.4"/><circle cx="42" cy="106" r="3.4"/></g>
+      ${arrowSVG(8,140,52,106,"#5E8FD0",5)}
+      ${arrowSVG(168,42,248,88,"#5E8FD0",5)}
+      <text x="6" y="166" font-size="11.5" font-weight="800" fill="#3F6CA8">北西季節風</text>
+      <text x="96" y="140" font-size="11" font-weight="700" fill="#3F6CA8">しめった風</text>
+      <text x="228" y="70" font-size="11.5" font-weight="800" fill="#3F6CA8">かわいた風</text>
+    `}
+    </svg>`;
+  }
+  if(k==="kairyu"||k==="fossa"){
+    const base=`<path class="jp" d="${poly(HOKKAIDO)}"/><path class="jp" d="${poly(HONSHU)}"/>
+      <path class="jp" d="${poly(SHIKOKU)}"/><path class="jp" d="${poly(KYUSHU)}"/>`;
+    const P2=(la,lo)=>px(la,lo);
+    if(k==="kairyu"){
+      const A=[[33.6,129.6,38.8,137.2,"ア"],[31.0,132.0,35.2,140.6,"イ"],[44.4,144.8,39.6,142.6,"ウ"],[45.4,137.6,41.2,134.2,"エ"]];
+      let ar="";
+      A.forEach(a=>{const s1=P2(a[0],a[1]),s2=P2(a[2],a[3]);
+        ar+=arrowSVG(+s1[0],+s1[1],+s2[0],+s2[1],"#8A8FA6",4.5);
+        ar+=`<circle cx="${s1[0]}" cy="${s1[1]}" r="11" fill="#fff" stroke="#8A8FA6" stroke-width="2"/>
+             <text x="${s1[0]}" y="${(+s1[1]+4.5).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="800" fill="#5B6278">${a[4]}</text>`;});
+      return `<svg viewBox="0 0 460 512" role="img" aria-label="日本のまわりの海流の地図">${base}${ar}</svg>`;
+    }
+    const L=[[135.5,"ア"],[136.9,"イ"],[138.2,"ウ"],[139.6,"エ"]];
+    let ln="";
+    L.forEach(l=>{const t=P2(37.2,l[0]),b=P2(34.9,l[0]);
+      ln+=`<line x1="${t[0]}" y1="${t[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#5B6278" stroke-width="3.5"/>
+           <circle cx="${t[0]}" cy="${(+t[1]-14).toFixed(1)}" r="11" fill="#fff" stroke="#5B6278" stroke-width="2"/>
+           <text x="${t[0]}" y="${(+t[1]-9.5).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="800" fill="#5B6278">${l[1]}</text>`;});
+    return `<svg viewBox="0 0 460 512" role="img" aria-label="日本地図。ア〜エの線がひかれています。">${base}${ln}</svg>`;
+  }
+  /* 四季 */
+  const sky={haru:"#FFF0F6",natsus:"#DCF2FF",akis:"#FFF4E2",fuyus:"#EEF4FA"}[k]||"#fff";
+  if(k==="haru")return S0+`<rect width="320" height="200" fill="${sky}"/>
+    <rect x="0" y="160" width="320" height="40" fill="#CFE9B8"/>
+    <rect x="148" y="96" width="12" height="68" fill="#B08968"/>
+    <path d="M154,110 L96,72 M154,120 L212,78 M154,132 L110,116 M154,100 L196,112" stroke="#B08968" stroke-width="5" stroke-linecap="round"/>
+    <g fill="#FFC7DB"><circle cx="96" cy="72" r="30"/><circle cx="212" cy="78" r="30"/><circle cx="154" cy="52" r="32"/><circle cx="120" cy="104" r="22"/><circle cx="196" cy="108" r="22"/></g>
+    <g fill="#FFAFCE"><circle cx="60" cy="150" r="4"/><circle cx="256" cy="140" r="4"/><circle cx="90" cy="168" r="4"/><circle cx="230" cy="172" r="4"/></g></svg>`;
+  if(k==="natsus")return S0+`<rect width="320" height="200" fill="${sky}"/>
+    <circle cx="262" cy="44" r="26" fill="#FFD766"/>
+    <g stroke="#FFD766" stroke-width="4" stroke-linecap="round"><line x1="262" y1="4" x2="262" y2="-4"/><line x1="304" y1="44" x2="314" y2="44"/><line x1="292" y1="14" x2="300" y2="6"/></g>
+    <rect x="0" y="120" width="320" height="80" fill="#F7E3B8"/>
+    <path d="M0,120 L320,120 L320,74 L0,74 Z" fill="#5FB4E4"/>
+    <path d="M0,112 C40,104 60,120 100,112 C140,104 160,120 200,112 C240,104 260,120 320,112" fill="none" stroke="#fff" stroke-width="4"/>
+    <path d="M60,150 L60,124" stroke="#B08968" stroke-width="4"/><path d="M40,124 a20,10 0 0,1 40,0 Z" fill="#FF8FB1"/>
+    <circle cx="180" cy="150" r="14" fill="#FF9EB5"/><circle cx="180" cy="150" r="7" fill="#fff"/></svg>`;
+  if(k==="akis")return S0+`<rect width="320" height="200" fill="${sky}"/>
+    <rect x="0" y="160" width="320" height="40" fill="#D9C79A"/>
+    <rect x="150" y="98" width="12" height="66" fill="#9B7350"/>
+    <path d="M156,112 L104,78 M156,122 L210,84" stroke="#9B7350" stroke-width="5" stroke-linecap="round"/>
+    <g><circle cx="104" cy="78" r="30" fill="#F2994A"/><circle cx="210" cy="84" r="30" fill="#EB5757"/><circle cx="156" cy="56" r="32" fill="#F2C94C"/><circle cx="126" cy="106" r="22" fill="#EB8A5B"/></g>
+    <g fill="#E08A4B"><path d="M50,170 l6,-6 6,6 -6,6 Z"/><path d="M262,158 l6,-6 6,6 -6,6 Z"/><path d="M84,182 l6,-6 6,6 -6,6 Z"/></g></svg>`;
+  return S0+`<rect width="320" height="200" fill="${sky}"/>
+    <rect x="0" y="150" width="320" height="50" fill="#FFFFFF"/>
+    <rect x="150" y="96" width="12" height="58" fill="#9B8C7E"/>
+    <path d="M156,110 L106,80 M156,120 L208,86" stroke="#9B8C7E" stroke-width="5" stroke-linecap="round"/>
+    <g fill="#F2F7FC" stroke="#DCE6EF" stroke-width="1.5"><circle cx="106" cy="80" r="24"/><circle cx="208" cy="86" r="24"/><circle cx="156" cy="60" r="26"/></g>
+    <circle cx="60" cy="140" r="18" fill="#fff" stroke="#DCE6EF" stroke-width="2"/>
+    <circle cx="60" cy="112" r="13" fill="#fff" stroke="#DCE6EF" stroke-width="2"/>
+    <circle cx="55" cy="109" r="1.8" fill="#5B6278"/><circle cx="65" cy="109" r="1.8" fill="#5B6278"/>
+    <path d="M56,116 q4,3 8,0" stroke="#E2789A" stroke-width="1.6" fill="none"/>
+    <g fill="#BFD9F0"><circle cx="30" cy="40" r="4"/><circle cx="100" cy="30" r="4"/><circle cx="250" cy="36" r="4"/><circle cx="290" cy="70" r="4"/><circle cx="200" cy="24" r="4"/><circle cx="140" cy="48" r="4"/></g></svg>`;
 }
 
 /* =========================================================
@@ -647,10 +974,12 @@ function render(){
       <span class="s">${wc?"まちがえたもんだいを自動であつめています。2回れんぞくで正かいするとそつぎょう！":"まちがえると ここに自動でたまるよ。"}</span></button>`;
 
     h+=`<div class="card"><h2>📋 テストのはんい</h2>
-      <p class="muted" style="margin:0">「日本の気候と地形」＝もんだい集 P.40〜51（7 国土のようす／8 日本の気候区分）と、「日本の自然 かくにんプリント」の 山地・山脈・高地・平野・盆地・川 の名前。</p></div>`;
+      <p class="muted" style="margin:0">「日本の気候と地形」＝もんだい集 P.40〜51（7 国土のようす／8 日本の気候区分）＋ 単元テスト 7・8 ＋「日本の自然 かくにんプリント」の 山地・山脈・高地・平野・盆地・川 の名前。</p></div>`;
 
     h+=`<h2 style="margin:24px 0 0;font-size:16px">🎀 ことばのれんしゅう</h2>`;
     ["kokudo","ranking","kikou","kubun"].forEach(u=>h+=unitBtn(u));
+    h+=`<h2 style="margin:24px 0 0;font-size:16px">📊 グラフ・図・記述（本番で差がつくところ）</h2>`;
+    ["ame","zukei","kijutsu"].forEach(u=>h+=unitBtn(u));
     h+=`<h2 style="margin:24px 0 0;font-size:16px">🗺 地図のれんしゅう</h2>`;
     ["mSan","mHei","mKawa"].forEach(u=>h+=unitBtn(u));
     h+=`<button class="btn soft" onclick="go('list')">📖 地名の一らんを見ておぼえる</button>`;
@@ -664,6 +993,8 @@ function render(){
       <li>雨温図は「①年へいきん気温 → ②冬の降水量」のじゅんに見る</li>
       <li>「扇状地＝山のふもと／三角州＝河口」はセットでおぼえる</li>
       <li>地図はゆびでなぞりながら、声に出して名前を言う</li>
+      <li>記述は「気温と降水量にふれて」と書いてあったら、かならず両方に1回ずつふれる</li>
+      <li>扇状地・三角州・リアス海岸は、ことばより「図のかたち」でおぼえる</li>
       <li>もぎテストで3回れんぞく100点なら 本番もだいじょうぶ！</li></ul></div>`;
 
     h+=`<div class="card"><h2>💾 バックアップ</h2>
@@ -692,6 +1023,8 @@ function render(){
     if(picked===q.ans)h+=`<span class="sparkle" style="left:14px;top:-6px">✨</span><span class="sparkle" style="right:76px;top:2px;animation-delay:.15s">🌟</span>`;
     h+=`</div>`;
     if(q.geo)h+=`<div class="mapbox">${mapSVG(q.geo[3],q.geo[4])}</div>`;
+    if(q.ame!==null&&q.ame!==undefined)h+=`<div class="figbox">${ameSVG(q.ame)}</div>`;
+    if(q.fig)h+=`<div class="${q.fig==="kairyu"||q.fig==="fossa"?"mapbox":"figbox wide"}">${figSVG(q.fig)}</div>`;
     q.choices.forEach((c,i)=>{
       let cls="";if(picked!==null)cls=i===q.ans?"ok":(i===picked?"ng":"dim");
       h+=`<button class="opt ${cls}" ${picked!==null?"disabled":""} onclick="choose(${i})">
