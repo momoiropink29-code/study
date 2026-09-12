@@ -27,7 +27,7 @@ body{
 /* ---- 相棒ステージ ---- */
 .stage{display:block;text-align:center;padding:8px 0 2px}
 .blob{
-  width:230px;height:230px;line-height:230px;
+  width:270px;height:270px;line-height:270px;
   display:inline-block;text-align:center;
   border-radius:46% 54% 52% 48% / 50% 46% 54% 50%;
   background:radial-gradient(circle at 34% 26%,#ffffff 0%,#eaf7ff 48%,#ffeef6 100%);
@@ -35,7 +35,9 @@ body{
              inset 0 -12px 26px rgba(190,225,245,.3);
   animation:morph 9s ease-in-out infinite,float 4.5s ease-in-out infinite;
 }
-.blob .face{font-size:118px;line-height:1;display:inline-block;vertical-align:middle;
+.blob .face{font-size:138px;line-height:1;display:inline-block;vertical-align:middle;
+  filter:drop-shadow(0 8px 12px rgba(120,170,205,.35))}
+.blob img{width:92%;height:92%;object-fit:contain;vertical-align:middle;
   filter:drop-shadow(0 8px 12px rgba(120,170,205,.35))}
 .blob.lv3{box-shadow:0 0 0 14px rgba(255,240,200,.75),0 12px 40px rgba(245,200,120,.5),
   inset 0 -12px 26px rgba(255,238,205,.5)}
@@ -353,16 +355,32 @@ function toast(msg){
 }
 
 /* ---------- 勉強トップ ---------- */
-function renderHome(){
+function homeFallback(){
   var b=$('homeblob');
   if(!save.active||!save.pets[save.active]){
     b.className='blob'; b.innerHTML='<span class="face">🥚</span>';
+  }else{
+    var p=save.pets[save.active], s=sp(save.active);
+    b.className='blob'+(stage(p.lv)===3?' lv3':'');
+    b.innerHTML='<span class="face">'+face(s,p.lv)+'</span>';
+  }
+}
+function renderHome(){
+  var b=$('homeblob');
+  /* img/top.png があればそれを表示。無ければ相棒の絵 */
+  b.className='blob';
+  b.innerHTML='<img src="img/top.png" alt="">';
+  var im=b.getElementsByTagName('img')[0];
+  im.onerror=homeFallback;
+  if(im.complete&&im.naturalWidth===0) homeFallback();
+  renderHomeText();
+}
+function renderHomeText(){
+  if(!save.active||!save.pets[save.active]){
     $('homename').textContent='たまごを かえそう';
     $('homesub').textContent='問題を解くと光の粒がたまるよ';
   }else{
-    var p=save.pets[save.active], s=sp(save.active), st=stage(p.lv);
-    b.className='blob'+(st===3?' lv3':'');
-    b.innerHTML='<span class="face">'+face(s,p.lv)+'</span>';
+    var p=save.pets[save.active], s=sp(save.active);
     $('homename').textContent=fullname(s,p.lv);
     $('homesub').textContent='Lv.'+p.lv+' ／ '+s.t+'の精霊';
   }
