@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ふわもこ理科ノート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Parisienne&display=swap" rel="stylesheet">
+<style>
+:root{
+  --kyokasho:"UD デジタル 教科書体 NK-R","UD Digi Kyokasho NK-R","YuKyokasho","游教科書体","Klee One","Hiragino Maru Gothic ProN",serif;
+  --sky:#bfe0f2; --sky2:#e8f4fb; --paper:#fbfdff; --line:#cfe6f4;
+  --ink:#4a5a66; --sub:#8fa7b6; --gold:#c9a961;
+  --blue:#7fc4ea; --blue-d:#58a3cc; --pink:#ffa9c6; --pink-d:#e886a8;
+  --mint:#9fdcc4; --mint-d:#6dbb9d; --lav:#c3b7f2; --lav-d:#9d8fdc; --honey:#ffd27a; --honey-d:#e4ad45;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;background-color:#bcdcf0;background:var(--sky);color:var(--ink);font-family:var(--kyokasho);font-size:16px;line-height:1.75;
+  padding:max(8px,env(safe-area-inset-top)) 8px max(12px,env(safe-area-inset-bottom));min-height:100vh}
+body.home{background:radial-gradient(circle at 15% 10%,#e3f3fc 0 18%,transparent 19%),radial-gradient(circle at 90% 35%,#fbe8f2 0 14%,transparent 15%),radial-gradient(circle at 20% 85%,#eaf7ff 0 20%,transparent 21%),linear-gradient(#cfe9f7,#bcdcf0);background-color:#bcdcf0;background-attachment:fixed}
+
+/* キラキラ */
+#kira{position:fixed;inset:0;pointer-events:none;z-index:0;display:none}
+body.home #kira{display:block}
+#kira i{position:absolute;color:#fff;font-style:normal;text-shadow:0 0 4px #fff,0 0 10px #8fd0f5,0 0 16px #ffc6dc;animation:tw 2.6s ease-in-out infinite;opacity:0}
+@keyframes tw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1) rotate(20deg)}}
+
+.frame{position:relative;z-index:1;max-width:620px;margin:0 auto;background:var(--sky2);border-radius:28px;padding:10px;box-shadow:0 6px 18px rgba(120,170,200,.25)}
+.sheet{background:var(--paper);border-radius:22px;border:1px solid #fff;padding:0 0 26px;overflow:hidden}
+header{position:relative;padding:14px 16px 20px;text-align:center;
+  background:linear-gradient(180deg,#e6f5fd,#fbfdff)}
+header::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:12px;
+  background:radial-gradient(circle at 10px 12px,var(--paper) 9px,transparent 10px) repeat-x;background-size:20px 12px}
+.htop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hb{border:none;background:#fff;border-radius:16px;padding:4px 12px;font:inherit;font-size:13px;color:var(--sub);
+  box-shadow:0 4px 0 var(--line);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.hb:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.stars{background:#fff;border-radius:16px;padding:3px 12px;font-size:14px;font-weight:600;color:var(--gold);box-shadow:0 4px 0 #f1e6c8}
+.title{font-family:'Parisienne',cursive;font-size:38px;color:var(--gold);line-height:1;margin-top:6px}
+.title .cl{font-size:22px;vertical-align:super}
+.sub{font-size:12.5px;color:var(--sub);letter-spacing:.2em;margin-top:2px}
+main{padding:6px 16px}
+
+/* ふわふわ画像 */
+.hero{display:flex;align-items:center;gap:14px;margin:6px 0 4px}
+.puff{position:relative;width:150px;height:150px;flex:none;animation:floaty 3.6s ease-in-out infinite}
+.puff .b{position:absolute;border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(130,185,215,.25)}
+.puff .img{position:absolute;inset:17px;border-radius:50%;overflow:hidden;background:var(--sky2);border:3px solid #fff}
+.puff img{width:100%;height:100%;object-fit:cover;display:block}
+.puff .chg{position:absolute;right:-4px;bottom:2px;z-index:3;border:none;background:var(--pink);color:#fff;font:inherit;font-size:11px;
+  border-radius:12px;padding:2px 8px;box-shadow:0 3px 0 var(--pink-d);cursor:pointer}
+.puff .chg:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pink-d)}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+.puff.sm{width:120px;height:120px;margin:0 auto}
+.puff.sm .img{inset:14px}
+.count{flex:1;background:#fff;border-radius:26px;padding:12px 14px;text-align:center;box-shadow:0 5px 0 var(--line)}
+.count small{display:block;font-size:12.5px;color:var(--sub)}
+.count b{font-size:44px;line-height:1.1;color:var(--blue-d);font-weight:600}
+.count b span{font-size:18px;margin-left:2px}
+.count .dt{font-size:13px;color:var(--ink)}
+
+/* カード */
+.card{background:#fff;border-radius:24px;padding:15px 16px;margin-top:14px;box-shadow:0 5px 0 #dcecf6,0 10px 20px rgba(150,195,220,.14)}
+.card h2{margin:0 0 6px;font-size:16px;font-weight:600;color:#5f93b3;display:flex;align-items:center;gap:6px}
+.muted{color:var(--sub);font-size:13.5px}
+.menu{list-style:none;margin:8px 0 0;padding:0}
+.menu li{display:flex;align-items:flex-start;gap:10px;background:var(--sky2);border-radius:18px;padding:10px 12px;margin-top:8px;font-size:14.5px}
+.menu .ck{width:28px;height:28px;flex:none;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.menu li.done .ck{background:var(--mint);border-color:var(--mint)}
+.menu li.done{background:#eef9f3}
+.menu .tx{flex:1}
+.menu .tx small{display:block;color:var(--sub);font-size:12px;line-height:1.5}
+
+/* ボタン（へこむ） */
+.btn{display:block;width:100%;border:none;border-radius:22px;padding:14px 18px;margin-top:12px;font:inherit;font-weight:600;font-size:17px;
+  color:#fff;cursor:pointer;text-align:center;background:var(--blue);box-shadow:0 6px 0 var(--blue-d);transition:transform .08s,box-shadow .08s}
+.btn:active:not(:disabled){transform:translateY(5px);box-shadow:0 1px 0 var(--blue-d)}
+.btn.pink{background:var(--pink);box-shadow:0 6px 0 var(--pink-d)}
+.btn.pink:active:not(:disabled){box-shadow:0 1px 0 var(--pink-d)}
+.btn.mint{background:var(--mint);box-shadow:0 6px 0 var(--mint-d)}
+.btn.mint:active:not(:disabled){box-shadow:0 1px 0 var(--mint-d)}
+.btn.honey{background:var(--honey);box-shadow:0 6px 0 var(--honey-d);color:#7a5a16}
+.btn.honey:active:not(:disabled){box-shadow:0 1px 0 var(--honey-d)}
+.btn.rainbow{background:linear-gradient(95deg,#9fd8f5,#b9c9f7,#f5b9d6,#ffd9a8,#b8e8cf);box-shadow:0 6px 0 #9dc3dc;color:#4a5a66}
+.btn.rainbow:active:not(:disabled){box-shadow:0 1px 0 #9dc3dc}
+.btn.soft{background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--line);font-size:15px}
+.btn.soft:active:not(:disabled){box-shadow:0 1px 0 var(--line)}
+.btn:disabled{background:#edf2f5;color:#b5c4ce;box-shadow:0 5px 0 #dde6ec;cursor:default}
+.btn .s{display:block;font-size:12.5px;font-weight:400;opacity:.95;line-height:1.5}
+.row2{display:flex;gap:10px}.row2 .btn{flex:1}
+button:focus-visible,input:focus-visible{outline:3px dashed var(--lav);outline-offset:3px}
+
+.unit{display:flex;align-items:center;gap:12px;width:100%;border:none;border-radius:22px;padding:11px 14px;margin-top:10px;font:inherit;
+  cursor:pointer;text-align:left;background:#fff;color:var(--ink);box-shadow:0 5px 0 #dcecf6;transition:transform .08s,box-shadow .08s}
+.unit:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #dcecf6}
+.unit .ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.unit .nm{flex:1;font-weight:600;font-size:15.5px;line-height:1.4}
+.unit .ct{display:block;font-size:11.5px;font-weight:400;color:var(--sub)}
+.unit .ar{color:#c7dcea;font-size:20px}
+.unit:disabled{opacity:.55;cursor:default}
+
+/* クイズ */
+.prog{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-top:14px;padding:0 4px}
+.pbar{height:14px;background:#fff;border-radius:99px;padding:3px;margin:6px 0 14px;box-shadow:0 3px 0 #dcecf6}
+.pbar i{display:block;height:100%;border-radius:99px;transition:width .35s;background:linear-gradient(90deg,#9fd8f5,#c3b7f2,#ffa9c6,#ffd27a,#9fdcc4)}
+.qcard{background:#fff;border-radius:24px;padding:16px;position:relative;box-shadow:0 5px 0 #dcecf6}
+.tag{display:inline-block;font-size:11.5px;color:#fff;border-radius:99px;padding:1px 11px;margin:0 0 8px}
+.qt{margin:0;font-weight:600;font-size:17.5px;line-height:1.8}
+.fig{display:block;width:100%;max-width:340px;height:auto;margin:10px auto 0;background:linear-gradient(#f4fafe,#fbfdff);border-radius:18px}
+.figrow{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:8px}
+.figrow svg{width:31%;min-width:96px;max-width:130px;height:auto;background:#f4fafe;border-radius:14px}
+table.t{border-collapse:separate;border-spacing:0;margin:10px auto 0;font-size:13.5px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1.5px var(--line)}
+.tw{overflow-x:auto;max-width:100%}
+table.t th{background:#e3f2fb;font-weight:600;padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td{padding:5px 8px;text-align:center;border-top:1px solid #eef5fa;white-space:nowrap}
+table.t td:first-child{background:#f6fbfe;font-weight:600}
+.opt{display:flex;align-items:center;gap:12px;width:100%;border:none;background:#fff;border-radius:20px;padding:13px 14px;margin-top:11px;
+  font:inherit;font-weight:600;font-size:16px;cursor:pointer;text-align:left;color:var(--ink);box-shadow:0 5px 0 #dcecf6;transition:transform .08s,box-shadow .08s}
+.opt:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #dcecf6}
+.opt .k{width:30px;height:30px;flex:none;border-radius:50%;background:var(--sky2);color:var(--blue-d);display:flex;align-items:center;justify-content:center;font-size:14px}
+.opt.ok{background:#fff1f6;box-shadow:0 5px 0 #ffc9dc;color:var(--pink-d)}
+.opt.ok .k{background:var(--pink);color:#fff}
+.opt.ng{background:#eef5fa;box-shadow:0 5px 0 #cfe0ec}
+.opt.dim{opacity:.45}
+.exp{margin-top:14px;background:#fffbea;border-radius:20px;padding:13px 15px;font-size:15px;box-shadow:0 4px 0 #f7ebc2}
+.exp b{display:block;font-size:12.5px;color:#c99a1c;margin-bottom:2px}
+.exp.ng{background:#eef6fc;box-shadow:0 4px 0 #d3e6f3}
+.exp.ng b{color:var(--blue-d)}
+.mark{position:absolute;top:-34px;right:4px;width:82px;height:82px;pointer-events:none}
+.pop{animation:pop .32s cubic-bezier(.3,1.5,.5,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.sparkle{position:fixed;font-size:20px;pointer-events:none;z-index:50;animation:spk 1s ease-out forwards;color:#ffc2d8}
+@keyframes spk{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1.3) translateY(-30px) rotate(30deg);opacity:0}}
+
+/* 書く */
+.hint{background:#f3f0ff;border-radius:16px;padding:8px 12px;font-size:13.5px;margin-top:10px;color:#6c5fb0}
+.padwrap{position:relative;margin-top:12px;border-radius:18px;overflow:hidden;background:#fff;
+  background-image:repeating-linear-gradient(#fff 0 47px,#cfe6f4 47px 48px);box-shadow:0 0 0 2px var(--line)}
+.padwrap canvas{display:block;width:100%;touch-action:none;cursor:crosshair}
+.padwrap .ph{position:absolute;left:14px;top:10px;font-size:13px;color:#b9cdda;pointer-events:none}
+.padbar{display:flex;gap:8px;margin-top:10px}
+.padbar .btn{margin-top:0;padding:9px 10px;font-size:14.5px;flex:1}
+.model{margin-top:14px;background:#fff1f6;border-radius:20px;padding:13px 15px;box-shadow:0 4px 0 #ffd3e2}
+.model b{display:block;font-size:12.5px;color:var(--pink-d)}
+.model .ans{font-size:18px;font-weight:600;line-height:1.7}
+.keys{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.key{border:none;font:inherit;font-size:14px;background:#fff;color:var(--ink);border-radius:14px;padding:5px 11px;box-shadow:0 3px 0 #f2cddb;cursor:pointer}
+.key:active{transform:translateY(2px);box-shadow:0 1px 0 #f2cddb}
+.key.on{background:var(--pink);color:#fff;box-shadow:0 3px 0 var(--pink-d)}
+.self{display:flex;gap:8px}
+.self .btn{flex:1;font-size:15px;padding:12px 6px}
+.numin{display:flex;gap:8px;align-items:center;margin-top:14px}
+.numin input{flex:1;min-width:0;font:inherit;font-size:24px;text-align:center;padding:8px;border:2px solid var(--line);border-radius:16px;color:var(--ink)}
+.numin input:focus{outline:none;border-color:var(--blue)}
+.numin span{font-size:17px}
+
+.score{font-size:68px;line-height:1;margin:6px 0;font-weight:600;background:linear-gradient(95deg,#7fc4ea,#c3b7f2,#ffa9c6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.score span{font-size:22px}
+.center{text-align:center}
+.link{background:none;border:none;color:var(--sub);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer;display:block;margin:22px auto 0}
+.points{margin:0;padding-left:1.1em;font-size:15px}
+.points li{margin-top:6px}
+.points b{color:#d56d93;font-weight:600}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
+.gal div{background:var(--sky2);border-radius:14px;padding:6px;font-size:11.5px;line-height:1.45}
+.gal img{width:100%;border-radius:10px;display:block;background:#fff}
+.wl{background:var(--sky2);border-radius:14px;padding:9px 12px;margin-top:8px;font-size:13.5px}
+.foot{text-align:center;font-family:'Parisienne',cursive;color:var(--gold);font-size:17px;margin-top:18px}
+ruby rt{font-size:.5em}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="kira"></div>
+<div class="frame"><div class="sheet">
+<header>
+  <div class="htop">
+    <button class="hb" onclick="go('home')">ホーム</button>
+    <span class="stars" id="hdStar">⭐ 0</span>
+  </div>
+  <div class="title">Rika Note<span class="cl">☁</span></div>
+  <div class="sub">ふわもこ理科ノート</div>
+</header>
+<main id="app"></main>
+<div class="foot">Swing, swing, you can do it!</div>
+</div></div>
+<input type="file" id="imgIn" accept="image/*" hidden>
+
+<script>
+/* =========================================================
+   0. 保存
+   ========================================================= */
+const KEY="otoha_rika_v1";
+let S={stars:0,done:{},stat:{},wrong:[],gal:[],img:{},unlockAll:false,best:{}};
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(v)S=Object.assign(S,v);}catch(e){}}
+function save(){
+  for(let i=0;i<30;i++){
+    try{localStorage.setItem(KEY,JSON.stringify(S));return;}
+    catch(e){ if(S.gal.length){S.gal.shift();} else return; }
+  }
+}
+load();
+
+/* =========================================================
+   1. 図（SVG）
+   ========================================================= */
+const C={str:"#7d8fa0",dash:"#b8cfdd",ball:"#ffb8cf",ballS:"#e98aab",arw:"#58a3cc",tx:"#4a5a66",ceil:"#9fb4c3"};
+const svg=(w,h,b,cls="fig")=>`<svg class="${cls}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" font-family="inherit">${b}</svg>`;
+const tx=(x,y,t,o={})=>`<text x="${x}" y="${y}" font-size="${o.s||12}" fill="${o.c||C.tx}" text-anchor="${o.a||'middle'}" font-weight="${o.w||400}">${t}</text>`;
+const ln=(x1,y1,x2,y2,o={})=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${o.c||C.str}" stroke-width="${o.w||2}" ${o.d?'stroke-dasharray="4 4"':''} stroke-linecap="round"/>`;
+const ball=(x,y,r=9)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${C.ball}" stroke="${C.ballS}" stroke-width="2"/><circle cx="${x-r*.35}" cy="${y-r*.35}" r="${r*.28}" fill="#fff" opacity=".8"/>`;
+function head(x1,y1,x2,y2,c){const a=Math.atan2(y2-y1,x2-x1),s=7;
+  return `<path d="M${x2} ${y2}L${x2-s*Math.cos(a-.45)} ${y2-s*Math.sin(a-.45)}L${x2-s*Math.cos(a+.45)} ${y2-s*Math.sin(a+.45)}Z" fill="${c}"/>`;}
+const arw=(x1,y1,x2,y2,c=C.arw,both=true)=>ln(x1,y1,x2,y2,{c,w:2})+head(x1,y1,x2,y2,c)+(both?head(x2,y2,x1,y1,c):"");
+const ceil=(x1,x2,y)=>ln(x1,y,x2,y,{c:C.ceil,w:3})+Array.from({length:Math.floor((x2-x1)/10)},(_,i)=>ln(x1+5+i*10,y,x1+i*10,y-6,{c:C.ceil,w:1.2})).join("");
+const P=(cx,cy,L,deg)=>[cx+L*Math.sin(deg*Math.PI/180),cy+L*Math.cos(deg*Math.PI/180)];
+const arc=(cx,cy,r,d1,d2,c=C.arw)=>{const[a,b]=P(cx,cy,r,d1),[e,f]=P(cx,cy,r,d2);return `<path d="M${a} ${b}A${r} ${r} 0 0 ${d2>d1?0:1} ${e} ${f}" fill="none" stroke="${c}" stroke-width="2"/>`;};
+
+/* ふりこの各部分 */
+function figBasic(){
+  const cx=150,cy=24,L=135,dg=25,[rx,ry]=P(cx,cy,L,dg),[lx,ly]=P(cx,cy,L,-dg);
+  const n=[Math.cos(dg*Math.PI/180),-Math.sin(dg*Math.PI/180)];
+  const o1=[cx+16*n[0],cy+16*n[1]],o2=[rx+16*n[0],ry+16*n[1]];
+  return svg(300,215,
+    ceil(115,185,cy)+ln(cx,cy,cx,cy+L+12,{c:C.dash,w:1.5,d:1})+ln(cx,cy,lx,ly)+ln(cx,cy,rx,ry)+ball(lx,ly,11)+ball(rx,ry,11)+
+    `<circle cx="${cx}" cy="${cy}" r="4" fill="#ffa9c6"/>`+
+    tx(78,46,"支点（してん）",{c:"#d56d93",w:600})+ln(110,42,146,27,{c:"#d56d93",w:1.2})+
+    arw(o1[0],o1[1],o2[0],o2[1])+tx(247,92,"ふりこの長さ",{c:C.arw,w:600})+
+    arc(cx,cy,52,0,dg)+tx(70,104,"ふれはば",{c:C.arw,w:600})+ln(96,99,156,78,{c:C.arw,w:1.2,d:1})+
+    `<path d="M${lx} ${ly+20}Q${cx} ${ly+44} ${rx} ${ry+20}" fill="none" stroke="#e98aab" stroke-width="2.5"/>`+head(cx,ly+36,rx,ry+20,"#e98aab")+head(cx,ly+36,lx,ly+20,"#e98aab")+
+    tx(cx,ly+54,"1往復（行って もどる）",{c:"#d56d93",w:600,s:11.5})+tx(lx-2,ly-16,"おもり",{s:11})
+  );
+}
+/* ふりこの長さ ア〜ウ */
+function figLen(){
+  const x=120,top=16,cy=128,r=11;
+  return svg(220,160,ceil(70,170,top)+ln(x,top,x,cy)+ball(x,cy,r)+
+    ln(48,cy+r,x,cy+r,{c:C.dash,w:1.2,d:1})+ln(70,cy,x,cy,{c:C.dash,w:1.2,d:1})+ln(92,cy-r,x,cy-r,{c:C.dash,w:1.2,d:1})+
+    arw(48,top,48,cy+r)+arw(70,top,70,cy)+arw(92,top,92,cy-r)+
+    tx(38,78,"ア",{w:600,s:14})+tx(60,78,"イ",{w:600,s:14})+tx(82,78,"ウ",{w:600,s:14})+tx(160,cy+4,"おもり",{s:11}));
+}
+/* おもりを2つにする */
+function figTwo(){
+  const y0=14,yb=104;
+  return svg(300,150,ceil(20,280,y0)+
+    ln(50,y0,50,yb-9)+ball(50,yb)+
+    tx(105,70,"おもりの数を",{s:10.5})+tx(105,84,"2つにする",{s:10.5})+arw(85,94,125,94,"#e98aab",false)+
+    ln(165,y0,165,yb-9)+ball(165,yb)+ball(165,yb+18)+
+    ln(250,y0,250,yb-14)+ln(250,yb-14,241,yb-9,{w:1.5})+ln(250,yb-14,259,yb-9,{w:1.5})+ball(241,yb)+ball(259,yb)+
+    ln(30,yb,280,yb,{c:C.dash,w:1.2,d:1})+tx(165,142,"A",{w:600,s:15})+tx(250,142,"B",{w:600,s:15}));
+}
+/* A→B→C の動き */
+function figMove(){
+  const cx=130,cy=20,L=112,[ax,ay]=P(cx,cy,L,-35),[bx,by]=P(cx,cy,L,0),[qx,qy]=P(cx,cy,L,35);
+  return svg(260,165,ceil(90,170,cy)+`<path d="M${ax} ${ay}A${L} ${L} 0 0 0 ${qx} ${qy}" fill="none" stroke="${C.dash}" stroke-width="1.5" stroke-dasharray="4 4"/>`+
+    ln(cx,cy,ax,ay,{w:1.5})+ln(cx,cy,bx,by,{w:1.5,c:"#b7c6d2"})+ln(cx,cy,qx,qy,{w:1.5,c:"#b7c6d2"})+ball(ax,ay)+ball(bx,by)+ball(qx,qy)+
+    tx(ax-2,ay+26,"A",{w:600,s:15})+tx(bx,by+26,"B",{w:600,s:15})+tx(qx+2,qy+26,"C",{w:600,s:15})+tx(cx+14,cy+14,"X",{w:600,s:13}));
+}
+/* ふれはば ア〜ウ */
+function figAngle(){
+  const cx=120,cy=26,L=110,[rx,ry]=P(cx,cy,L,30),[lx,ly]=P(cx,cy,L,-30);
+  return svg(240,160,ceil(40,200,cy)+ln(cx,cy,cx,cy+L+12,{c:C.dash,w:1.5,d:1})+ln(cx,cy,lx,ly)+ln(cx,cy,rx,ry)+ball(lx,ly)+ball(rx,ry)+
+    arc(cx,cy,34,0,30,"#e98aab")+tx(130,77,"ア",{w:600,s:14,c:"#d56d93"})+
+    arc(cx,cy,56,90,30)+tx(186,58,"イ",{w:600,s:14,c:C.arw})+
+    arc(cx,cy,80,-30,30,"#6dbb9d")+tx(120,124,"ウ",{w:600,s:14,c:"#4f9e80"}));
+}
+/* メトロノーム */
+function figMetro(){
+  return svg(220,180,`<path d="M70 168L130 168L114 28L86 28Z" fill="#e3f2fb" stroke="#b9d6e8" stroke-width="2"/>`+
+    ln(100,22,100,142,{w:2.5})+`<rect x="93" y="48" width="14" height="12" rx="3" fill="${C.ball}" stroke="${C.ballS}" stroke-width="2"/>`+
+    `<circle cx="100" cy="124" r="5" fill="#fff" stroke="${C.str}" stroke-width="2"/>`+ball(100,150,8)+
+    ln(103,22,165,22,{c:C.dash,w:1.2})+ln(106,124,165,124,{c:C.dash,w:1.2})+ln(109,150,165,150,{c:C.dash,w:1.2})+
+    tx(176,26,"ア",{w:600,s:14})+tx(176,128,"イ",{w:600,s:14})+tx(176,154,"ウ",{w:600,s:14})+tx(60,58,"おもり",{s:11})+ln(76,55,92,54,{c:C.dash,w:1}));
+}
+/* ふりこ時計 */
+function figClock(){
+  return svg(240,190,`<rect x="60" y="10" width="90" height="172" rx="10" fill="#f3e6d8" stroke="#d8c0a5" stroke-width="2"/>`+
+    `<circle cx="105" cy="48" r="27" fill="#fff" stroke="#d8c0a5" stroke-width="2"/>`+ln(105,48,105,30,{w:2})+ln(105,48,118,52,{w:2})+
+    `<rect x="72" y="84" width="66" height="90" rx="6" fill="#fffaf3" stroke="#e4d2bd"/>`+
+    `<circle cx="105" cy="88" r="3.5" fill="#e98aab"/>`+ln(105,88,105,145,{w:2})+`<circle cx="105" cy="150" r="13" fill="#f7dd8f" stroke="#d9b24a" stroke-width="2"/>`+
+    ln(105,163,105,170,{w:3,c:"#9a8a70"})+
+    ln(108,88,170,86,{c:C.dash,w:1.2})+tx(196,90,"支点",{s:12})+ln(118,150,170,146,{c:C.dash,w:1.2})+tx(196,150,"おもり",{s:12})+
+    ln(108,168,170,172,{c:C.dash,w:1.2})+tx(200,170,"上下させる",{s:10.5})+tx(200,184,"ねじ",{s:10.5}));
+}
+/* くぎ */
+function figNail(){
+  const cx=120,cy=16,nx=120,ny=72,[lx,ly]=P(cx,cy,112,-32),[rx,ry]=P(nx,ny,56,40);
+  return svg(240,150,ceil(80,160,cy)+ln(cx,cy,lx,ly)+ln(cx,cy,nx,ny)+ln(nx,ny,rx,ry)+
+    `<circle cx="${nx}" cy="${ny}" r="4.5" fill="#9fb4c3"/>`+ln(nx,ny,nx,cy+112,{c:C.dash,w:1.2,d:1})+
+    ball(lx,ly)+ball(nx,cy+112)+ball(rx,ry)+tx(nx+26,ny-2,"くぎ",{s:12,w:600})+arw(lx+22,ly+26,nx-14,cy+120,"#e98aab",false)+arw(nx+14,cy+120,rx+4,ry+20,"#e98aab",false));
+}
+/* 小さいふりこ（条件くらべ用） */
+function mini(o){
+  const px=38,py=14,L=({25:30,30:36,50:54,100:96})[o.cm]||54,d=o.deg>30?30:o.deg,[x,y]=P(px,py,L,d);
+  let b=ceil(14,66,py)+ln(px,py,px,py+L+4,{c:C.dash,w:1.2,d:1})+ln(px,py,x,y,{w:1.6})+arc(px,py,17,0,d,"#e98aab");
+  if(o.stack==="v"){const[x2,y2]=P(px,py,L+13,d);b+=ball(x,y,6)+ball(x2,y2,6);}
+  else b+=ball(x,y,6.5);
+  b+=tx(10,13,o.lab,{w:600,s:14,a:"start"})+tx(95,52,o.len||(o.cm>=100?o.cm/100+"m":o.cm+"cm"),{s:11})+tx(95,68,o.deg+"°",{s:11,c:"#d56d93"})+tx(95,84,o.g,{s:11,c:C.arw});
+  return svg(120,140,b,"mini");
+}
+const minis=a=>`<div class="figrow">${a.map(mini).join("")}</div>`;
+const T=(h,rows)=>`<div class="tw"><table class="t"><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")}</table></div>`;
+
+/* =========================================================
+   2. テスト・単元（テストがふえたらここに追加）
+   ========================================================= */
+const TESTS=[
+ {id:"r0929",name:"第8章 ふりこの運動",date:"2026-09-29",book:"学校の問題集 P.118〜129／ウィンパス P.142〜151・160",
+  units:{
+   f1:{name:"ふりこのことば",ic:"🎐",col:"#bfe3f7"},
+   f2:{name:"1往復する時間の求め方",ic:"⏱️",col:"#ffd9e6"},
+   f3:{name:"ふりこのきまり",ic:"🔍",col:"#fff0c7"},
+   f4:{name:"実験の考え方（条件をそろえる）",ic:"🧪",col:"#d8f2e6"},
+   f5:{name:"ふりこの利用",ic:"🕰️",col:"#e6e0fb"},
+   f6:{name:"書いて答える（記述）",ic:"✏️",col:"#ffe3d1"},
+   f7:{name:"思考力のとびら",ic:"🚪",col:"#dff0fb"}
+  },
+  /* src: core=学校の問題集（1周目） wp=ウィンパス（2周目の復習・おくれたら削る） final=テスト前日 */
+  plan:[
+   {d:"2026-09-22",us:["f1"],src:"core",paper:"P.119 まとめノート①〜④・たしかめ問題1、P.120 練習しよう1"},
+   {d:"2026-09-23",us:["f2"],src:"core",paper:"P.119 まとめノート⑤〜⑩・たしかめ問題2、P.120 練習しよう2"},
+   {d:"2026-09-24",us:["f3"],src:"core",paper:"P.121 練習しよう3、P.124 まとめノート①〜⑭、P.125 たしかめ問題1〜3"},
+   {d:"2026-09-25",us:["f4"],src:"core",paper:"P.126 練習しよう1・2、P.127 練習しよう4"},
+   {d:"2026-09-26",us:["f5","f6","f7"],src:"core",paper:"P.125 たしかめ問題4、P.127 練習しよう3、P.128・129 思考力のとびら、P.126 1(2)・P.127 4(4)の記述を答えを見ないでもう一度"},
+   {d:"2026-09-27",us:["f1","f2","f3","f4","f5","f6","f7"],src:"wp",wp:"P.143 まとめノート、P.144 確かめよう、P.145 考えよう、P.147 まとめノート、P.148 確かめよう、P.149 考えよう"},
+   {d:"2026-09-28",us:[],src:"final",wp:"P.150・151 ふりかえろう（時間をはかって100点をめざす）、P.160 6"}
+  ]}
+];
+const ALLUNITS={};TESTS.forEach(t=>Object.entries(t.units).forEach(([k,v])=>ALLUNITS[k]=Object.assign({test:t.id},v)));
+
+/* おぼえるポイント */
+const POINTS={
+ f1:()=>figBasic()+`<ul class="points">
+  <li>糸などにおもりをつけて、左右にふれるようにしたもの＝<b>ふりこ</b></li>
+  <li><b>支点</b>…糸をつるしている、動かない点</li>
+  <li><b>ふりこの長さ</b>…支点から <b>おもりの中心</b> までの長さ</li>
+  <li><b>ふれはば</b>…支点の真下の位置から、ふらせ始めた位置までのはば（角度）</li>
+  <li><b>1往復</b>…おもりがふれて、もう一度ふらせ始めた位置にもどるまで</li>
+  <li>糸は <b>たるませない</b>（角度が正しくはかれないから）</li>
+  <li>おもりを2つにするとき、<b>たてにつなぐとふりこが長くなる</b>。同じところからつるせば長さは変わらない</li></ul>`,
+ f2:()=>`<ul class="points">
+  <li>1往復を1回だけはかっても正確に調べるのはむずかしい → <b>10往復する時間を3回</b>はかる</li>
+  <li>①10往復の<b>合計 ÷ 3</b> ＝ 10往復する時間の平均</li>
+  <li>②10往復する時間の平均 <b>÷ 10</b> ＝ 1往復する時間の平均</li>
+  <li>わり切れないときは、ふつうは <b>小数第2位を四捨五入</b>（問題の指示を必ず読む！）</li>
+  <li>はかった時間と実際の時間の差＝<b>誤差</b>／ならした大きさ＝<b>平均</b></li></ul>`+
+  T(["1回目","2回目","3回目","合計","10往復の平均","1往復の平均"],[["14.2秒","13.9秒","14.1秒","42.2秒","14.1秒","1.4秒"]]),
+ f3:()=>`<ul class="points">
+  <li>おもりの重さを変えても → 1往復する時間は <b>変わらない</b></li>
+  <li>ふれはばを変えても → 1往復する時間は <b>変わらない</b></li>
+  <li>ふりこの長さが <b>長いほど</b> → 1往復する時間は <b>長くなる</b>（短いほど短くなる）</li>
+  <li>1往復する時間を変えるのは <b>ふりこの長さだけ</b></li>
+  <li>調べたい条件だけを変えて、ほかの条件は同じにする実験＝<b>対照実験</b></li>
+  <li>長さを<b>4倍</b>にすると、1往復する時間は<b>2倍</b>（25cm→1.0秒、100cm→2.0秒、400cm→4.0秒）</li>
+  <li>ふれはばはだんだん小さくなるけど、ふれる速さもおそくなるので、1往復する時間は変わらない</li>
+  <li>いちばん下（真下）で、おもりは <b>いちばん速い</b></li>
+  <li>高いところ→低いところは <b>速くなる</b>、低いところ→高いところは <b>おそくなる</b></li>
+  <li>おもりは <b>もとの高さまで</b> 上がる（それより上には行けない）</li></ul>`+
+  T(["ふりこの長さ","25cm","50cm","100cm","200cm","400cm"],[["1往復する時間","1.0秒","1.4秒","2.0秒","2.8秒","4.0秒"]]),
+ f4:()=>`<ul class="points">
+  <li>くらべる2つのふりこは、<b>調べたい条件だけがちがう</b>ものをえらぶ</li>
+  <li>2つ以上の条件がちがうと、どの条件のせいか わからない → <b>正しく比べられない</b></li>
+  <li>おもりを <b>たてにつなぐ</b>と、ふりこの長さが長くなってしまう（ワナ！）</li></ul>`+
+  minis([{lab:"A",cm:100,deg:15,g:"20g"},{lab:"B",cm:50,deg:15,g:"20g"},{lab:"C",cm:50,deg:30,g:"10g"},{lab:"D",cm:50,deg:15,g:"10g"},{lab:"E",cm:25,deg:15,g:"10g"},{lab:"F",cm:50,deg:15,g:"10g×2",stack:"v"}])+
+  `<p class="muted" style="margin:6px 0 0">A・B・C・D・E・F（P.127の図）。FはおもりをたてにつないだのでBとちがう結果に。</p>`,
+ f5:()=>figClock()+`<ul class="points">
+  <li><b>ふりこ時計</b>…ふりこの動きで、はりを正確に進める。おもりを上下させて<b>ふりこの長さ</b>を変え、時間を調節</li>
+  <li>時計が <b>進む（速すぎる）</b> → おもりを <b>下げる</b>（長くして1往復をおそく）</li>
+  <li><b>メトロノーム</b>…おもりが <b>支点より上</b>。おもりを <b>上に</b>動かすとふりこが長くなり、音の回数が <b>へる</b></li>
+  <li>メトロノームの目もりは <b>上ほど小さい数字</b></li>
+  <li>ぼうが1往復する間に「カチッ」は <b>2回</b></li>
+  <li>金属は温めると体積が大きくなる → <b>夏</b>はふりこが長くなり時計が <b>おくれる</b>。冬は短くなり <b>進む</b></li>
+  <li><b>ブランコ</b>…立ってこぐと ふりこが短くなり、1往復する時間が <b>短くなる</b>（すわると長い）</li>
+  <li>ふりこの長さは、支点から <b>おもり（タイヤ・ペットボトル）の中心</b> まで</li>
+  <li>とちゅうで <b>くぎ</b>に引っかかると、ふりこが短くなるので1往復する時間は <b>短くなる</b></li></ul>`+figMetro(),
+ f6:()=>`<ul class="points">
+  <li>「なぜですか」「理由を書きなさい」→ 最後は <b>「〜から。」</b></li>
+  <li>「関係を書きなさい」→ <b>「〜が長いほど、〜は長くなる。」</b>の形</li>
+  <li>「変わらない」ときは <b>「〜を変えても、〜は変わらない。」</b></li>
+  <li>ことば（<b>ふりこの長さ・1往復する時間</b>）を省略しないで書く</li></ul>`,
+ f7:()=>`<ul class="points">
+  <li>ブランコも ふりこ。<b>立って乗る</b>と、体の中心が支点に近づき、ふりこが <b>短く</b>なる</li>
+  <li>体重（おもりの重さ）や、後ろに大きく引く（ふれはば）では、10往復する時間は変わらない</li>
+  <li>メトロノーム「160」＝1分間に160回 → 1往復で2回鳴るので、1分間に80往復</li>
+  <li>会話文の問題は、<b>「何を変えたか」</b>を表にして考える</li></ul>`
+};
+
+/* 問題データ
+   c: 4択 [単元, 問題, 選択肢, 正解番号, 解説, 図, 選択肢固定]
+   n: 数 [単元, 問題, 正解(文字の配列), 単位, 解説, 図]
+   w: 書く [単元, 問題, 模範解答, キーワード, 解説, 書き方ヒント, 図, 行数(1=ことば)] */
+const Q=[];
+const c=(u,q,o,a,e,f="",fix=false)=>Q.push({t:"c",u,q,o,a,e,f,fix});
+const n=(u,q,a,un,e,f="")=>Q.push({t:"n",u,q,a,un,e,f});
+const w=(u,q,a,k,e,h="",f="",lines=2)=>Q.push({t:"w",u,q,a,k,e,h,f,lines});
+
+/* ---- f1 ふりこのことば ---- */
+c("f1","糸などにおもりをつけて、左右にふれるようにしたものを何といいますか。",["ふりこ","てこ","ばね","かっ車"],0,"メトロノームやふりこ時計に使われている。");
+c("f1","ふりこの糸をつるしている、動かない点を何といいますか。",["支点","力点","作用点","中心点"],0,"支点（してん）。てこの「支点」と同じことば。");
+c("f1","ふりこの長さとは、どこからどこまでの長さですか。",["支点からおもりの中心まで","支点からおもりの下のはしまで","支点からおもりの上のはしまで","おもりの左はしから右はしまで"],0,"「おもりの中心まで」がポイント。糸の長さだけではない！");
+c("f1","図で、ふりこの長さを表しているのはどれですか。",["ア","イ","ウ"],1,"支点から おもりの中心 まで＝イ。アは下のはし、ウは上のはしまで。",figLen(),true);
+c("f1","おもりがふれて、もう一度ふらせ始めた位置にもどるまでを何といいますか。",["1往復","1回転","半往復","ふれはば"],0,"1往復（おうふく）＝行って、もどってくるまで。");
+c("f1","おもりが A→B→C→B→A→… と動いています。1往復はどの動きですか。",["A→B","A→B→C","A→B→C→B→A","B→C→B"],2,"ふらせ始めたAに もどってくるまでが1往復。A→B→Cは半分だけ！",figMove());
+c("f1","ふれはばとは、どのはばのことですか。",["支点の真下の位置から、ふらせ始めた位置までのはば","左はしから右はしまでのはば","支点からおもりまでの長さ","おもりが1秒で動くきょり"],0,"真下からふらせ始めた位置まで。角度（°）で表すことが多い。");
+c("f1","図で、ふりこのふれはばを表しているのはどれですか。",["ア","イ","ウ"],0,"支点の真下（点線）から ふらせ始めた位置まで＝ア。ウは左はしから右はしまで なのでちがう。",figAngle(),true);
+c("f1","ふりこの長さを変えずに、おもりの数を2つにします。正しいつけ方はA・Bのどちらですか。",["A","B"],1,"Aのように たてにつなぐと、おもりの中心が下がって ふりこが長くなってしまう。Bのように同じところからつるす。",figTwo(),true);
+c("f1","おもりを2つ、たてにつないでつるすと、ふりこの長さはどうなりますか。",["長くなる","短くなる","変わらない","半分になる"],0,"おもりの中心が下に下がるので、ふりこの長さが長くなる。");
+c("f1","ふれはばを決めるとき、糸がたるまないように まっすぐ引き上げるのはなぜですか。",["角度を正確にはかるため","おもりの重さが変わらないようにするため","ふりこの長さが長くなるようにするため","音が出ないようにするため"],0,"糸がたるむと、正しく角度がはかれない。");
+w("f1","糸をつるしたり手で持ったりする、ふりこの動かない点を何といいますか。","支点",["支点"],"糸を「支える点」なので「支点」。","漢字で書こう","",1);
+w("f1","支点の真下の位置から、ふらせ始めた位置までのはばを何といいますか。","ふれはば",["ふれはば"],"ふれ＋はば。","","",1);
+w("f1","ふりこの長さとは、支点からどこまでの長さですか。","おもりの中心（まで）",["おもりの","中心"],"「おもりまで」だけだと×になることも。「中心」を必ず書く！","「おもりの○○」の○○を書こう","",1);
+
+/* ---- f2 1往復する時間の求め方 ---- */
+c("f2","ふりこが1往復する時間を、より正確に求めるにはどうすればよいですか。",["1往復する時間を1回はかる","1往復する時間を3回はかり、いちばん短い時間を答える","10往復する時間を1回はかり、10でわる","10往復する時間を3回はかって平均を求め、さらに10でわる"],3,"10往復×3回 → 平均 → ÷10。P.119 たしかめ問題2と同じ！");
+c("f2","ふりこが1往復する時間を、1回だけはからないのはなぜですか。",["1往復する時間を1回だけはかって、正確に調べるのはむずかしいから","はかる回数が多いほど、時間をはかるのがうまくなるから","ストップウォッチがこわれやすいから","1往復はとても長いから"],0,"1往復はとても短いので、1回だけでは正確にはかれない。P.120(1)。");
+c("f2","「10往復する時間の合計 ÷ 3」で求められるのはどれですか。",["10往復する時間の平均","1往復する時間の平均","1往復する時間の合計","ふりこの長さ"],0,"3回はかったので3でわる → 10往復する時間の平均。");
+c("f2","「10往復する時間の平均 ÷ □ ＝ 1往復する時間の平均」。□にあてはまる数はどれですか。",["10","3","30","100"],0,"10往復ぶんなので10でわる。");
+c("f2","ストップウォッチのおし方などで、実際にかかった時間と はかった時間との間に生じる差を何といいますか。",["誤差","平均","合計","往復"],0,"誤差（ごさ）。だから何回もはかって平均する。");
+c("f2","いくつかの大きさの数量を、等しい大きさになるようにならしたものを何といいますか。",["平均","合計","誤差","割合"],0,"平均＝合計÷個数。");
+n("f2","10往復する時間を3回はかると、14.2秒・13.9秒・14.1秒でした。合計は何秒ですか。",["42.2"],"秒","14.2＋13.9＋14.1＝42.2秒。",T(["1回目","2回目","3回目"],[["14.2秒","13.9秒","14.1秒"]]));
+n("f2","合計が42.2秒でした。10往復する時間の平均は何秒ですか。小数第2位を四捨五入して答えなさい。",["14.1"],"秒","42.2÷3＝14.06… → 小数第2位の6を四捨五入して14.1秒。");
+n("f2","10往復する時間の平均が14.1秒でした。1往復する時間の平均は何秒ですか。小数第2位を四捨五入して答えなさい。",["1.4"],"秒","14.1÷10＝1.41 → 1.4秒。");
+n("f2","10往復する時間が 12.1秒・11.7秒・11.9秒 でした。合計は何秒ですか。",["35.7"],"秒","12.1＋11.7＋11.9＝35.7秒。（P.119 まとめノート⑧）");
+n("f2","合計35.7秒のとき、10往復する時間の平均は何秒ですか。",["11.9"],"秒","35.7÷3＝11.9秒。（まとめノート⑨）");
+n("f2","10往復する時間の平均が11.9秒のとき、1往復する時間の平均は何秒ですか。小数第2位を四捨五入して答えなさい。",["1.2"],"秒","11.9÷10＝1.19 → 小数第2位の9を四捨五入して1.2秒。（まとめノート⑩）");
+n("f2","グループCの結果は 11.4秒・10.9秒・10.7秒 でした。合計は何秒ですか。",["33.0","33"],"秒","11.4＋10.9＋10.7＝33.0秒。（P.120 ㋐）");
+n("f2","合計42.0秒のとき、10往復する時間の平均は何秒ですか。",["14.0","14"],"秒","42.0÷3＝14.0秒。（P.120 ㋑）");
+n("f2","10往復する時間の平均が20.1秒のとき、1往復する時間の平均は何秒ですか。小数第2位を四捨五入して答えなさい。",["2.0","2"],"秒","20.1÷10＝2.01 → 2.0秒。（P.120 ㋒・P.125）");
+w("f2","ふりこが1往復する時間を求めるとき、1往復を1回だけはからずに、10往復する時間を3回はかるのはなぜですか。","1往復する時間を1回だけはかって、正確に調べるのはむずかしいから。",["1回だけ","正確に","むずかしい","〜から。"],"理由を聞かれたら「〜から。」で終わる。","理由 →「〜から。」で終わろう");
+
+/* ---- f3 ふりこのきまり ---- */
+c("f3","ふりこが1往復する時間は、おもりの重さによってどうなりますか。",["変わらない","重いほど長くなる","重いほど短くなる","軽いほど長くなる"],0,"10g・20g・30gで、1往復はすべて1.4秒だった。");
+c("f3","ふりこが1往復する時間は、ふれはばによってどうなりますか。",["変わらない","大きいほど長くなる","大きいほど短くなる","小さいほど長くなる"],0,"15°・30°・45°で、1往復はすべて1.4秒。");
+c("f3","ふりこが1往復する時間は、ふりこの長さによってどうなりますか。",["長いほど長くなる","長いほど短くなる","変わらない","長さが半分なら2倍になる"],0,"25cm→1.0秒、50cm→1.4秒、100cm→2.0秒。");
+c("f3","ふりこが1往復する時間を変える条件はどれですか。",["ふりこの長さ","おもりの重さ","ふれはば","おもりの色"],0,"1往復する時間は ふりこの長さ だけで変わる。");
+c("f3","調べたい条件だけを変えて、それ以外の条件は同じにして行う実験を何といいますか。",["対照実験","観察実験","予備実験","くらべっこ実験"],0,"対照（たいしょう）実験。");
+c("f3","おもりの重さとの関係を調べる実験で、変えない条件はどれですか。",["ふりこの長さ と ふれはば","おもりの重さ と ふれはば","おもりの重さ と ふりこの長さ","ふれはば だけ"],0,"変える＝おもりの重さ／変えない＝ふりこの長さ・ふれはば。");
+c("f3","ふりこの長さとの関係を調べる実験で、変えない条件はどれですか。",["ふれはば と おもりの重さ","ふりこの長さ と ふれはば","ふりこの長さ と おもりの重さ","おもりの重さ だけ"],0,"変える＝ふりこの長さ／変えない＝ふれはば・おもりの重さ。");
+c("f3","表は、ふりこの長さを変えた実験の結果です。変える条件と変えない条件の組み合わせで正しいものはどれですか。",["変える：おもりの重さ／変えない：ふりこの長さ・ふれはば","変える：ふりこの長さ／変えない：ふれはば・おもりの重さ","変える：ふれはば／変えない：おもりの重さ・ふりこの長さ"],1,"表で変わっているのは ふりこの長さ。P.126 1(1)と同じ。",T(["ふりこの長さ(cm)","25","50","100","150","200"],[["1往復の平均(秒)","1.0","1.4","2.0","2.5","2.8"]]),true);
+c("f3","表の結果から、おもりの重さと1往復する時間の関係について正しいのはどれですか。",["関係がない","関係がある","重いほど長い","軽いほど長い"],0,"重さを変えても すべて1.4秒 → 関係がない。（P.125 1(2)）",T(["おもりの重さ","10往復の平均","1往復の平均"],[["10g","14.1秒","1.4秒"],["20g","14.1秒","1.4秒"],["30g","14.1秒","1.4秒"]]));
+c("f3","長さ25cmのふりこは1往復1.0秒、100cmのふりこは2.0秒でした。1往復する時間を2倍にするには、ふりこの長さを何倍にすればよいですか。",["4倍","2倍","3倍","8倍"],0,"長さ4倍 → 時間2倍。2倍ではないので注意！");
+c("f3","長さ50cmのふりこは1往復1.4秒です。長さ200cmのふりこは1往復何秒ですか。",["2.8秒","5.6秒","1.4秒","2.0秒"],0,"50cm→200cmは4倍の長さ → 時間は2倍 → 2.8秒。");
+c("f3","ふりこのふれはばは時間がたつとだんだん小さくなります。このとき1往復する時間はどうなりますか。",["変わらない","だんだん短くなる","だんだん長くなる","止まる直前だけ長くなる"],0,"ふれはばが小さくなると、ふれる速さもおそくなるので、1往復する時間は変わらない。");
+c("f3","ふりこのおもりが いちばん速く動いているのは、どこを通るときですか。",["支点の真下を通るとき","ふらせ始めた位置","反対側のいちばん高い位置","どこでも同じ速さ"],0,"真下で運動エネルギーがいちばん大きい。はしでは一しゅん止まる。");
+c("f3","ふりこのおもりが、いちばん高い位置（はし）にきたとき、おもりの速さはどうなっていますか。",["一しゅん止まっている","いちばん速い","真下と同じ速さ","だんだん速くなっている"],0,"はしでは位置エネルギーが最大で、運動エネルギーはゼロ＝止まる。");
+w("f3","ふりこが1往復する時間を変えるのは、何を変えたときですか。","ふりこの長さ",["ふりこの長さ"],"重さ・ふれはばでは変わらない。","","",1);
+w("f3","調べたい条件だけを変え、それ以外の条件は同じにして行う実験を何といいますか。","対照実験",["対照実験"],"対照（たいしょう）。「対象」とまちがえないで！","漢字で書こう","",1);
+w("f3","ふりこが1往復する時間と ふりこの長さの関係について、わかることを書きなさい。","ふりこの長さが長いほど、ふりこが1往復する時間は長くなる。",["ふりこの長さが長いほど","1往復する時間","長くなる"],"P.126 1(2)と同じ。「短いほど短くなる」でも正解。","関係 →「〜が長いほど、〜は長くなる。」の形で");
+
+/* ---- f4 実験の考え方 ---- */
+const AF=minis([{lab:"A",cm:100,deg:15,g:"20g"},{lab:"B",cm:50,deg:15,g:"20g"},{lab:"C",cm:50,deg:30,g:"10g"},{lab:"D",cm:50,deg:15,g:"10g"},{lab:"E",cm:25,deg:15,g:"10g"},{lab:"F",cm:50,deg:15,g:"10g×2",stack:"v"}]);
+const AFn="（A～Fのふりこ。Fは10gのおもりを2つ たてにつないだもの）";
+c("f4","AとBをくらべると、何との関係がわかりますか。"+AFn,["1往復する時間と おもりの重さ","1往復する時間と ふりこの長さ","1往復する時間と ふれはば"],1,"AとBでちがうのは長さ（1mと50cm）だけ。",AF,true);
+c("f4","BとDをくらべると、何との関係がわかりますか。"+AFn,["1往復する時間と おもりの重さ","1往復する時間と ふりこの長さ","1往復する時間と ふれはば"],0,"BとDでちがうのは重さ（20gと10g）だけ。",AF,true);
+c("f4","CとDをくらべると、何との関係がわかりますか。"+AFn,["1往復する時間と おもりの重さ","1往復する時間と ふりこの長さ","1往復する時間と ふれはば"],2,"CとDでちがうのは ふれはば（30°と15°）だけ。",AF,true);
+c("f4","DとEをくらべると、何との関係がわかりますか。"+AFn,["1往復する時間と おもりの重さ","1往復する時間と ふりこの長さ","1往復する時間と ふれはば"],1,"DとEでちがうのは長さ（50cmと25cm）だけ。",AF,true);
+c("f4","1往復する時間が いちばん短いふりこはどれですか。"+AFn,["A","B","E","F"],2,"いちばん短い25cmのE。",AF,true);
+c("f4","1往復する時間が いちばん長いふりこはどれですか。"+AFn,["A","C","E","F"],0,"いちばん長い1mのA。",AF,true);
+c("f4","1往復する時間が同じになるふりこの組み合わせはどれですか。"+AFn,["B・C・D","B・D・F","A・B","C・D・E"],0,"長さがどれも50cmのB・C・D。Fはおもりをたてにつないで長くなっているので入らない！",AF,true);
+c("f4","ふりこが1往復する時間の説明として正しいものはどれですか。",["おもりの重さが重いほど、1往復する時間は短い","ふりこの長さが長いほど、1往復する時間は長い","ふれはばが大きいほど、1往復する時間は長い"],1,"P.127 4(3)。",AF,true);
+const TAB2=T(["ふりこ","長さ(cm)","ふれはば(°)","重さ(g)","1往復の平均(秒)"],[["㋐","50","20","10","1.41"],["㋑","50","40","10","1.40"],["㋒","50","20","20","1.41"]]);
+c("f4","Aさんは「1往復する時間は ふれはばによって変わらない」と予想しました。どれとどれをくらべればよいですか。",["㋐と㋑","㋐と㋒","㋑と㋒"],0,"ふれはばだけがちがう㋐（20°）と㋑（40°）。",TAB2,true);
+c("f4","Bさんは「1往復する時間は おもりが重いほうが長い」と予想しました。どれとどれをくらべればよいですか。",["㋐と㋑","㋐と㋒","㋑と㋒"],1,"重さだけがちがう㋐（10g）と㋒（20g）。",TAB2,true);
+c("f4","実験の結果から、Bさんの「おもりが重いほうが長い」という予想は正しかったですか。",["正しくなかった（×）","正しかった（○）"],0,"㋐も㋒も1.41秒で同じ。重さでは変わらないので×。Aさんの予想は○。",TAB2,true);
+const TAB3=T(["ふりこ","長さ(cm)","ふれはば(°)","重さ(g)"],[["A","30","20","10"],["B","50","20","20"],["C","100","20","10"]]);
+c("f4","Bのふりこをつくるとき、10gのおもりを2つ使って20gにします。ふりこの長さを50cmのままにするには、おもりをどうつければよいですか。",["2つをたてにつないで、上のおもりの中心まで50cmにする","2つをたてにつないで、下のおもりの中心まで50cmにする","2つを横にならべて同じところからつるし、おもりの中心まで50cmにする"],2,"P.121 3(3)のウ。同じところからつるせば、ふりこの長さは変わらない。",TAB3,true);
+n("f4","ふりこAの10往復する時間は 11.16秒・10.91秒・11.03秒 でした。平均は何秒ですか。わり切れないときは小数第3位を四捨五入しなさい。",["11.03"],"秒","合計33.10÷3＝11.033… → 小数第3位を四捨五入して11.03秒。（P.121 ア）");
+n("f4","ふりこCの10往復する時間は 20.19秒・20.02秒・19.94秒 でした。平均は何秒ですか。",["20.05"],"秒","合計60.15÷3＝20.05秒。（P.121 イ）");
+n("f4","ふりこBの10往復する時間の平均は14.04秒でした。1往復する時間の平均は何秒ですか。小数第3位を四捨五入しなさい。",["1.40","1.4"],"秒","14.04÷10＝1.404 → 1.40秒。（P.121 エ）小数第2位まで答えるので1.40と書く。");
+w("f4","F（10gのおもりを2つ たてにつないだ）とB（20gのおもり1つ）は同じ結果になると予想しましたが、結果がちがいました。なぜですか。","おもりをたてにつないだので、ふりこの長さが長くなったから。",["たてにつないだ","ふりこの長さが長くなった","〜から。"],"P.127 4(4)。おもりの中心が下がり、ふりこが長くなった。","理由 →「〜から。」",AF);
+
+/* ---- f5 ふりこの利用 ---- */
+c("f5","ふりこ時計で、おもりを上下させるねじを回すと、何が変わりますか。",["ふりこの長さ","おもりの重さ","ふれはば","はりの長さ"],0,"おもりの位置を変える → ふりこの長さが変わる → ふれる時間を調節できる。",figClock());
+c("f5","ふりこ時計のはりの進む速さが速すぎるとき、おもりをどうすればよいですか。",["下に動かす","上に動かす","重いものにかえる","軽いものにかえる"],0,"下げる → ふりこが長くなる → 1往復がゆっくりになる → はりもゆっくり進む。",figClock());
+c("f5","メトロノームで、1分間に音が出る回数を減らすには、おもりをどうすればよいですか。",["上に動かす","下に動かす","はずす","重いものにかえる"],0,"メトロノームのおもりは支点より上。上にするほど ふりこが長くなり、ゆっくりになる。");
+c("f5","図のメトロノームの支点はどこですか。",["ア","イ","ウ"],1,"支点はぼうの下のほうのイ。ウは下にあるおもり。P.125 4。",figMetro(),true);
+c("f5","メトロノームでは、上のほうへいくほど目もりの数字はどうなりますか。",["小さくなる","大きくなる","変わらない"],0,"上 → ふりこが長い → ゆっくり → 1分間の回数が少ない → 数字は小さい。");
+c("f5","ふりこ時計の ふりこが金属でできているとき、夏になると時計はどうなりますか。",["おくれる","進む","止まる","変わらない"],0,"金属が温まって体積が大きくなる → ふりこが長くなる → 1往復が長くなる → おくれる。");
+c("f5","夏におくれた時計を正しく直しました。冬になると、この時計はどうなりますか。",["進む","さらにおくれる","止まる","変わらない"],0,"冬は金属の体積が小さくなり、ふりこが短くなる → 1往復が短く → 進む。P.128 1(3)。");
+c("f5","ふりこが動くとちゅうで くぎに引っかかるようにすると、1往復する時間は引っかからないときとくらべてどうなりますか。",["短くなる","長くなる","変わらない"],0,"くぎから下だけが ふれる → ふりこが短くなる → 時間も短くなる。",figNail());
+c("f5","金属を温めると、体積はどうなりますか。",["大きくなる","小さくなる","変わらない"],0,"4年生で学習。温める→体積が大きくなる、冷やす→小さくなる。");
+n("f5","メトロノームのぼうを中央からふらせたとき、ぼうが1往復する間に「カチッ」と音が鳴るのは何回ですか。",["2"],"回","左はしで1回、右はしで1回 → 2回。");
+n("f5","メトロノームを「60」の目もりに合わせると、1分間に60回音が鳴ります。ぼうが1往復するのは何秒ですか。",["2"],"秒","1往復で2回鳴る → 1分間に30往復 → 60÷30＝2秒。");
+w("f5","ふりこを利用した道具を1つ書きなさい。","ふりこ時計（メトロノーム）",["ふりこ時計 か メトロノーム"],"どちらか1つ書ければOK。","","",1);
+w("f5","図2のようなふりこ時計のはりの進む速さが速すぎるとき、おもりをどちらに動かせばよいですか。","（おもりを）下に動かす。",["下","動かす"],"下げる → ふりこの長さが長くなり、1往復する時間が長くなる。P.127 3(2)。","",figClock());
+w("f5","メトロノームで、1分間に音が出る回数を減らすにはどのようにすればよいですか。","おもりを上に動かす。",["おもり","上に動かす"],"おもりを上に → ふりこの長さが長くなる → 1往復がゆっくり。P.127 3(1)。","「おもりを〜」で書き始めよう");
+
+/* ---- f6 書いて答える ---- */
+w("f6","ふりこが1往復する時間と おもりの重さの関係を書きなさい。","おもりの重さを変えても、ふりこが1往復する時間は変わらない。",["おもりの重さを変えても","1往復する時間","変わらない"],"「関係がない」だけより、この形で書くと満点がとれる。","「〜を変えても、〜は変わらない。」");
+w("f6","ふりこが1往復する時間と ふれはばの関係を書きなさい。","ふれはばを変えても、ふりこが1往復する時間は変わらない。",["ふれはばを変えても","1往復する時間","変わらない"],"重さの問題と同じ形！","「〜を変えても、〜は変わらない。」");
+w("f6","ふりこが1往復する時間と ふりこの長さの関係を書きなさい。","ふりこの長さが長いほど、1往復する時間は長くなる。",["ふりこの長さが長いほど","1往復する時間","長くなる"],"「長さによって変わる」だけだと△。どう変わるかまで書く。","「〜が長いほど、〜は長くなる。」");
+w("f6","ふれはばを決めるとき、糸がたるまないようにするのはなぜですか。","糸がたるむと、角度（ふれはば）が正しくはかれないから。",["たるむと","角度","正しくはかれない","〜から。"],"P.118 注意。","理由 →「〜から。」");
+w("f6","おもりを2つにするとき、たてにつないではいけないのはなぜですか。","たてにつなぐと、ふりこの長さが長くなってしまうから。",["たてにつなぐと","ふりこの長さが長くなる","〜から。"],"おもりの中心が下がるから、ふりこが長くなる。","理由 →「〜から。」");
+w("f6","夏になると、金属でできたふりこ時計がおくれるのはなぜですか。","夏は気温が高く、金属のふりこの体積が大きくなって ふりこの長さが長くなり、1往復する時間が長くなるから。",["体積が大きくなる","ふりこの長さが長くなる","1往復する時間が長くなる","〜から。"],"「体積が大きくなる → 長くなる → 1往復が長くなる」の3つをつなげる。","つながりを「→」で考えてから書こう");
+w("f6","ふりこのふれはばがだんだん小さくなっても、1往復する時間が変わらないのはなぜですか。","ふれはばが小さくなると、ふりこがふれる速さもおそくなるから。",["ふれはばが小さくなると","速さ","おそくなる","〜から。"],"P.123 参考。きょりが短くなるけど、速さもおそくなる。","理由 →「〜から。」");
+w("f6","ふりこが とちゅうでくぎに引っかかるようにすると、1往復する時間が短くなるのはなぜですか。","くぎに引っかかったあとは、ふりこの長さが短くなるから。",["くぎ","ふりこの長さが短くなる","〜から。"],"くぎから下だけが ふりこになる。","理由 →「〜から。」",figNail());
+w("f6","1往復する時間は、ふりこが何往復する時間を何回はかって求めますか。","10往復する時間を3回はかる。",["10往復","3回"],"数字を2つとも書く。");
+
+/* ---- f7 思考力のとびら ---- */
+const SW=T(["ふりこ","長さ","おもりの個数","ふれはば"],[["基準","50cm","1個","20°"],["けんじ","25cm","2個","20°"]]);
+c("f7","けんじさんは「体重が重い人が乗ると早く10往復できる」と予想して、表のようなふりこをつくりました。ゆうこさんは「正しく比べられない」と言いました。なぜですか。",["長さと おもりの個数の2つの条件を変えているから","ふれはばを変えていないから","おもりが重すぎるから","ふりこの長さが短すぎるから"],0,"調べたいのは重さだけ。長さまで変えたので、どちらのせいかわからない。",SW,true);
+c("f7","ゆうこさんは「ブランコを後ろに大きく引くと早く10往復できる」と予想しました。基準（50cm・1個・20°）とくらべるには、どんなふりこにすればよいですか。",["50cm・1個・40°","25cm・1個・20°","50cm・2個・20°","25cm・1個・40°"],0,"大きく引く＝ふれはばを大きく。ふれはばだけ変える。",SW,true);
+c("f7","こうたさんは「立って乗ると早く10往復できる」と予想しました。基準（50cm・1個・20°）とくらべるには、どんなふりこにすればよいですか。",["25cm・1個・20°","50cm・1個・40°","50cm・2個・20°","25cm・2個・20°"],0,"立って乗ると、体の中心が支点に近づく＝ふりこが短くなる。長さだけ変える。",SW,true);
+c("f7","けんじさん（正しくつくり直した）・ゆうこさん・こうたさんのふりこのうち、もっとも早く10往復するのはだれのふりこですか。",["こうたさん","けんじさん","ゆうこさん","3人とも同じ"],0,"時間を変えるのは長さだけ。短い25cmのこうたさんが最も早い。P.129(3)。");
+c("f7","夏にふりこ時計がおくれる会話で、「夏は金属の体積が［あ］よね。だから、ふりこの［い］なって、1往復する時間が長くなるんだ」。［い］にあてはまるのは？",["長さが長く","ふれはばが大きく","おもりの重さが重く"],0,"体積が大きくなる → ふりこの長さが長くなる。P.128 1(2)はウ。",figClock(),true);
+n("f7","メトロノームを「160」の目もりに合わせてふらせたとき、ぼうが10往復する時間は何秒ですか。（1分間に160回音が鳴る）",["7.5"],"秒","1往復で2回鳴る → 1分間に80往復 → 1往復は60÷80＝0.75秒 → 10往復は7.5秒。P.128 2(2)。");
+w("f7","けんじさんのふりこ（長さ25cm・おもり2個・ふれはば20°）では、基準（50cm・1個・20°）と正しく比べられません。その理由を書きなさい。","ふりこの長さと おもりの個数の、2つの条件を変えているから。",["ふりこの長さ","おもりの個数","2つの条件を変えている","〜から。"],"「条件を1つだけ変えていないから」でもOK。P.129(1)。","理由 →「〜から。」",SW);
+w("f7","夏に合わせて正しく直したふりこ時計は、冬には時間が進むかもしれません。その理由を書きなさい。","冬は気温が低く、金属の体積が小さくなって ふりこの長さが短くなり、1往復する時間が短くなるから。",["体積が小さくなる","ふりこの長さが短くなる","1往復する時間が短くなる","〜から。"],"夏の反対を考える。P.128 1(3)。","夏の理由の「反対」で書こう");
+w("f7","金属を温めると、体積はどうなりますか。","大きくなる",["大きくなる"],"P.128 1(1) あ。","","",1);
+
+/* ===== ウィンパス（P.142〜155・160）から追加 ===== */
+const WP=(p)=>"（ウィンパスP."+p+"）";
+/* f1 */
+c("f1","ふりこのおもりをふらせるとき、正しいふり方はどれですか。",["いきおいをつけておもりをふる","おもりをふらせる位置まで引き上げ、手を放す","つり下げたおもりを、ふらせる位置までおし出す"],1,"手を放すだけ。いきおいをつけたり、おし出したりしない。"+WP("150 1(2)"),"",true);
+c("f1","ふりこが1往復した時間とは、どの時間のことですか。（おもりはA→B→C と動く。Aはふらせ始めの位置）",["AからBに移動した時間","AからCに移動した時間","AからCに移動し、ふたたびAにもどってきた時間"],2,"Aにもどってくるまでが1往復。"+WP("150 1(3)"),figMove(),true);
+/* f2 */
+n("f2","10往復する時間が 13.8秒・13.4秒・13.9秒 でした。1往復する時間の平均は何秒ですか。小数第2位を四捨五入しなさい。",["1.4"],"秒","合計41.1÷3＝13.7秒 → 13.7÷10＝1.37 → 1.4秒。"+WP("143 ①"));
+n("f2","10往復する時間が 14.1秒・14.3秒・14.2秒 でした。1往復する時間は何秒ですか。小数第2位を四捨五入しなさい。",["1.4"],"秒","合計42.6÷3＝14.2秒 → 14.2÷10＝1.42 → 1.4秒。"+WP("144 1(3)"));
+n("f2","10往復するのにかかった時間が 20.2秒・20.1秒・20.1秒 でした。平均は何秒ですか。小数第2位を四捨五入しなさい。",["20.1"],"秒","合計60.4÷3＝20.13… → 20.1秒。"+WP("145 あ"));
+n("f2","10往復する時間が 14.1秒・13.9秒・14.2秒 でした。1往復する時間を、小数第2位を四捨五入して求めなさい。",["1.4"],"秒","合計42.2÷3＝14.06… → 1往復は約1.41 → 1.4秒。"+WP("151 3(5)"));
+c("f2","10往復する時間を3回はかったうち、1回の結果がほかとくらべて大きくちがいました。どうしますか。",["もう一度はかり直す","そのまま3回の平均を出す","いちばん大きい時間を答えにする","その1回を消して2回で答える"],0,"はかりまちがいの可能性があるので、はかり直す。"+WP("151 3(2)"));
+c("f2","何回かはかって平均を求めるのはなぜですか。",["はかり方で出るわずかなちがい（誤差）を小さくするため","ふりこを速くするため","おもりを重くするため","時間を長くするため"],0,"1往復で誤差0.5秒は大きいが、10往復で0.5秒なら小さい。"+WP("143 資料"));
+w("f2","ふりこが1往復する時間を求めるとき、10往復する時間を何回かはかって平均を求めるのはなぜですか。","1往復する時間だけを正確にはかるのはむずかしく、誤差をできるだけ小さくするため。",["正確にはかるのはむずかしい","誤差","小さくするため"],"「誤差」ということばを使えると強い。"+WP("143・149(1)・151(3)"),"「〜ため。」または「〜から。」で終わろう");
+/* f3 */
+n("f3","ふりこの長さが25cmで1往復1秒、100cmで2秒でした。ふりこの長さが400cmのとき、1往復は何秒ですか。",["4"],"秒","長さ4倍 → 時間2倍。100cm→400cmで 2秒→4秒。"+WP("153 ひらめきアカデミー"));
+n("f3","ふりこの長さが2mのとき1往復2.8秒でした。1往復が5.6秒になるのは、ふりこの長さが何mのときですか。",["8"],"m","時間を2倍にするには長さを4倍。2m×4＝8m。"+WP("153"));
+n("f3","ふりこの長さが6.25mのとき1往復5秒でした。長さが25mのとき、1往復は何秒ですか。",["10"],"秒","6.25m→25mは4倍 → 時間は2倍の10秒。"+WP("153"));
+c("f3","Aの高さでふりこのおもりから手を放しました。おもりは反対側のどこまで上がりますか。",["Aと同じ高さのCまで","Cより高いところまで","真下のBで止まる","Aよりずっと低いところまで"],0,"ふりこのおもりは、もとの高さまで上がる。"+WP("154・155"));
+c("f3","坂のDに置いた小球から手を放すと、反対側の坂をどこまで上がりますか。",["Dと同じ高さのFまで","Fより上まで","いちばん下のEで止まる"],0,"坂を下る小球も、ふりこと同じ。もとの高さまで上がる。"+WP("155"),"",true);
+c("f3","ふりこのおもりが高いところから低いところに移動するとき、速さはどうなりますか。",["速くなる","おそくなる","変わらない"],0,"下るとき加速、上るとき減速。"+WP("155 覚えておこう"),"",true);
+c("f3","ふりこのおもりが低いところから高いところに移動するとき、速さはどうなりますか。",["おそくなる","速くなる","変わらない"],0,"上がるときは減速して、もとの高さで止まる。"+WP("155"),"",true);
+c("f3","落下開始位置から下り始めたジェットコースターは、落下開始位置よりも上の高さに行くことができますか。",["行くことはできない","行くことができる"],0,"ふりこと同じで、もとの高さより上には上がれない。だからレールはすべて落下開始位置より下にある。"+WP("154・155"),"",true);
+/* f4 */
+const WT1=T(["ふりこ","長さ","ふれはば","重さ"],[["ア","50cm","20°","10g"],["イ","50cm","20°","20g"],["ウ","50cm","30°","10g"],["エ","100cm","20°","20g"]]);
+const OPT4=["アとイ","アとウ","イとエ","ウとエ"];
+c("f4","ふれはばと1往復する時間の関係を調べるには、どれとどれをくらべればよいですか。",OPT4,1,"ふれはばだけがちがうアとウ。"+WP("144 2(1)"),WT1,true);
+c("f4","おもりの重さと1往復する時間の関係を調べるには、どれとどれをくらべればよいですか。",OPT4,0,"重さだけがちがうアとイ。"+WP("144 2(2)"),WT1,true);
+c("f4","ふりこの長さと1往復する時間の関係を調べるには、どれとどれをくらべればよいですか。",OPT4,2,"長さだけがちがうイとエ。"+WP("144 2(3)"),WT1,true);
+w("f4","ふりこの長さとの関係を調べるとき、イ（50cm・20°・20g）とエ（100cm・20°・20g）をくらべる理由を書きなさい。","おもりの重さとふれはばが同じで、ふりこの長さだけがちがうから。",["おもりの重さとふれはばが同じ","ふりこの長さだけがちがう","〜から。"],"何を同じにして、何を変えたかを両方書く。"+WP("144 2(3)②"),"「〜が同じで、〜だけがちがうから。」",WT1);
+const WT2=T(["ふりこ","ふれはば","重さ","長さ","10往復の平均"],[["ア","20°","50g","50cm","14.0秒"],["イ","20°","100g","100cm","20.0秒"],["ウ","40°","100g","50cm","14.0秒"],["エ","40°","100g","100cm","20.1秒"]]);
+c("f4","この実験で、1往復する時間との関係が調べられない条件はどれですか。",["おもりの重さ","ふれはば","ふりこの長さ"],0,"重さだけがちがう組み合わせがない（アは重さも長さもちがう）。"+WP("145(4)"),WT2,true);
+c("f4","ウとエの結果をくらべると、どのようなことがわかりますか。",["ふりこの長さが長いほど、1往復する時間は長くなる","ふれはばが大きいほど、1往復する時間は長くなる","おもりが重いほど、1往復する時間は長くなる"],0,"ウとエは長さだけがちがう。"+WP("145(3)"),WT2,true);
+w("f4","この実験で、おもりの重さとの関係が調べられないのはなぜですか。","ふれはばとふりこの長さが同じで、おもりの重さだけがちがう組み合わせがないから。",["ふれはばとふりこの長さが同じ","重さだけがちがう","組み合わせがない","〜から。"],"どの条件を変えて、どの条件を同じにするかがわかるように。"+WP("145(5)"),"「〜だけがちがう組み合わせがないから。」",WT2);
+const WT3=T(["ふりこ","長さ","重さ"],[["ア","80cm","20g"],["イ","40cm","20g"],["ウ","80cm","40g"]]);
+c("f4","ふれはばは同じです。おもりの重さとの関係を調べるには、どれとどれをくらべますか。",["アとイ","アとウ","イとウ"],1,"重さだけがちがうアとウ。"+WP("150 2(1)"),WT3,true);
+c("f4","ふれはばは同じです。ふりこの長さとの関係を調べるには、どれとどれをくらべますか。",["アとイ","アとウ","イとウ"],0,"長さだけがちがうアとイ。"+WP("150 2(2)"),WT3,true);
+c("f4","1往復する時間がもっとも短かったのはどれですか。",["ア","イ","ウ"],1,"いちばん短い40cmのイ。"+WP("150 2(3)"),WT3,true);
+c("f4","さとしさんは、10gのおもりの下にもう1つおもりを たてにつなぎました。1往復する時間は増やす前とくらべてどうなりましたか。",["長くなった","短くなった","変わらなかった"],0,"たてにつなぐと、ふりこの長さが長くなるから。"+WP("151 4(1)(2)"),figTwo(),true);
+c("f4","まさひろさんは、おもりを横にならべて同じところからつるしました。1往復する時間は増やす前とくらべてどうなりましたか。",["変わらなかった","長くなった","短くなった"],0,"ふりこの長さは変わらないので、1往復の時間も変わらない。重さの条件だけを変えているのは まさひろさん。"+WP("151 4(3)〜(5)"),figTwo(),true);
+const WT4=T(["実験","重さ","長さ","ふれはば","1往復"],[["1","30g","50cm","15°","1.4秒"],["2","60g","30cm","10°","1.1秒"],["3","60g","30cm","15°","1.1秒"],["4","60g","30cm","30°","1.1秒"],["5","60g","40cm","30°","1.3秒"],["6","60g","50cm","30°","1.4秒"],["7","120g","50cm","10°","1.4秒"]]);
+c("f4","ふりこの長さとの関係がわかるのは、どの実験をくらべたときですか。",["実験4と5と6","実験2と3と4","実験1と6と7"],0,"4・5・6は重さ60g、ふれはば30°が同じで、長さだけちがう。長いほど1往復が長い。"+WP("152(1)"),WT4,true);
+c("f4","ふれはばとの関係を調べるのに正しいのは、どの実験をくらべたときですか。",["実験2と3と4","実験1と6と7","実験4と5と6"],0,"2・3・4は重さ60g・長さ30cmが同じで、ふれはばだけちがう。"+WP("152"),WT4,true);
+w("f4","実験1と6と7の結果をくらべても、ふれはばとの関係について はっきりと結論が出せません。その理由を書きなさい。","おもりの重さとふれはばの2つの条件が、同時に変わっているから。",["おもりの重さ","ふれはば","2つの条件が変わっている","〜から。"],"1つの条件だけを変えないと比べられない。"+WP("152(2)"),"理由 →「〜から。」",WT4);
+const WT5=T(["ふりこ","ふれはば","重さ","長さ","1往復"],[["ア","10°","20g","50cm","1.4秒"],["イ","10°","40g","50cm","1.4秒"],["ウ","10°","20g","100cm","2.0秒"],["エ","30°","40g","50cm","1.4秒"],["A","20°","30g","75cm","？"]]);
+c("f4","ふれはばとの関係を調べるには、どれとどれをくらべればよいですか。",["イとエ","アとエ","アとイ","アとウ"],0,"重さ40g・長さ50cmが同じで、ふれはばだけちがうイとエ。"+WP("160 6(1)"),WT5,true);
+c("f4","ふりこの長さとの関係を調べるには、どれとどれをくらべればよいですか。",["アとウ","アとイ","イとエ","ウとエ"],0,"ふれはば10°・重さ20gが同じで、長さだけちがうアとウ。"+WP("160 6(1)"),WT5,true);
+c("f4","ふりこAの1往復する時間として考えられるのはどれですか。",["1.4秒","1.7秒","2.0秒"],1,"長さ75cmは50cm（1.4秒）と100cm（2.0秒）の間なので1.7秒。重さ・ふれはばは関係ない。"+WP("160 6(3)"),WT5,true);
+/* f5 */
+c("f5","ふりこ時計で、おもりを上げるとどうなりますか。",["ふりこが短くなり、1往復する時間が短くなる","ふりこが長くなり、1往復する時間が長くなる","おもりが軽くなり、時間が短くなる"],0,"おもりを上げる → ふりこが短く → 1往復が短く。"+WP("146"),figClock());
+c("f5","メトロノームで、おもりを下げるとどうなりますか。",["ふりこの長さが短くなり、1往復する時間が短くなる","ふりこの長さが長くなり、1往復する時間が長くなる","何も変わらない"],0,"メトロノームは上下さかさま。おもりを下げる＝支点に近づく＝短くなる。"+WP("147 ④〜⑥"),figMetro());
+c("f5","ブランコを立ってこぐと、すわってこぐときとくらべて1往復する時間はどうなりますか。",["短くなる","長くなる","変わらない"],0,"立つと体の中心が支点に近づき、ふりこの長さが短くなる。"+WP("146"));
+c("f5","同じ長さのブランコで、ふりこの長さが長いのはどちらですか。",["すわってこいだとき","立ってこいだとき","どちらも同じ"],0,"すわると体の中心が下がり、ふりこが長くなる。だから1往復する時間も長い。"+WP("147 ⑦〜⑨"));
+c("f5","公園のタイヤの遊具で、㋐はロープが短く、㋑はロープが長いです。同じ人が同じ乗り方でふったとき、同じ時間に往復する数が多いのはどちらですか。",["㋐","㋑","同じ"],0,"ふりこが短いほど1往復の時間が短い → 往復の数が多い。"+WP("148 2(1)"),"",true);
+c("f5","タイヤの遊具で㋐と㋑の往復する数がちがうのは、何がちがうからですか。",["タイヤの重さ","タイヤの大きさ","タイヤのあなの大きさ","支柱からタイヤの真ん中までの長さ"],3,"ふりこの長さ＝支点（支柱）からタイヤの真ん中まで。"+WP("148 2(2)"),"",true);
+c("f5","公園の遊具のうち、ふりこの性質を利用しているものはどれですか。",["登りぼう","すべり台","ジャングルジム","ブランコ"],3,WP("148 2(3)"));
+c("f5","ふりこ時計にふりこが使われているのはなぜですか。",["ふりこは一定の時間で1往復するので、一定の時間ごとに歯車を動かせるから","ふりこは重いので、はりをおせるから","ふりこは音が出るから"],0,"ツメが歯車から外れて、1個分ずつ進む。"+WP("146 しくみ"));
+c("f5","同じ1mの糸に、水を入れた2Lのペットボトルと350mLのペットボトルをつけて、重さとの関係を調べます。この方法で正しい結果が得られないのはなぜですか。",["ペットボトルの大きさがちがい、ふりこの長さ（支点から中心まで）が変わってしまうから","水が重すぎるから","糸が長すぎるから"],0,"ふりこの長さは支点からペットボトルの中心まで。大きさがちがうと長さも変わる。"+WP("147 資料"));
+c("f5","支点の下におもりがついたおもちゃで、1往復する時間を短くするには、おもりをどう動かしますか。",["支点に近づける（上に動かす）","支点から遠ざける（下に動かす）","重いおもりにかえる"],0,"支点からおもりまでが短くなると、1往復する時間が短くなる。"+WP("147 作図"),"",true);
+const ZOO=T(["","10往復の平均"],[["ウサギ","10.1秒"],["カメ","12.4秒"],["ゾウ","10.1秒"]]);
+c("f5","ウサギ・カメ・ゾウのおもちゃ（竹のぼうの下がふりこ）。カメのおもりの位置は、ウサギとくらべてどうなっていると考えられますか。",["ウサギより下（ふりこが長い）","ウサギより上（ふりこが短い）","ウサギと同じ高さで、重さだけ重い"],0,"カメは時間が長い → ふりこが長い → おもりが下。"+WP("149(2)"),ZOO,true);
+c("f5","ゾウのおもりの位置は、ウサギとくらべてどうなっていると考えられますか。",["ウサギと同じ高さ（重さはちがってもよい）","ウサギより下","ウサギより上"],0,"時間が同じ → ふりこの長さが同じ。重さは関係ない。"+WP("149(2)"),ZOO,true);
+w("f5","ふりこ時計がおくれないようにするため、おじいさんは調節ねじをどのように動かしたでしょうか。「1往復する時間」ということばを使って書きなさい。","1往復する時間を短くするために、調節ねじでおもりを上に動かした。",["1往復する時間を短くする","おもりを上に","〜ために、〜した。"],"時計がおくれる → 1往復を短く → おもりを上げる。"+WP("148 1(1)②"),"「〜するために、〜した。」の形で",figClock());
+w("f5","ゾウの動きをカメよりもおそくするには、どのようにつくり変えればよいですか。「カメ」ということばを使って書きなさい。","ゾウのおもりの位置を、カメのおもりよりも下にする。",["カメ","おもりを下にする"],"「ふりこの長さをカメより長くする」でもOK。"+WP("149(3)②"),"「カメよりも〜」を入れよう",ZOO);
+/* f6 */
+w("f6","ふりこが1往復する時間を短くするためには、おもりの重さ、ふりこの長さ、ふれはばのうち、どれをどのように変えればよいですか。","ふりこの長さを短くする。",["ふりこの長さ","短くする"],WP("144 2(4)"));
+w("f6","ブランコを立ってこぐと、すわってこぐよりも1往復する時間が短くなるのはなぜですか。","立ってこぐと、ふりこの長さが短くなるから。",["立ってこぐと","ふりこの長さが短くなる","〜から。"],WP("146"),"理由 →「〜から。」");
+w("f6","夏にふりこ時計がおくれるのは、ふりこが金ぞくでできているためです。その理由を説明しなさい。","夏は気温が高くなり、金ぞくがあたためられて体積が大きくなるので、ふりこの長さが長くなり、1往復する時間が長くなるから。",["気温が高い","体積が大きくなる","ふりこの長さが長くなる","〜から。"],"学校の問題集でもウィンパスでも出ている！"+WP("148 1(2)"),"「気温→体積→長さ→時間」の順に");
+/* f7 */
+n("f7","支点から20cmの所にくぎを取りつけ、ふりこの長さ50cm・60gのおもりをふれはば30°から放しました。表（50cm→1往復1.4秒、30cm→1往復1.1秒）を使うと、2往復するのに何秒かかりますか。",["2.5"],"秒","くぎがない側は50cmで半往復0.7秒、くぎがある側は30cmで半往復0.55秒。1往復＝1.25秒 → 2往復＝2.5秒。"+WP("152(4)"),figNail());
+c("f7","ふりこの1往復が4.0秒。支点Pの真下の点Aにくぎを固定すると3.4秒でした。1往復を4.0秒より短く3.4秒より長くするには、Aの左の点Bと右の点C（おもりは左からふる）のどちらにくぎを固定すればよいですか。",["点C","点B"],0,"くぎに糸がかかって「ふりこの長さ」が短くなる区間が、Aのときより短くなるのは C。Bだと短くなる区間がAより長くなり、3.4秒よりも短くなる。"+WP("153 2"),"",true);
+w("f7","10往復する時間をはかって10でわる方法と同じように、身近な道具を使って、わずかな量を正確に求める例を1つ書きなさい。","紙を100枚重ねた厚さをはかって100でわり、紙1枚の厚さを求める。",["たくさん集めてはかる","その数でわる"],"「コピー用紙」「1円玉の重さ」なども正解になる。"+WP("152(3)"),"「〜をはかって、〜でわる」の形で");
+
+/* 解答照合後の追加 */
+c("f4","おもりの重さと1往復する時間の関係を調べるには、どれとどれをくらべればよいですか。",["アとイ","アとウ","イとエ","ウとエ"],0,"ふれはば10°・長さ50cmが同じで、重さだけちがうアとイ。"+WP("160 6(1)②"),WT5,true);
+w("f4","この実験から、ふりこの1往復する時間を決めるのは何の条件といえますか。","ふりこの長さ",["ふりこの長さ"],"重さ・ふれはばを変えても1.4秒のまま。長さを変えると2.0秒に。"+WP("160 6(2)"),"",WT5,1);
+n("f2","ふりこAの10往復する時間の平均は11.03秒でした。1往復する時間の平均は何秒ですか。わり切れないときは小数第3位を四捨五入しなさい。",["1.10","1.1"],"秒","11.03÷10＝1.103 → 小数第3位を四捨五入して1.10秒。小数第2位まで答えるので「0」も書く。（P.121 ウ）");
+n("f2","10往復する時間の平均が20.1秒のふりこ㋓が、1往復する時間は何秒ですか。小数第2位を四捨五入しなさい。",["2.0","2"],"秒","20.1÷10＝2.01 → 2.0秒。"+WP("145(2)"));
+c("f3","ジェットコースターのスピードを出すには、レールをどんな高さにつくるとよいですか。",["地面に近い高さ","地面からはなれた高さ"],0,"ふりこと同じで、低いところほど速い。"+WP("155 2(2)"),"",true);
+c("f3","ジェットコースターは、のぼり坂でどうなりますか。",["減速する","加速する"],0,"低い→高いは おそくなる。"+WP("155 2(2)"),"",true);
+c("f3","ジェットコースターは、下り坂でどうなりますか。",["加速する","減速する"],0,"高い→低いは 速くなる。"+WP("155 2(2)"),"",true);
+
+Q.forEach((q,i)=>q.id=q.u+"-"+i);
+/* ウィンパス P.152〜155（ひらめきトレーニング・中学へのステップ）は除外。idは上でつけたので記録はずれない */
+for(let i=Q.length-1;i>=0;i--){if(/ウィンパスP\.15[2-5]/.test(Q[i].e))Q.splice(i,1);}
+Q.forEach(q=>q.wp=/ウィンパスP\./.test(q.e));
+const QBY=id=>Q.find(q=>q.id===id);
+
+/* =========================================================
+   3. 日付・プラン
+   ========================================================= */
+function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+const md=s=>{const [y,m,d]=s.split("-").map(Number);const w="日月火水木金土"[new Date(y,m-1,d).getDay()];return `${m}/${d}（${w}）`;};
+const daysTo=s=>{const [y,m,d]=s.split("-").map(Number);const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(y,m-1,d)-t)/864e5);};
+function curTest(){const t=todayStr();return TESTS.find(x=>x.date>=t)||TESTS[TESTS.length-1];}
+function todayPlan(test){const t=todayStr();const p=test.plan;let cur=null;p.forEach(x=>{if(x.d<=t)cur=x;});return cur||p[0];}
+const planOf=d=>curTest().plan.find(x=>x.d===d);
+const unlocked=(test,u)=>{if(S.unlockAll)return true;const tp=todayPlan(test);if(tp.us.includes(u))return true;
+  const p=test.plan.find(x=>x.src==="core"&&x.us.includes(u));return !p||p.d<=todayStr();};
+const isWeekend=d=>{const [y,m,dd]=d.split("-").map(Number);const w=new Date(y,m-1,dd).getDay();return w===0||w===6;};
+const TASKS={core:["pt","app","paper"],wp:["app","wp"],final:["ever","test","wp"]};
+
+/* =========================================================
+   4. 画面
+   ========================================================= */
+const app=document.getElementById("app");
+let view="home",sess=null;
+function hd(){document.getElementById("hdStar").textContent="⭐ "+S.stars;}
+function go(v,arg){view=v;document.body.classList.toggle("home",v==="home");
+  ({home:vHome,day:vDay,unit:vUnit,quiz:vQuiz,result:vResult,wrong:vWrong,parent:vParent}[v])(arg);hd();window.scrollTo(0,0);}
+
+const FALLBACK="data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#dff1fb"/><g fill="#fff"><circle cx="40" cy="62" r="22"/><circle cx="60" cy="50" r="26"/><circle cx="82" cy="62" r="22"/><circle cx="50" cy="78" r="20"/><circle cx="72" cy="78" r="20"/></g><circle cx="50" cy="64" r="3.4" fill="#4a5a66"/><circle cx="70" cy="64" r="3.4" fill="#4a5a66"/><ellipse cx="44" cy="72" rx="5" ry="3" fill="#ffc2d6"/><ellipse cx="76" cy="72" rx="5" ry="3" fill="#ffc2d6"/><path d="M56 71q4 4 8 0" stroke="#4a5a66" stroke-width="2" fill="none" stroke-linecap="round"/><text x="92" y="30" font-size="14" fill="#ffd27a">✦</text><text x="18" y="36" font-size="10" fill="#a9d4ee">✦</text></svg>`);
+function puff(slot,small){
+  const src=S.img[slot]||(slot==="home"?"rika.png":"rika2.png");
+  const pts=small?[[0,40,44],[18,6,40],[62,0,42],[84,34,40],[70,78,40],[20,80,40]]:[[0,48,54],[22,6,50],[78,0,52],[104,42,48],[86,98,50],[24,100,50],[54,110,40]];
+  return `<div class="puff${small?" sm":""}">${pts.map(p=>`<span class="b" style="left:${p[0]}px;top:${p[1]}px;width:${p[2]}px;height:${p[2]}px"></span>`).join("")}
+   <div class="img"><img src="${src}" alt="" onerror="this.onerror=null;this.src=FALLBACK"></div>
+   <button class="chg" onclick="pickImg('${slot}')">がぞう</button></div>`;
+}
+function pickImg(slot){const f=document.getElementById("imgIn");f.onchange=()=>{const file=f.files[0];if(!file)return;
+  const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const m=520,s=Math.min(1,m/Math.max(im.width,im.height));
+    const cv=document.createElement("canvas");cv.width=im.width*s;cv.height=im.height*s;cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);
+    S.img[slot]=cv.toDataURL("image/jpeg",.85);save();go(view,sess&&view==="result"?null:undefined);};im.src=r.result;};r.readAsDataURL(file);f.value="";};f.click();}
+
+function kira(){const k=document.getElementById("kira");if(k.childElementCount)return;
+  const ch=["✦","✧","✦","⋆","✦"];let h="";
+  for(let i=0;i<46;i++){h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;font-size:${8+Math.random()*16}px;animation-delay:${(Math.random()*2.6).toFixed(2)}s;animation-duration:${(2+Math.random()*2).toFixed(2)}s">${ch[i%5]}</i>`;}
+  k.innerHTML=h;}
+
+function allDone(d){const p=planOf(d),x=S.done[d]||{};return !!p&&TASKS[p.src].every(k=>x[k]);}
+function taskLi(d,k,label,sub,tog){const dd=S.done[d]||{};
+  return `<li class="${dd[k]?"done":""}"${tog?` onclick="togglePaper('${d}','${k}')" style="cursor:pointer"`:""}><span class="ck">${dd[k]?"✓":""}</span><span class="tx">${label}${sub?`<small>${sub}</small>`:""}</span></li>`;}
+function dayTitle(test,p){
+  if(p.src==="core")return p.us.map(u=>test.units[u].ic+" "+test.units[u].name).join("<br>");
+  if(p.src==="wp")return "📗 ウィンパスで2周目のふくしゅう";
+  return "📝 テスト前日のかくにん";}
+const dayPool=p=>Q.filter(q=>p.us.includes(q.u)&&(p.src==="wp"?q.wp:!q.wp));
+const dayCap=p=>Math.min(isWeekend(p.d)?30:20,dayPool(p).length);
+function menuCard(test,p,mode){ // mode: today / next / left
+  const t=todayStr(),cap=dayCap(p);
+  const ttl=mode==="left"?"🧺 やりのこし":mode==="next"?"🌈 あしたのメニュー（きょうやってもOK）":"🌈 きょうのメニュー";
+  let li="",btn="";
+  if(p.src==="core"){
+    li=taskLi(p.d,"pt","おぼえるポイントを読む")+taskLi(p.d,"app",`アプリの問題（${cap}問）`,"書く問題は、ゆびかペンで書かないと答えが見られません")+taskLi(p.d,"paper","📘 学校の問題集を紙に書く",p.paper,true);
+    btn=`<button class="btn" onclick="go('day','${p.d}')">${mode==="left"?md(p.d)+"の":""}問題をはじめる<span class="s">ポイント → 問題 の順だよ</span></button>`;
+  }else if(p.src==="wp"){
+    li=taskLi(p.d,"app",`アプリ：ウィンパスの問題（${cap}問）`,"学校の問題集とはちがう問題で、もう一度たしかめるよ")+taskLi(p.d,"wp","📗 ウィンパスを紙に書く",p.wp,true);
+    btn=`<button class="btn" onclick="startDay('${p.d}')">ウィンパスの問題をはじめる<span class="s">2周目のふくしゅう</span></button>`;
+  }else{
+    li=taskLi(p.d,"ever","一度でもまちがえた問題をぜんぶやる",everNg().length+"問")+taskLi(p.d,"test","まとめテスト（20問・100点）")+taskLi(p.d,"wp","📗 ウィンパスを紙に書く",p.wp,true);
+    btn=`<button class="btn pink" onclick="startEver('${p.d}')" ${everNg().length?"":"disabled"}>① 一度でもまちがえた問題<span class="s">${everNg().length}問・いちばん大事！</span></button>
+      <button class="btn rainbow" onclick="startAll('${p.d}')">② まとめテストをはじめる<span class="s">20問・100点まんてん</span></button>`;
+  }
+  const note=p.src==="core"?"":`<p class="muted" style="margin:8px 0 0">📘の「やりのこし」があるときは、そっちを先にやろう。ウィンパスは時間が足りなければ へらしてOK。</p>`;
+  return `<div class="card"${mode==="left"?' style="border:2px dashed var(--pink-d)"':""}><h2>${ttl} <span class="muted" style="margin-left:auto">${md(p.d)}${isWeekend(p.d)?" 🌟多め":""}</span></h2>
+   <div style="font-weight:600;font-size:17px;line-height:1.5">${dayTitle(test,p)}</div>
+   <ul class="menu">${li}</ul>${btn}${note}
+   ${allDone(p.d)?`<p class="center" style="margin:10px 0 0;color:var(--pink-d);font-weight:600">🎀 ${md(p.d)}のメニュー ぜんぶできた！ ⭐+10</p>`:""}</div>`;
+}
+function vHome(){
+  kira();
+  const test=curTest(),left=daysTo(test.date),p=todayPlan(test),t=todayStr();
+  const wrongN=S.wrong.length,everN=everNg().length;
+  let h=`<div class="hero">${puff("home")}
+    <div class="count"><small>${md(test.date)} 理科のテスト</small>${left>0?`<small>テストまで あと</small><b>${left}<span>日</span></b>`:left===0?`<b style="font-size:30px">きょう！</b>`:`<b style="font-size:24px">おつかれさま</b>`}
+    <div class="dt">${test.name}</div></div></div>`;
+  // やりのこし：学校の問題集（core）を先に、ウィンパスはあと
+  const lefts=test.plan.filter(x=>x.d<p.d&&!allDone(x.d));
+  [...lefts.filter(x=>x.src==="core"),...lefts.filter(x=>x.src!=="core")].forEach(x=>{h+=menuCard(test,x,"left");});
+  h+=menuCard(test,p,p.d>t?"next":"today");
+  h+=`<div class="row2"><button class="btn pink" onclick="go('wrong')" ${wrongN||everN?"":"disabled"}>まちがいノート<span class="s">${wrongN}問</span></button>
+      <button class="btn mint" onclick="startAll(null)">まとめテスト<span class="s">いつでも</span></button></div>
+      <button class="btn" onclick="startEver(null)" ${everN?"":"disabled"}>🔁 一度でもまちがえた問題<span class="s">${everN}問・正解しても消えない・テスト前のかくにん用</span></button>`;
+  h+=`<div class="card"><h2>📚 たんげん</h2><p class="muted" style="margin:0">${test.book}</p>`;
+  Object.entries(test.units).forEach(([k,u])=>{const cnt=Q.filter(q=>q.u===k).length,ok=unlocked(test,k),pl=test.plan.find(x=>x.src==="core"&&x.us.includes(k));
+    h+=`<button class="unit" ${ok?`onclick="go('unit',{u:'${k}'})"`:"disabled"}><span class="ic" style="background:${u.col}">${ok?u.ic:"🔒"}</span>
+     <span class="nm">${u.name}<span class="ct">${ok?cnt+"問":md(pl.d)+"にひらくよ"}${S.best[k]!=null?"　さいこう "+S.best[k]+"%":""}</span></span><span class="ar">›</span></button>`;});
+  h+=`</div>`;
+  if(TESTS.length>1)h+=`<p class="muted center">前のテストの単元は、たんげんの下にふえていきます</p>`;
+  h+=`<button class="link" onclick="go('parent')">おうちの人へ（書いたノート・きろく）</button>`;
+  app.innerHTML=h;
+}
+function togglePaper(d,k){S.done[d]=S.done[d]||{};S.done[d][k]=!S.done[d][k];bonus(d);save();go("home");}
+function bonus(d){const x=S.done[d];if(x&&allDone(d)&&!x.bonus){x.bonus=1;S.stars+=10;}}
+function vDay(d){ // その日のポイント（複数単元）→ 問題
+  const test=curTest(),p=planOf(d);sess={d};
+  S.done[d]=S.done[d]||{};S.done[d].pt=1;bonus(d);save();
+  app.innerHTML=p.us.map(u=>`<div class="card"><h2><span>${test.units[u].ic}</span>${test.units[u].name}</h2><div class="muted">おぼえるポイント</div>${POINTS[u]()}</div>`).join("")+
+   `<button class="btn" onclick="startDay('${d}')">問題をはじめる<span class="s">${dayCap(p)}問（書く問題つき）・まだ正解していない問題から出るよ</span></button>
+   <button class="btn soft" onclick="go('home')">もどる</button>`;
+}
+function pickSet(pool,cap){const ok=q=>(S.stat[q.id]||{}).ok>0;
+  const ws=shuf(pool.filter(q=>q.t==="w")).sort((x,y)=>ok(x)-ok(y)).slice(0,Math.ceil(cap/3));
+  const os=shuf(pool.filter(q=>q.t!=="w")).sort((x,y)=>ok(x)-ok(y)).slice(0,cap-ws.length);
+  return mix([...ws,...os]);}
+function startDay(d){const p=planOf(d);
+  begin(pickSet(dayPool(p),dayCap(p)),{u:"day",d,kind:"day"});}
+
+function vUnit(a){
+  const U=ALLUNITS[a.u];sess={u:a.u,d:null};
+  const qs=Q.filter(q=>q.u===a.u),nw=qs.filter(q=>q.t==="w").length;
+  app.innerHTML=`<div class="card"><h2><span>${U.ic}</span>${U.name}</h2><div class="muted">おぼえるポイント</div>${POINTS[a.u]()}</div>
+   <button class="btn" onclick="startUnit('${a.u}')">問題をはじめる<span class="s">全${qs.length}問から ${Math.min(18,qs.length)}問（書く問題つき）・まだ正解していない問題から出るよ</span></button>
+   <button class="btn soft" onclick="go('home')">もどる</button>`;
+}
+
+/* =========================================================
+   5. クイズ
+   ========================================================= */
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+function mix(list){ // 書く問題が固まらないようにまぜる
+  const w=shuf(list.filter(q=>q.t==="w")),o=shuf(list.filter(q=>q.t!=="w"));if(!w.length)return o;
+  const out=[],step=Math.max(1,Math.floor(o.length/(w.length)));let k=0;
+  o.forEach((q,i)=>{out.push(q);if((i+1)%step===0&&k<w.length)out.push(w[k++]);});while(k<w.length)out.push(w[k++]);return out;}
+function startUnit(u){ // 1回18問まで。書く問題は必ず入れ、まだ正解していない問題を優先
+  const all=Q.filter(q=>q.u===u),MAX=18,ok=q=>(S.stat[q.id]||{}).ok>0;
+  const ws=shuf(all.filter(q=>q.t==="w")).sort((x,y)=>ok(x)-ok(y)).slice(0,6);
+  const os=shuf(all.filter(q=>q.t!=="w")).sort((x,y)=>ok(x)-ok(y)).slice(0,MAX-ws.length);
+  begin(mix([...ws,...os]),{u,d:sess&&sess.d,kind:"unit"});}
+function startAll(d){const test=curTest(),ids=Object.keys(test.units),pool=Q.filter(q=>ids.includes(q.u));
+  const pick=(t,n)=>shuf(pool.filter(q=>q.t===t)).slice(0,n);
+  begin(mix([...pick("c",12),...pick("n",3),...pick("w",5)]),{u:"all",d,kind:"test"});}
+function everNg(){const ids=Object.keys(curTest().units);return Q.filter(q=>ids.includes(q.u)&&(S.stat[q.id]||{}).ng>0);}
+function startEver(d){begin(mix(everNg()),{u:"wrong",kind:"ever",d:d||null});}
+function startWrong(){begin(mix(S.wrong.map(QBY).filter(Boolean)),{u:"wrong",kind:"wrong"});}
+function begin(list,meta){sess=Object.assign({list,i:0,pts:0,max:0,got:0,log:[]},meta);go("quiz");}
+
+let pad=null;
+function vQuiz(){
+  const q=sess.list[sess.i],U=ALLUNITS[q.u],N=sess.list.length;
+  const tag=q.t==="w"?(q.lines===1?"ことばを書く":"文で書く"):q.t==="n"?"けいさん":"えらぶ";
+  const tcol=q.t==="w"?"#e886a8":q.t==="n"?"#e4ad45":"#58a3cc";
+  let h=`<div class="prog"><span>${U.ic} ${U.name}</span><span>${sess.i+1} / ${N}</span></div><div class="pbar"><i style="width:${sess.i/N*100}%"></i></div>
+   <div class="qcard" id="qc"><span class="tag" style="background:${tcol}">${tag}</span><p class="qt">${q.q}</p>${q.f||""}${q.h?`<div class="hint">✏️ ${q.h}</div>`:""}</div><div id="ar"></div>`;
+  app.innerHTML=h;const ar=document.getElementById("ar");
+  if(q.t==="c"){
+    const idx=q.fix?q.o.map((_,i)=>i):shuf(q.o.map((_,i)=>i));const K="アイウエ";
+    ar.innerHTML=idx.map((oi,j)=>`<button class="opt" data-o="${oi}"><span class="k">${q.fix?"":K[j]}</span><span>${q.o[oi]}</span></button>`).join("");
+    if(q.fix)ar.querySelectorAll(".k").forEach(k=>k.remove());
+    ar.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const oi=+b.dataset.o,ok=oi===q.a;
+      ar.querySelectorAll(".opt").forEach(x=>{x.disabled=true;const v=+x.dataset.o;if(v===q.a)x.classList.add("ok");else if(x===b)x.classList.add("ng");else x.classList.add("dim");});
+      finish(q,ok?1:0,1,ok?1:0,b);ar.insertAdjacentHTML("beforeend",expBox(q,ok)+nextBtn());});
+  }else if(q.t==="n"){
+    ar.innerHTML=`<div class="numin"><input id="ni" inputmode="decimal" autocomplete="off" placeholder="こたえ"><span>${q.un}</span></div>
+      <button class="btn" id="nb">こたえあわせ</button>`;
+    const ni=document.getElementById("ni"),nb=document.getElementById("nb");
+    const chk=()=>{const v=ni.value.replace(/[０-９．]/g,s=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)).replace(/。/g,".").trim();if(!v)return;
+      const ok=q.a.includes(v);ni.disabled=true;nb.remove();finish(q,ok?2:0,2,ok?1:0,ni);
+      ar.insertAdjacentHTML("beforeend",expBox(q,ok,`こたえ：${q.a[0]} ${q.un}`)+nextBtn());};
+    nb.onclick=chk;ni.onkeydown=e=>{if(e.key==="Enter")chk();};
+  }else{
+    const H=q.lines===1?150:250;
+    ar.innerHTML=`<div class="padwrap"><span class="ph">ここに書いてね（ゆび・ペン）</span><canvas id="cv"></canvas></div>
+     <div class="padbar"><button class="btn soft" id="pu">1かく もどす</button><button class="btn soft" id="pc">ぜんぶけす</button></div>
+     <button class="btn pink" id="pw" disabled>書けたら こたえあわせ</button>`;
+    pad=makePad(document.getElementById("cv"),H,()=>{document.getElementById("pw").disabled=!(pad.ink()>(q.lines===1?60:160));
+      const ph=ar.querySelector(".ph");if(ph)ph.style.display=pad.ink()?"none":"";});
+    document.getElementById("pu").onclick=()=>pad.undo();document.getElementById("pc").onclick=()=>pad.clear();
+    document.getElementById("pw").onclick=()=>revealW(q);
+  }
+}
+function revealW(q){
+  const ar=document.getElementById("ar");const img=pad.snap();pad.lock();
+  ar.querySelector(".padbar").remove();document.getElementById("pw").remove();
+  ar.insertAdjacentHTML("beforeend",`<div class="model pop"><b>こたえのれい</b><div class="ans">${q.a}</div>
+    <div class="muted" style="margin-top:6px">書けたところを タップしてね（ぜんぶ書けたら ◎ がえらべるよ）</div><div class="keys">${q.k.map((k,i)=>`<button class="key" data-i="${i}">${k}</button>`).join("")}</div></div>
+    ${q.e?`<div class="exp"><b>ポイント</b>${q.e}</div>`:""}
+    <p class="center muted" style="margin:14px 0 0">自分の答えは どうだった？</p>
+    <div class="self"><button class="btn pink" data-m="2">◎ できた</button><button class="btn honey" data-m="1">△ おしい</button><button class="btn soft" data-m="0">× まちがい</button></div>`);
+  const okb=ar.querySelector('.self .btn[data-m="2"]');okb.disabled=true;
+  ar.querySelectorAll(".key").forEach(b=>b.onclick=()=>{if(b.disabled)return;b.classList.toggle("on");okb.disabled=ar.querySelectorAll(".key.on").length<q.k.length;});
+  ar.querySelectorAll(".self .btn").forEach(b=>b.onclick=()=>{const m=+b.dataset.m;
+    ar.querySelectorAll(".self .btn,.key").forEach(x=>x.disabled=true);
+    S.gal.push({id:q.id,q:q.q.slice(0,60),img,m,ts:Date.now()});if(S.gal.length>60)S.gal.shift();
+    finish(q,m===2?3:m===1?1:0,3,m===2?1:m===1?.6:0,b);ar.insertAdjacentHTML("beforeend",nextBtn());});
+}
+function expBox(q,ok,extra=""){return `<div class="exp ${ok?"":"ng"} pop"><b>${ok?"せいかい！":"ざんねん… ここをおぼえよう"}</b>${extra?extra+"<br>":""}${q.e}</div>`;}
+function nextBtn(){const last=sess.i>=sess.list.length-1;setTimeout(()=>{const b=document.getElementById("nx");if(b)b.scrollIntoView({behavior:"smooth",block:"center"});},60);
+  return `<button class="btn ${last?"rainbow":""}" id="nx" onclick="nextQ()">${last?"けっかを見る":"つぎへ"}</button>`;}
+function finish(q,stars,maxStars,score,el){
+  S.stars+=stars;sess.pts+=score;sess.max+=1;sess.log.push({id:q.id,score});
+  const st=S.stat[q.id]=S.stat[q.id]||{ok:0,ng:0};
+  if(score>=1){st.ok++;if(sess.kind==="wrong")S.wrong=S.wrong.filter(x=>x!==q.id);sparkle(el);mark();}
+  else{st.ng++;if(!S.wrong.includes(q.id))S.wrong.push(q.id);}
+  save();hd();
+}
+function mark(){const qc=document.getElementById("qc");if(!qc)return;qc.insertAdjacentHTML("beforeend",
+  `<svg class="mark pop" viewBox="0 0 100 100"><circle cx="50" cy="50" r="36" fill="none" stroke="#ff8fb4" stroke-width="7"/><path d="M26 52q10-30 34-22t10 26q-6 16-30 12" fill="none" stroke="#ff8fb4" stroke-width="5" stroke-linecap="round"/></svg>`);}
+function sparkle(el){const r=el.getBoundingClientRect();for(let i=0;i<7;i++){const s=document.createElement("span");s.className="sparkle";s.textContent=["✦","✧","♡"][i%3];
+  s.style.left=(r.left+Math.random()*r.width)+"px";s.style.top=(r.top+Math.random()*r.height)+"px";s.style.animationDelay=(i*.06)+"s";document.body.appendChild(s);setTimeout(()=>s.remove(),1300);}}
+function nextQ(){sess.i++;if(sess.i>=sess.list.length)go("result");else go("quiz");}
+
+function vResult(){
+  const pct=Math.round(sess.pts/sess.max*100);
+  if(sess.kind==="unit"){S.best[sess.u]=Math.max(S.best[sess.u]||0,pct);}
+  if(sess.d&&sess.kind!=="wrong"){S.done[sess.d]=S.done[sess.d]||{};S.done[sess.d][sess.kind==="test"?"test":sess.kind==="ever"?"ever":"app"]=1;bonus(sess.d);}
+  save();
+  const msg=pct>=95?"すごい！パーフェクトまであと少し✨":pct>=85?"よくできました！":pct>=70?"あと少し！まちがいノートでなおそう":"まちがいノートで もう一度やろう";
+  const wr=sess.log.filter(x=>x.score<1).map(x=>QBY(x.id));
+  app.innerHTML=`<div class="card center">${puff("prize",true)}
+   <div class="muted" style="margin-top:8px">${sess.kind==="test"?"まとめテスト":"けっか"}</div>
+   <div class="score">${pct}<span>${sess.kind==="test"?"点":"%"}</span></div><div style="font-weight:600">${msg}</div></div>
+   ${wr.length?`<div class="card"><h2>📝 まちがえた問題</h2>${wr.map(q=>`<div class="wl">${q.q.replace(/<[^>]+>/g,"").slice(0,70)}<br><b style="color:var(--pink-d)">→ ${q.t==="c"?q.o[q.a]:q.t==="n"?q.a[0]+q.un:q.a}</b></div>`).join("")}
+     <p class="muted" style="margin:10px 0 0">この問題は「まちがいノート」に入りました。紙のノートにも書いておこう。</p></div>`:""}
+   ${wr.length?`<button class="btn pink" onclick="startWrong()">まちがいノートをやる</button>`:""}
+   <button class="btn soft" onclick="go('home')">ホームへ</button>`;
+}
+function vWrong(){
+  const list=S.wrong.map(QBY).filter(Boolean);
+  app.innerHTML=`<div class="card"><h2>📒 まちがいノート（${list.length}問）</h2><p class="muted" style="margin:0">正解すると ノートから消えるよ。</p>
+   ${list.map(q=>`<div class="wl">${ALLUNITS[q.u].ic} ${q.q.replace(/<[^>]+>/g,"").slice(0,60)}</div>`).join("")}</div>
+   <button class="btn pink" onclick="startWrong()" ${list.length?"":"disabled"}>まちがいノートをはじめる</button>
+   <div class="card"><h2>🔁 一度でもまちがえた問題（${everNg().length}問）</h2><p class="muted" style="margin:0">いまは正解できている問題もふくめて、これまでに1回でもまちがえた問題をぜんぶ出すよ。テスト前のかくにん用。正解しても消えないよ。</p></div>
+   <button class="btn" onclick="startEver(null)" ${everNg().length?"":"disabled"}>一度でもまちがえた問題をはじめる<span class="s">${everNg().length}問</span></button>
+   <button class="btn soft" onclick="go('home')">もどる</button>`;
+}
+
+/* 手書きパッド */
+function makePad(cv,H,onChange){
+  const dpr=window.devicePixelRatio||1,W=cv.parentElement.clientWidth;cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+"px";
+  const g=cv.getContext("2d");g.scale(dpr,dpr);g.lineCap="round";g.lineJoin="round";g.lineWidth=3.6;g.strokeStyle="#3c4b57";
+  let strokes=[],cur=null,locked=false,len=0;
+  const pos=e=>{const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];};
+  const redraw=()=>{g.clearRect(0,0,W,H);len=0;strokes.forEach(s=>{g.beginPath();s.forEach((p,i)=>{i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]);if(i)len+=Math.hypot(p[0]-s[i-1][0],p[1]-s[i-1][1]);});if(s.length===1)g.lineTo(s[0][0]+.1,s[0][1]);g.stroke();});onChange();};
+  cv.onpointerdown=e=>{if(locked)return;cv.setPointerCapture(e.pointerId);cur=[pos(e)];strokes.push(cur);g.beginPath();g.moveTo(...cur[0]);e.preventDefault();};
+  cv.onpointermove=e=>{if(!cur)return;const p=pos(e),l=cur[cur.length-1];len+=Math.hypot(p[0]-l[0],p[1]-l[1]);cur.push(p);g.lineTo(...p);g.stroke();g.beginPath();g.moveTo(...p);e.preventDefault();};
+  cv.onpointerup=cv.onpointercancel=()=>{if(cur){cur=null;onChange();}};
+  return{ink:()=>len,clear:()=>{strokes=[];redraw();},undo:()=>{strokes.pop();redraw();},lock:()=>{locked=true;},
+    snap:()=>{const t=document.createElement("canvas"),s=Math.min(1,420/W);t.width=W*s;t.height=H*s;const x=t.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,t.width,t.height);x.drawImage(cv,0,0,t.width,t.height);return t.toDataURL("image/jpeg",.6);}};
+}
+
+/* おうちの人へ */
+function vParent(){
+  const g=S.gal.slice().reverse(),M=["×","△","◎"];
+  const test=curTest();
+  app.innerHTML=`<div class="card"><h2>👪 おうちの人へ</h2>
+   <p class="muted" style="margin:0">書く問題で、娘さんが手で書いた答え（新しい順・最大60件）と自己採点です。◎が本当に書けているか確認してあげてください。</p>
+   <div class="gal">${g.length?g.map(x=>`<div><img src="${x.img}" alt=""><b style="color:${x.m===2?"#e886a8":x.m===1?"#c99a1c":"#58a3cc"}">${M[x.m]}</b> ${x.q}…<br><span class="muted" style="font-size:10.5px">${new Date(x.ts).toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span></div>`).join(""):`<p class="muted">まだ書いた答えはありません。</p>`}</div></div>
+   <div class="card"><h2>📅 がくしゅうプラン</h2>${test.plan.map(p=>{const d=S.done[p.d]||{},N={"pt": "ポイント", "app": "アプリ", "paper": "学校", "wp": "ウィンパス", "ever": "まちがい", "test": "まとめテスト"};return `<div class="wl">${md(p.d)} ${p.src==="core"?p.us.map(u=>test.units[u].name).join("・"):p.src==="wp"?"ウィンパス（2周目）":"テスト前日"}<br>${TASKS[p.src].map(k=>N[k]+(d[k]?"✓":"・")).join(" ")}</div>`;}).join("")}</div>
+   <div class="card"><h2>⚙️ せってい</h2>
+    <button class="btn soft" onclick="S.unlockAll=!S.unlockAll;save();go('parent')">先の単元を ${S.unlockAll?"日付どおりにもどす":"ぜんぶひらく"}</button>
+    <button class="btn soft" onclick="pickImg('home')">ホームの画像をかえる</button>
+    <button class="btn soft" onclick="pickImg('prize')">けっか画面の画像をかえる</button>
+    <button class="btn soft" onclick="if(confirm('画像を初期にもどしますか？')){S.img={};save();go('parent')}">画像を初期にもどす</button>
+    <button class="btn soft" onclick="if(confirm('きろくをすべて消しますか？（もとにもどせません）')){localStorage.removeItem(KEY);location.reload()}">きろくをすべて消す</button></div>
+   <button class="btn soft" onclick="go('home')">もどる</button>`;
+}
+
+go("home");
+</script>
+</body>
+</html>
