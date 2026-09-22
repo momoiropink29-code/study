@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="小数まほう学校">
 <title>小数まほう学校</title>
 <style>
 :root{
@@ -156,7 +161,7 @@ textarea{width:100%;height:70px;border-radius:12px;background:#fff;color:var(--i
     <button id="t1" class="on">勉強</button><button id="t2">ペット</button><button id="t3">図鑑</button>
   </div>
   <div class="mods" id="mods"></div>
-  <p class="note">まちがえた問題は、なんども出てくるよ。</p>
+  <p class="note">まちがえた問題は、なんども出てくるよ。<br><span id="ver" style="opacity:.7"></span></p>
 </section>
 
 <!-- ペット -->
@@ -232,6 +237,45 @@ const M=[
   fb:'288.8 ÷ 30.4 = 9.5kg。',rule:'「1kgあたり30.4g」だから、ほしい量 ÷ 1あたりの量。'}
 ]},
 
+{id:'joken',icon:'👀',name:'じょうけんを読む',sub:'大きい順？上から2けた？約は？ — 4年の再テストより',q:[
+ {t:'ch',q:'次の分数を「大きい方から」ならべると？\n3/5 , 4/7 , 5/9',o:['3/5 → 4/7 → 5/9','5/9 → 4/7 → 3/5'],a:0,
+  fb:'3/5＝0.6、4/7≒0.57、5/9≒0.56。大きい方からなので 3/5 が先。',rule:'答える前に「大きい方から」「小さい順」に線を引く。'},
+ {t:'ch',q:'次の分数を「小さい順」にならべると？\n2/3 , 5/8 , 7/12',o:['2/3 → 5/8 → 7/12','7/12 → 5/8 → 2/3'],a:1,
+  fb:'2/3≒0.67、5/8＝0.625、7/12≒0.58。小さい順なので 7/12 が先。',rule:'並べたあと、もう一度問題の「順」を読み直す。'},
+ {t:'ch',q:'16.2 ÷ 27 の商を、四捨五入して\n上から2けたのがい数で求めると？',o:['約0.6','約0.60','約0.61'],a:1,
+  fb:'16.2÷27＝0.6。上から2けたなので、0も書いて 0.60。',rule:'「上から2けた」は数字を2こ書く。0.6 は1けたしかない。'},
+ {t:'ch',q:'42.8 ÷ 14 の商を、四捨五入して\n上から2けたのがい数で求めると？',o:['約3.0','約3.1','約3.06'],a:1,
+  fb:'42.8÷14＝3.05…。上から3けためは5なので切り上げて 3.1。',rule:'上から「3けため」を見て四捨五入する。'},
+ {t:'ch',q:'6 ÷ 11 の商を、四捨五入して\n上から2けたのがい数で求めると？（答えの書き方）',o:['0.55','約0.55','約0.5'],a:1,
+  fb:'6÷11＝0.545…→ 約0.55。がい数には「約」をつける。',rule:'がい数の答えには、かならず「約」。'},
+ {t:'ch',q:'9Lで7kgの米。1Lの重さを\n1/10の位までのがい数で求めると？',o:['約0.7kg','約0.8kg','約1.3kg'],a:1,
+  fb:'1Lあたり＝Lの数でわる。7÷9＝0.77…→ 約0.8kg。',rule:'「1◯あたり」は◯の数でわる。単位もわすれない。'},
+ {t:'in',q:'51 − 46.74 =',a:'4.26',
+  fb:'51 を 51.00 と見て、くり下がりを1つずつ。答えは 4.26。',rule:'整数の後ろに「.00」をつけて、けたをそろえてから引く。'},
+ {t:'in',q:'36.24 − 18.5 =',a:'17.74',
+  fb:'18.5 を 18.50 と見てそろえる。36.24−18.50＝17.74。',rule:'小数点の位置をたてにそろえる。'}
+]},
+
+{id:'tsubun',icon:'🍰',name:'つうぶん',sub:'分母をそろえてたす・ひく',q:[
+ {t:'ch',q:'5/6 − 1/8 を計算したい。\n6と8の最小公倍数は？',o:['14','24','48'],a:1,
+  fb:'6の倍数 6,12,18,24… 8の倍数 8,16,24… 最初に同じになるのは24。',rule:'大きいほうの数の倍数を順に書いて、小さいほうでわれるか見る。'},
+ {t:'in',q:'5/6 ＝ □/24　□は？',a:'20',
+  fb:'6→24 は4倍。分子の5も4倍で20。',rule:'分母を何倍したか → 分子も同じだけ。'},
+ {t:'in',q:'1/8 ＝ □/24　□は？',a:'3',
+  fb:'8→24 は3倍。分子の1も3倍で3。',rule:'分母と分子はいつも同じ数をかける。'},
+ {t:'fr',q:'5/6 − 1/8 =\n（「17/24」のように / で書く）',a:'17/24',
+  fb:'20/24 − 3/24 ＝ 17/24。',rule:'そろえたら、分子どうしを引くだけ。分母はそのまま。'},
+ {t:'fr',q:'3/4 + 1/6 =',a:'11/12',
+  fb:'4と6の最小公倍数は12。9/12 + 2/12 ＝ 11/12。',rule:'まず最小公倍数を見つける。'},
+ {t:'fr',q:'2/3 − 1/4 =',a:'5/12',
+  fb:'8/12 − 3/12 ＝ 5/12。',rule:'3と4は公約数がないので、かけ算した12でOK。'},
+ {t:'fr',q:'5/6 + 1/10 =\n（約分できるときはする）',a:'14/15',
+  fb:'25/30 + 3/30 ＝ 28/30。2でわって 14/15。',rule:'最後に「約分できる？」を必ず確認。'},
+ {t:'fr',q:'1/2 + 3/10 =\n（約分できるときはする）',a:'4/5',
+  fb:'5/10 + 3/10 ＝ 8/10。2でわって 4/5。',rule:'分子と分母が両方偶数なら、まだ約分できる。'},
+ {t:'ch',q:'7/3 を帯分数にすると？',o:['1 4/3','2 1/3','3 1/3'],a:1,
+  fb:'7÷3＝2あまり1。だから 2 1/3。',rule:'分子÷分母 → 商が整数、あまりが分子。'}
+]},
 {id:'ten',icon:'✨',name:'小数点ダンス',sub:'わり算は、わる数を整数にしてから',q:[
  {t:'ch',q:'3 ÷ 0.06 を筆算にするには？',o:['30 ÷ 0.6','300 ÷ 6','3 ÷ 6'],a:1,
   fb:'0.06を6にするには100倍。3も100倍して300。',rule:'わる数を整数にする分だけ、両方うごかす。'},
@@ -495,6 +539,7 @@ function renderMods(){
 var cur=null,idx=0,ok=0,answered=false,sel=null;
 function start(m){ cur=m; idx=0; ok=0; show('quiz'); render(); }
 function norm(s){return String(s).trim().replace(/[０-９．]/g,function(c){return '0123456789.'['０１２３４５６７８９．'.indexOf(c)];});}
+function frNorm(v){return norm(v).replace(/[／]/g,'/').replace(/\s/g,'');}
 function same(a,b){var x=parseFloat(norm(a)),y=parseFloat(norm(b));return !isNaN(x)&&Math.abs(x-y)<1e-9;}
 function render(){
   answered=false; sel=null;
@@ -535,6 +580,10 @@ function render(){
     var d3=document.createElement('div'); d3.className='inputs';
     d3.innerHTML='<label>'+q.l1+'</label><input type="text" inputmode="decimal" id="i1"> <label>'+q.l2+'</label><input type="text" inputmode="decimal" id="i2">';
     b.appendChild(d3);
+  }else if(q.t==='fr'){
+    var d5=document.createElement('div'); d5.className='inputs';
+    d5.innerHTML='<input type="text" inputmode="text" id="i1" placeholder="17/24" style="width:150px">';
+    b.appendChild(d5);
   }else{
     var d4=document.createElement('div'); d4.className='inputs';
     d4.innerHTML='<input type="text" inputmode="decimal" id="i1">'+(q.unit?'<label>'+q.unit+'</label>':'');
@@ -552,6 +601,7 @@ $('go').onclick=function(){
     for(var i=0;i<os.length;i++){ os[i].className='opt'+(i===q.a?' ok':'')+(i===sel&&!right?' ng':''); }
   }else if(q.t==='pt'){ if(sel===null)return; right=(sel===q.a);
   }else if(q.t==='two'){ right=same($('i1').value,q.a)&&same($('i2').value,q.a2);
+  }else if(q.t==='fr'){ right=frNorm($('i1').value)===frNorm(q.a);
   }else{ right=same($('i1').value,q.a); }
   answered=true;
   $('fb').className='fb show '+(right?'right':'wrong');
@@ -590,6 +640,8 @@ $('restore').onclick=function(){
     store(); renderDex(); toast('記録を復元した');
   }catch(e){ toast('その文字では復元できない。コピーしなおしてね'); }
 };
+var VER='v4 (2026-09-21)';
+$('ver').textContent=VER;
 home();
 </script>
 </body>
