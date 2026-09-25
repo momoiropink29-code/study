@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>かんじ道場 5年生</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --ink:#3d3a6b; --red:#f0508a; --cream:#e3f5ff; --line:#cfe8f7; --green:#23b39b; --blue:#5b8def; --gray:#8a86a8; --gold:#f5a623; --rad:#e8365d;
+    --rainbow: linear-gradient(90deg,#ff9ac1,#ffc98b,#fff07a,#9ff0c0,#8fd8ff,#b9a8ff,#f6a8ff); }
+  .kl { font-family: 'Klee One','YuKyokasho','UD デジタル 教科書体 N-R','Hiragino Mincho ProN',serif; font-weight:600; }
+  body { background: radial-gradient(circle at 12% 18%, rgba(255,255,255,.9) 0 2px, transparent 3px) 0 0/90px 90px, radial-gradient(circle at 70% 60%, rgba(255,255,255,.8) 0 1.5px, transparent 2.5px) 0 0/130px 130px, linear-gradient(180deg,#eaf8ff 0%,#d6f0ff 100%) fixed; min-height:100vh; color: var(--ink); font-family: 'Hiragino Maru Gothic ProN','ヒラギノ丸ゴ ProN W4','Hiragino Sans','Yu Gothic',sans-serif; -webkit-text-size-adjust: 100%; }
+  button { font-family: inherit; cursor: pointer; }
+  input, select { font-family: inherit; }
+  header { padding: 14px 16px; background: rgba(255,255,255,.6); border-bottom: 4px solid transparent; border-image: var(--rainbow) 1; }
+  .wrap { max-width: 660px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  h1 { font-weight: 900; font-size: 21px; color: var(--ink); }
+  h1 .ttl { background: linear-gradient(90deg,#ff6fae,#ff9f45,#f5c400,#2fc48d,#3aa8f0,#8a6cff,#e56cff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .twk { display:inline-block; animation: twk 1.6s ease-in-out infinite; }
+  @keyframes twk { 0%,100%{opacity:.35;transform:scale(.8) rotate(0)} 50%{opacity:1;transform:scale(1.15) rotate(20deg)} }
+  h1 .mark { background: var(--rainbow); color: #fff; border-radius: 8px; padding: 3px 10px; margin-right: 8px; }
+  h1 small { font-size: 12px; font-weight: 700; color: var(--gray); margin-left: 8px; }
+  main { max-width: 660px; margin: 0 auto; padding: 18px 16px 60px; }
+  .card { background: rgba(255,255,255,.92); border: 2px solid var(--line); border-radius: 18px; box-shadow: 0 4px 14px rgba(120,170,220,.18); padding: 14px; }
+  .menuBtn { border: 2px solid #b9a8ff; color: var(--ink); background: #fff; border-radius: 999px; padding: 5px 14px; font-weight: 900; font-size: 12px; }
+  .masu { background: linear-gradient(#cfe8f7 1px, transparent 1px) padding-box, linear-gradient(90deg, #cfe8f7 1px, transparent 1px) padding-box, linear-gradient(#fff,#fff) padding-box, var(--rainbow) border-box; background-size: 28px 28px, 28px 28px, auto, auto; border: 4px solid transparent; border-radius: 22px; padding: 28px 18px; text-align: center; box-shadow: 0 6px 18px rgba(120,170,220,.25); }
+  .btn { border: none; border-radius: 16px; font-weight: 900; color: #fff; box-shadow: 0 3px 0 rgba(60,60,120,.18); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .bar-bg { background: #e6f0fa; border-radius: 999px; height: 18px; overflow: hidden; }
+  .bar { height: 100%; background: var(--rainbow); border-radius: 999px; transition: width .4s; }
+  .judge { border-radius: 12px; margin-top: 8px; padding: 14px; text-align: center; }
+  .pt { background: linear-gradient(90deg,#ffb347,#ff7eb3); color: #fff; font-weight: 900; border-radius: 999px; padding: 4px 14px; font-size: 14px; display: inline-block; }
+  .pet { background: rgba(255,255,255,.95); border: 2px solid var(--line); border-radius: 18px; padding: 10px; text-align: center; width: 104px; }
+  .pet .face { font-size: 40px; line-height: 1.2; }
+  .pet .nm { font-weight: 900; font-size: 12px; }
+  .pet .lv { font-size: 10px; font-weight: 700; color: var(--gray); }
+  .feed { background: var(--green); color: #fff; border: none; border-radius: 8px; font-weight: 900; font-size: 11px; padding: 4px 8px; margin-top: 4px; }
+  .weakItem { background: #fff; border: 2px solid var(--line); border-left: 8px solid #ff9ac1; border-radius: 14px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .hidden { display: none; }
+  select { border: 2px solid #b9a8ff; color: var(--ink); border-radius: 10px; padding: 9px 10px; font-weight: 900; font-size: 14px; background: #fff; width: 100%; }
+  .sent { font-size: 20px; font-weight: 700; line-height: 1.9; text-align: left; }
+  .sent b { color: var(--red); background: #ffe8f2; border-radius: 6px; padding: 0 4px; }
+  .link { color: var(--ink); font-weight: 900; font-size: 13px; background: rgba(255,255,255,.9); border: 2px solid #b9a8ff; border-radius: 999px; padding: 6px 14px; }
+  .hintBtn { background: linear-gradient(90deg,#ffd36e,#ff9ac1); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-weight:900; font-size:14px; margin-top:12px; }
+  .radBox { display:inline-flex; align-items:center; gap:12px; background:#fff5fa; border:2px dashed #ffb3d1; border-radius:16px; padding:6px 16px; margin-top:12px; }
+  .radBox .g { font-size:46px; line-height:1.1; color:var(--ink); }
+  .radBox .n { font-size:18px; font-weight:900; color:var(--rad); }
+  .radBox .h { font-size:11px; font-weight:700; color:var(--gray); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1><span class="mark">漢</span><span class="ttl">かんじ道場 5年生</span> <span class="twk" style="color:#ffc93c">✦</span><small>がんばれ 乙葉さん! ♡</small></h1>
+    <button id="toMenu" class="menuBtn hidden">メニューへ</button>
+  </div>
+</header>
+<main><div id="view"></div></main>
+
+<script>
+// ===== 5年生配当漢字 193字(学校の学習順)=====
+// 一学期 常〜毒(95字)
+const T1 = [
+{k:"常",w:"日常",y:"にちじょう"},{k:"永",w:"永遠",y:"えいえん"},{k:"慣",w:"習慣",y:"しゅうかん"},{k:"現",w:"現れる",y:"あらわれる"},{k:"混",w:"混合",y:"こんごう"},
+{k:"状",w:"感謝状",y:"かんしゃじょう"},{k:"態",w:"状態",y:"じょうたい"},{k:"迷",w:"迷子",y:"まいご"},{k:"士",w:"兵士",y:"へいし"},{k:"謝",w:"感謝",y:"かんしゃ"},
+{k:"情",w:"感情",y:"かんじょう"},{k:"報",w:"報告",y:"ほうこく"},{k:"容",w:"内容",y:"ないよう"},{k:"編",w:"編集",y:"へんしゅう"},{k:"確",w:"正確",y:"せいかく"},
+{k:"構",w:"構成",y:"こうせい"},{k:"囲",w:"囲む",y:"かこむ"},{k:"解",w:"解決",y:"かいけつ"},{k:"災",w:"災害",y:"さいがい"},{k:"技",w:"球技",y:"きゅうぎ"},
+{k:"術",w:"技術",y:"ぎじゅつ"},{k:"資",w:"資金",y:"しきん"},{k:"快",w:"快晴",y:"かいせい"},{k:"識",w:"知識",y:"ちしき"},{k:"際",w:"国際",y:"こくさい"},
+{k:"逆",w:"逆転",y:"ぎゃくてん"},{k:"象",w:"気象",y:"きしょう"},{k:"価",w:"価格",y:"かかく"},{k:"非",w:"非常",y:"ひじょう"},{k:"像",w:"石像",y:"せきぞう"},
+{k:"織",w:"織物",y:"おりもの"},{k:"証",w:"証明",y:"しょうめい"},{k:"属",w:"金属",y:"きんぞく"},{k:"比",w:"比べる",y:"くらべる"},{k:"職",w:"職員",y:"しょくいん"},
+{k:"応",w:"応援",y:"おうえん"},{k:"質",w:"質問",y:"しつもん"},{k:"統",w:"統一",y:"とういつ"},{k:"減",w:"減点",y:"げんてん"},{k:"述",w:"述語",y:"じゅつご"},
+{k:"経",w:"経営",y:"けいえい"},{k:"示",w:"指示",y:"しじ"},{k:"序",w:"順序",y:"じゅんじょ"},{k:"故",w:"故障",y:"こしょう"},{k:"歴",w:"歴史",y:"れきし"},
+{k:"史",w:"歴史",y:"れきし"},{k:"精",w:"精神",y:"せいしん"},{k:"任",w:"任せる",y:"まかせる"},{k:"勢",w:"勢力",y:"せいりょく"},{k:"貸",w:"貸し出し",y:"かしだし"},
+{k:"許",w:"許す",y:"ゆるす"},{k:"責",w:"責任",y:"せきにん"},{k:"適",w:"適切",y:"てきせつ"},{k:"程",w:"程度",y:"ていど"},{k:"複",w:"複数",y:"ふくすう"},
+{k:"移",w:"移動",y:"いどう"},{k:"厚",w:"厚着",y:"あつぎ"},{k:"飼",w:"飼育",y:"しいく"},{k:"率",w:"率先",y:"そっせん"},{k:"領",w:"領土",y:"りょうど"},
+{k:"夢",w:"夢中",y:"むちゅう"},{k:"喜",w:"喜ぶ",y:"よろこぶ"},{k:"険",w:"険しい",y:"けわしい"},{k:"導",w:"導く",y:"みちびく"},{k:"能",w:"能力",y:"のうりょく"},
+{k:"略",w:"省略",y:"しょうりゃく"},{k:"救",w:"救急車",y:"きゅうきゅうしゃ"},{k:"弁",w:"弁当",y:"べんとう"},{k:"堂",w:"食堂",y:"しょくどう"},{k:"貯",w:"貯金",y:"ちょきん"},
+{k:"雑",w:"雑音",y:"ざつおん"},{k:"殺",w:"殺到",y:"さっとう"},{k:"句",w:"俳句",y:"はいく"},{k:"得",w:"得意",y:"とくい"},{k:"増",w:"増加",y:"ぞうか"},
+{k:"準",w:"準決勝",y:"じゅんけっしょう"},{k:"備",w:"準備",y:"じゅんび"},{k:"効",w:"効果",y:"こうか"},{k:"可",w:"可能",y:"かのう"},{k:"性",w:"性質",y:"せいしつ"},
+{k:"評",w:"評判",y:"ひょうばん"},{k:"防",w:"防止",y:"ぼうし"},{k:"犯",w:"犯人",y:"はんにん"},{k:"罪",w:"罪",y:"つみ"},{k:"営",w:"営業",y:"えいぎょう"},
+{k:"造",w:"木造",y:"もくぞう"},{k:"修",w:"修理",y:"しゅうり"},{k:"仮",w:"仮想",y:"かそう"},{k:"耕",w:"耕す",y:"たがやす"},{k:"綿",w:"綿花",y:"めんか"},
+{k:"布",w:"毛布",y:"もうふ"},{k:"損",w:"損害",y:"そんがい"},{k:"豊",w:"豊作",y:"ほうさく"},{k:"久",w:"久しぶり",y:"ひさしぶり"},{k:"毒",w:"有毒",y:"ゆうどく"},
+];
+// 二学期 提〜格(98字)各漢字に4語以上
+const T2 = [
+{k:"提",ws:[["提出","ていしゅつ"],["提案","ていあん"],["提供","ていきょう"],["前提","ぜんてい"]]},
+{k:"支",ws:[["支える","ささえる"],["支度","したく"],["支持","しじ"],["支流","しりゅう"]]},
+{k:"採",ws:[["採用","さいよう"],["採集","さいしゅう"],["採点","さいてん"],["採決","さいけつ"]]},
+{k:"保",ws:[["保存","ほぞん"],["保護","ほご"],["保健","ほけん"],["保温","ほおん"]]},
+{k:"護",ws:[["保護","ほご"],["看護","かんご"],["護衛","ごえい"],["愛護","あいご"]]},
+{k:"河",ws:[["河口","かこう"],["河川","かせん"],["大河","たいが"],["運河","うんが"]]},
+{k:"基",ws:[["基本","きほん"],["基地","きち"],["基準","きじゅん"],["基金","ききん"]]},
+{k:"規",ws:[["規則","きそく"],["規模","きぼ"],["定規","じょうぎ"],["新規","しんき"]]},
+{k:"制",ws:[["制服","せいふく"],["制度","せいど"],["制限","せいげん"],["体制","たいせい"]]},
+{k:"設",ws:[["設計","せっけい"],["設立","せつりつ"],["建設","けんせつ"],["設備","せつび"]]},
+{k:"限",ws:[["限界","げんかい"],["限定","げんてい"],["期限","きげん"],["限る","かぎる"]]},
+{k:"条",ws:[["条件","じょうけん"],["条例","じょうれい"],["条約","じょうやく"],["条文","じょうぶん"]]},
+{k:"件",ws:[["事件","じけん"],["条件","じょうけん"],["件数","けんすう"],["用件","ようけん"]]},
+{k:"接",ws:[["直接","ちょくせつ"],["接近","せっきん"],["面接","めんせつ"],["接する","せっする"]]},
+{k:"張",ws:[["主張","しゅちょう"],["出張","しゅっちょう"],["張り切る","はりきる"],["見張り","みはり"]]},
+{k:"師",ws:[["医師","いし"],["教師","きょうし"],["漁師","りょうし"],["技師","ぎし"]]},
+{k:"枝",ws:[["枝","えだ"],["枝分かれ","えだわかれ"],["小枝","こえだ"],["枝豆","えだまめ"]]},
+{k:"似",ws:[["似る","にる"],["似顔絵","にがおえ"],["類似","るいじ"],["空似","そらに"]]},
+{k:"演",ws:[["演奏","えんそう"],["演技","えんぎ"],["出演","しゅつえん"],["講演","こうえん"]]},
+{k:"貧",ws:[["貧しい","まずしい"],["貧血","ひんけつ"],["貧弱","ひんじゃく"],["貧乏","びんぼう"]]},
+{k:"築",ws:[["建築","けんちく"],["築く","きずく"],["新築","しんちく"],["改築","かいちく"]]},
+{k:"政",ws:[["政治","せいじ"],["政府","せいふ"],["政策","せいさく"],["行政","ぎょうせい"]]},
+{k:"税",ws:[["税金","ぜいきん"],["消費税","しょうひぜい"],["税関","ぜいかん"],["課税","かぜい"]]},
+{k:"賞",ws:[["賞状","しょうじょう"],["賞金","しょうきん"],["入賞","にゅうしょう"],["受賞","じゅしょう"]]},
+{k:"興",ws:[["興味","きょうみ"],["興奮","こうふん"],["復興","ふっこう"],["興行","こうぎょう"]]},
+{k:"因",ws:[["原因","げんいん"],["要因","よういん"],["因果","いんが"],["勝因","しょういん"]]},
+{k:"武",ws:[["武士","ぶし"],["武器","ぶき"],["武道","ぶどう"],["武者","むしゃ"]]},
+{k:"眼",ws:[["眼科","がんか"],["眼鏡","めがね"],["肉眼","にくがん"],["眼帯","がんたい"]]},
+{k:"財",ws:[["財産","ざいさん"],["財布","さいふ"],["文化財","ぶんかざい"],["財源","ざいげん"]]},
+{k:"額",ws:[["金額","きんがく"],["全額","ぜんがく"],["額","ひたい"],["半額","はんがく"]]},
+{k:"紀",ws:[["世紀","せいき"],["紀元","きげん"],["紀行文","きこうぶん"],["風紀","ふうき"]]},
+{k:"燃",ws:[["燃える","もえる"],["燃料","ねんりょう"],["燃焼","ねんしょう"],["再燃","さいねん"]]},
+{k:"粉",ws:[["花粉","かふん"],["小麦粉","こむぎこ"],["粉雪","こなゆき"],["粉末","ふんまつ"]]},
+{k:"断",ws:[["断る","ことわる"],["判断","はんだん"],["横断","おうだん"],["油断","ゆだん"]]},
+{k:"寄",ws:[["寄り道","よりみち"],["寄付","きふ"],["寄せる","よせる"],["最寄り","もより"]]},
+{k:"判",ws:[["判断","はんだん"],["判定","はんてい"],["裁判","さいばん"],["評判","ひょうばん"]]},
+{k:"往",ws:[["往復","おうふく"],["往来","おうらい"],["右往左往","うおうさおう"],["往年","おうねん"]]},
+{k:"衛",ws:[["人工衛星","じんこうえいせい"],["衛生","えいせい"],["護衛","ごえい"],["自衛","じえい"]]},
+{k:"過",ws:[["通過","つうか"],["過去","かこ"],["過ぎる","すぎる"],["過程","かてい"]]},
+{k:"潔",ws:[["清潔","せいけつ"],["潔白","けっぱく"],["簡潔","かんけつ"],["潔い","いさぎよい"]]},
+{k:"境",ws:[["国境","こっきょう"],["境界","きょうかい"],["境目","さかいめ"],["環境","かんきょう"]]},
+{k:"査",ws:[["調査","ちょうさ"],["検査","けんさ"],["査定","さてい"],["巡査","じゅんさ"]]},
+{k:"航",ws:[["航海","こうかい"],["航空","こうくう"],["欠航","けっこう"],["航路","こうろ"]]},
+{k:"停",ws:[["停止","ていし"],["停車","ていしゃ"],["バス停","ばすてい"],["停電","ていでん"]]},
+{k:"貿",ws:[["貿易","ぼうえき"],["貿易船","ぼうえきせん"],["貿易港","ぼうえきこう"],["自由貿易","じゆうぼうえき"]]},
+{k:"易",ws:[["貿易","ぼうえき"],["容易","ようい"],["安易","あんい"],["易しい","やさしい"]]},
+{k:"婦",ws:[["夫婦","ふうふ"],["婦人","ふじん"],["主婦","しゅふ"],["新婦","しんぷ"]]},
+{k:"酸",ws:[["酸素","さんそ"],["酸性","さんせい"],["酸味","さんみ"],["炭酸","たんさん"]]},
+{k:"講",ws:[["講堂","こうどう"],["講演","こうえん"],["講師","こうし"],["受講","じゅこう"]]},
+{k:"再",ws:[["再会","さいかい"],["再生","さいせい"],["再来週","さらいしゅう"],["再利用","さいりよう"]]},
+{k:"旧",ws:[["旧型","きゅうがた"],["旧友","きゅうゆう"],["復旧","ふっきゅう"],["新旧","しんきゅう"]]},
+{k:"績",ws:[["成績","せいせき"],["実績","じっせき"],["功績","こうせき"],["業績","ぎょうせき"]]},
+{k:"均",ws:[["平均","へいきん"],["均等","きんとう"],["均一","きんいつ"],["平均点","へいきんてん"]]},
+{k:"志",ws:[["志望","しぼう"],["意志","いし"],["志す","こころざす"],["有志","ゆうし"]]},
+{k:"測",ws:[["観測","かんそく"],["測定","そくてい"],["測る","はかる"],["予測","よそく"]]},
+{k:"暴",ws:[["暴れる","あばれる"],["暴風","ぼうふう"],["乱暴","らんぼう"],["暴走","ぼうそう"]]},
+{k:"検",ws:[["検査","けんさ"],["検定","けんてい"],["探検","たんけん"],["点検","てんけん"]]},
+{k:"製",ws:[["製品","せいひん"],["製作","せいさく"],["日本製","にほんせい"],["製造","せいぞう"]]},
+{k:"復",ws:[["復習","ふくしゅう"],["往復","おうふく"],["回復","かいふく"],["復活","ふっかつ"]]},
+{k:"授",ws:[["授業","じゅぎょう"],["教授","きょうじゅ"],["授かる","さずかる"],["伝授","でんじゅ"]]},
+{k:"刊",ws:[["朝刊","ちょうかん"],["夕刊","ゆうかん"],["週刊","しゅうかん"],["月刊","げっかん"]]},
+{k:"個",ws:[["個人","こじん"],["個数","こすう"],["一個","いっこ"],["個性","こせい"]]},
+{k:"破",ws:[["破る","やぶる"],["破損","はそん"],["破片","はへん"],["読破","どくは"]]},
+{k:"素",ws:[["素材","そざい"],["酸素","さんそ"],["素顔","すがお"],["水素","すいそ"]]},
+{k:"独",ws:[["独立","どくりつ"],["独学","どくがく"],["独り","ひとり"],["独特","どくとく"]]},
+{k:"益",ws:[["利益","りえき"],["有益","ゆうえき"],["益虫","えきちゅう"],["無益","むえき"]]},
+{k:"義",ws:[["正義","せいぎ"],["意義","いぎ"],["義理","ぎり"],["主義","しゅぎ"]]},
+{k:"圧",ws:[["気圧","きあつ"],["圧力","あつりょく"],["血圧","けつあつ"],["圧勝","あっしょう"]]},
+{k:"居",ws:[["居間","いま"],["住居","じゅうきょ"],["居る","いる"],["入居","にゅうきょ"]]},
+{k:"型",ws:[["大型","おおがた"],["小型","こがた"],["型紙","かたがみ"],["典型","てんけい"]]},
+{k:"液",ws:[["液体","えきたい"],["血液","けつえき"],["樹液","じゅえき"],["消毒液","しょうどくえき"]]},
+{k:"禁",ws:[["禁止","きんし"],["禁物","きんもつ"],["立入禁止","たちいりきんし"],["解禁","かいきん"]]},
+{k:"賛",ws:[["賛成","さんせい"],["賛同","さんどう"],["絶賛","ぜっさん"],["賛美","さんび"]]},
+{k:"絶",ws:[["絶対","ぜったい"],["絶望","ぜつぼう"],["絶景","ぜっけい"],["絶える","たえる"]]},
+{k:"告",ws:[["報告","ほうこく"],["広告","こうこく"],["告白","こくはく"],["予告","よこく"]]},
+{k:"総",ws:[["総合","そうごう"],["総理大臣","そうりだいじん"],["総数","そうすう"],["総力","そうりょく"]]},
+{k:"桜",ws:[["桜","さくら"],["桜色","さくらいろ"],["夜桜","よざくら"],["桜前線","さくらぜんせん"]]},
+{k:"仏",ws:[["大仏","だいぶつ"],["仏様","ほとけさま"],["仏像","ぶつぞう"],["念仏","ねんぶつ"]]},
+{k:"妻",ws:[["妻","つま"],["夫妻","ふさい"],["愛妻","あいさい"],["妻子","さいし"]]},
+{k:"舎",ws:[["校舎","こうしゃ"],["宿舎","しゅくしゃ"],["駅舎","えきしゃ"],["田舎","いなか"]]},
+{k:"鉱",ws:[["鉱山","こうざん"],["鉱物","こうぶつ"],["鉄鉱石","てっこうせき"],["炭鉱","たんこう"]]},
+{k:"銅",ws:[["銅像","どうぞう"],["銅メダル","どうめだる"],["銅貨","どうか"],["青銅","せいどう"]]},
+{k:"脈",ws:[["山脈","さんみゃく"],["脈","みゃく"],["動脈","どうみゃく"],["文脈","ぶんみゃく"]]},
+{k:"輸",ws:[["輸入","ゆにゅう"],["輸出","ゆしゅつ"],["輸送","ゆそう"],["運輸","うんゆ"]]},
+{k:"則",ws:[["規則","きそく"],["法則","ほうそく"],["原則","げんそく"],["校則","こうそく"]]},
+{k:"肥",ws:[["肥料","ひりょう"],["肥満","ひまん"],["肥える","こえる"],["肥やし","こやし"]]},
+{k:"版",ws:[["出版","しゅっぱん"],["版画","はんが"],["初版","しょはん"],["図版","ずはん"]]},
+{k:"留",ws:[["留学","りゅうがく"],["留守","るす"],["留める","とめる"],["保留","ほりゅう"]]},
+{k:"墓",ws:[["墓","はか"],["墓地","ぼち"],["墓参り","はかまいり"],["墓石","ぼせき"]]},
+{k:"幹",ws:[["新幹線","しんかんせん"],["幹","みき"],["幹部","かんぶ"],["幹事","かんじ"]]},
+{k:"団",ws:[["団体","だんたい"],["団結","だんけつ"],["集団","しゅうだん"],["応援団","おうえんだん"]]},
+{k:"務",ws:[["事務","じむ"],["任務","にんむ"],["勤務","きんむ"],["務める","つとめる"]]},
+{k:"祖",ws:[["祖父","そふ"],["祖母","そぼ"],["先祖","せんぞ"],["祖先","そせん"]]},
+{k:"在",ws:[["現在","げんざい"],["存在","そんざい"],["在庫","ざいこ"],["不在","ふざい"]]},
+{k:"費",ws:[["費用","ひよう"],["食費","しょくひ"],["会費","かいひ"],["消費","しょうひ"]]},
+{k:"余",ws:[["余る","あまる"],["余分","よぶん"],["余計","よけい"],["余白","よはく"]]},
+{k:"招",ws:[["招待","しょうたい"],["招く","まねく"],["招待状","しょうたいじょう"],["手招き","てまねき"]]},
+{k:"格",ws:[["合格","ごうかく"],["性格","せいかく"],["格好","かっこう"],["資格","しかく"]]},
+];
+// ===== ドリル(10/1テスト範囲 = 教科書7〜21ページ / ドリル49〜56+手書き) =====
+// d:出典 k:対象の5年漢字("")=1学期までの復習 s:文(【】が空らん。空文字=じゅく語のみ) w:答え y:読み
+const DRILL0 = [
+  {d:"49",k:"提",s:"けいかくを【ていあん】する。",w:"提案",y:"ていあん"},
+  {d:"49",k:"提",s:"【ていしゅつ】びをまもる。",w:"提出",y:"ていしゅつ"},
+  {d:"49",k:"提",s:"",w:"提示",y:"ていじ"},
+  {d:"49",k:"提",s:"",w:"前提",y:"ぜんてい"},
+  {d:"49",k:"提",s:"",w:"提起",y:"ていき"},
+  {d:"49",k:"提",s:"",w:"提唱",y:"ていしょう"},
+  {d:"49",k:"支",s:"からだを【ささ】える。",w:"支える",y:"ささえる"},
+  {d:"49",k:"支",s:"あんを【しじ】する。",w:"支持",y:"しじ"},
+  {d:"49",k:"支",s:"",w:"支給",y:"しきゅう"},
+  {d:"49",k:"支",s:"",w:"支社",y:"ししゃ"},
+  {d:"49",k:"支",s:"",w:"支店",y:"してん"},
+  {d:"49",k:"支",s:"",w:"支出",y:"ししゅつ"},
+  {d:"49",k:"採",s:"しょくぶつを【さいしゅう】する。",w:"採集",y:"さいしゅう"},
+  {d:"49",k:"採",s:"さんさいを【と】る。",w:"採る",y:"とる"},
+  {d:"49",k:"採",s:"",w:"採取",y:"さいしゅ"},
+  {d:"49",k:"採",s:"",w:"採用",y:"さいよう"},
+  {d:"49",k:"採",s:"",w:"採点",y:"さいてん"},
+  {d:"49",k:"採",s:"",w:"採決",y:"さいけつ"},
+  {d:"49",k:"保",s:"【ほいく】のしごと。",w:"保育",y:"ほいく"},
+  {d:"49",k:"保",s:"【ほけん】しつにいく。",w:"保健",y:"ほけん"},
+  {d:"49",k:"保",s:"",w:"確保",y:"かくほ"},
+  {d:"49",k:"保",s:"",w:"保温",y:"ほおん"},
+  {d:"49",k:"保",s:"",w:"保管",y:"ほかん"},
+  {d:"49",k:"保",s:"",w:"保安",y:"ほあん"},
+  {d:"49",k:"護",s:"びょうにんの【きゅうご】。",w:"救護",y:"きゅうご"},
+  {d:"49",k:"護",s:"【べんごし】になるゆめ。",w:"弁護士",y:"べんごし"},
+  {d:"49",k:"護",s:"",w:"養護",y:"ようご"},
+  {d:"49",k:"護",s:"",w:"護身",y:"ごしん"},
+  {d:"49",k:"護",s:"",w:"愛護",y:"あいご"},
+  {d:"49",k:"護",s:"",w:"護送",y:"ごそう"},
+  {d:"50",k:"河",s:"うつくしい【うんが】。",w:"運河",y:"うんが"},
+  {d:"50",k:"河",s:"おおきな【かわ】。",w:"河",y:"かわ"},
+  {d:"50",k:"河",s:"",w:"大河",y:"たいが"},
+  {d:"50",k:"河",s:"",w:"銀河",y:"ぎんが"},
+  {d:"50",k:"河",s:"",w:"氷河",y:"ひょうが"},
+  {d:"50",k:"河",s:"",w:"河岸",y:"かわぎし"},
+  {d:"50",k:"基",s:"【きじゅん】をみたす。",w:"基準",y:"きじゅん"},
+  {d:"50",k:"基",s:"【ききん】をあつめる。",w:"基金",y:"ききん"},
+  {d:"50",k:"基",s:"",w:"基調",y:"きちょう"},
+  {d:"50",k:"基",s:"",w:"基板",y:"きばん"},
+  {d:"50",k:"基",s:"",w:"基点",y:"きてん"},
+  {d:"50",k:"基",s:"",w:"基地",y:"きち"},
+  {d:"50",k:"規",s:"【きやく】をまもる。",w:"規約",y:"きやく"},
+  {d:"50",k:"規",s:"さんかく【じょうぎ】をつかう。",w:"定規",y:"じょうぎ"},
+  {d:"50",k:"規",s:"",w:"規定",y:"きてい"},
+  {d:"50",k:"規",s:"",w:"校規",y:"こうき"},
+  {d:"50",k:"規",s:"",w:"規準",y:"きじゅん"},
+  {d:"50",k:"規",s:"",w:"正規",y:"せいき"},
+  {d:"50",k:"制",s:"【せいど】をみなおす。",w:"制度",y:"せいど"},
+  {d:"50",k:"制",s:"がっこうの【せいふく】。",w:"制服",y:"せいふく"},
+  {d:"50",k:"制",s:"",w:"制定",y:"せいてい"},
+  {d:"50",k:"制",s:"",w:"節制",y:"せっせい"},
+  {d:"50",k:"制",s:"",w:"制作",y:"せいさく"},
+  {d:"50",k:"制",s:"",w:"法制",y:"ほうせい"},
+  {d:"53",k:"設",s:"【せつび】がととのう。",w:"設備",y:"せつび"},
+  {d:"53",k:"設",s:"せきを【もう】ける。",w:"設ける",y:"もうける"},
+  {d:"53",k:"設",s:"",w:"常設",y:"じょうせつ"},
+  {d:"53",k:"設",s:"",w:"設立",y:"せつりつ"},
+  {d:"53",k:"設",s:"",w:"設営",y:"せつえい"},
+  {d:"53",k:"設",s:"",w:"設置",y:"せっち"},
+  {d:"53",k:"限",s:"にんずうを【かぎ】る。",w:"限る",y:"かぎる"},
+  {d:"53",k:"限",s:"【せいげん】をゆるめる。",w:"制限",y:"せいげん"},
+  {d:"53",k:"限",s:"",w:"限定",y:"げんてい"},
+  {d:"53",k:"限",s:"",w:"期限",y:"きげん"},
+  {d:"53",k:"限",s:"",w:"限界",y:"げんかい"},
+  {d:"53",k:"限",s:"",w:"無限",y:"むげん"},
+  {d:"53",k:"条",s:"【じょうぶん】をよむ。",w:"条文",y:"じょうぶん"},
+  {d:"53",k:"条",s:"【じょうやく】をむすぶ。",w:"条約",y:"じょうやく"},
+  {d:"53",k:"条",s:"",w:"条例",y:"じょうれい"},
+  {d:"53",k:"条",s:"",w:"条目",y:"じょうもく"},
+  {d:"53",k:"条",s:"",w:"条理",y:"じょうり"},
+  {d:"53",k:"条",s:"",w:"信条",y:"しんじょう"},
+  {d:"53",k:"件",s:"【ようけん】をいう。",w:"用件",y:"ようけん"},
+  {d:"53",k:"件",s:"【じけん】がかいけつする。",w:"事件",y:"じけん"},
+  {d:"53",k:"件",s:"",w:"物件",y:"ぶっけん"},
+  {d:"53",k:"件",s:"",w:"案件",y:"あんけん"},
+  {d:"53",k:"件",s:"",w:"要件",y:"ようけん"},
+  {d:"53",k:"件",s:"",w:"件数",y:"けんすう"},
+  {d:"53",k:"接",s:"でんせんの【せつぞく】。",w:"接続",y:"せつぞく"},
+  {d:"53",k:"接",s:"【めんせつ】にそなえる。",w:"面接",y:"めんせつ"},
+  {d:"53",k:"接",s:"",w:"接点",y:"せってん"},
+  {d:"53",k:"接",s:"",w:"接近",y:"せっきん"},
+  {d:"53",k:"接",s:"",w:"接戦",y:"せっせん"},
+  {d:"53",k:"接",s:"",w:"間接",y:"かんせつ"},
+  {d:"54",k:"張",s:"きん【ちょう】をほぐす。",w:"張",y:"ちょう"},
+  {d:"54",k:"張",s:"ねを【は】る。",w:"張る",y:"はる"},
+  {d:"54",k:"張",s:"",w:"出張",y:"しゅっちょう"},
+  {d:"54",k:"張",s:"",w:"張力",y:"ちょうりょく"},
+  {d:"54",k:"張",s:"",w:"見張り",y:"みはり"},
+  {d:"54",k:"張",s:"",w:"張り紙",y:"はりがみ"},
+  {d:"54ミニ",k:"",s:"とざん【たい】のいちいんとなる。",w:"隊",y:"たい"},
+  {d:"54ミニ",k:"限",s:"ちからの【かぎ】りはしる。",w:"限り",y:"かぎり"},
+  {d:"54ミニ",k:"条",s:"む【じょうけん】でひきうける。",w:"条件",y:"じょうけん"},
+  {d:"54ミニ",k:"保",s:"けんこうを【たも】つ。",w:"保つ",y:"たもつ"},
+  {d:"51",k:"提",s:"あんを【ていげん】する。",w:"提言",y:"ていげん"},
+  {d:"51",k:"支",s:"りょうてで【ささ】える。",w:"支える",y:"ささえる"},
+  {d:"51",k:"採",s:"もりをばっ【さい】する。",w:"採",y:"さい"},
+  {d:"51",k:"保",s:"しぜんの【ほご】うんどう。",w:"保護",y:"ほご"},
+  {d:"51",k:"河",s:"【かこう】ちかくのうみ。",w:"河口",y:"かこう"},
+  {d:"51",k:"基",s:"【きほん】をまなぶ。",w:"基本",y:"きほん"},
+  {d:"51",k:"規",s:"にゅうじょうを【きせい】する。",w:"規制",y:"きせい"},
+  {d:"51",k:"支",s:"ぎんこうの【してん】。",w:"支店",y:"してん"},
+  {d:"51",k:"採",s:"たすうけつを【と】る。",w:"採る",y:"とる"},
+  {d:"51",k:"河",s:"おおきな【かわ】をわたる。",w:"河",y:"かわ"},
+  {d:"51",k:"",s:"かいぎ【しりょう】をよむ。",w:"資料",y:"しりょう"},
+  {d:"51",k:"",s:"【ゆた】かなしゃかい。",w:"豊か",y:"ゆたか"},
+  {d:"51",k:"",s:"【あつ】いじしょをひらく。",w:"厚い",y:"あつい"},
+  {d:"51",k:"",s:"ゆきが【つ】もる。",w:"積もる",y:"つもる"},
+  {d:"51",k:"",s:"【しゅるい】がすくない。",w:"種類",y:"しゅるい"},
+  {d:"51",k:"",s:"【にくしょくせい】のとり。",w:"肉食性",y:"にくしょくせい"},
+  {d:"51",k:"",s:"【ぎじゅつ】をみがく。",w:"技術",y:"ぎじゅつ"},
+  {d:"51",k:"",s:"【せいさんりょう】をふやす。",w:"生産量",y:"せいさんりょう"},
+  {d:"51",k:"",s:"せいさんりょうを【ふ】やす。",w:"増やす",y:"ふやす"},
+  {d:"51",k:"",s:"【てき】せつなことばをつかう。",w:"適切",y:"てきせつ"},
+  {d:"51",k:"",s:"【しっぱい】をゆるす。",w:"失敗",y:"しっぱい"},
+  {d:"51",k:"",s:"しっぱいを【ゆる】す。",w:"許す",y:"ゆるす"},
+  {d:"55",k:"設",s:"しまのかんこうし【せつ】。",w:"設",y:"せつ"},
+  {d:"55",k:"",s:"おおきなはしを【つく】る。",w:"造る",y:"つくる"},
+  {d:"55",k:"限",s:"じかんを【かぎ】る。",w:"限る",y:"かぎる"},
+  {d:"55",k:"条",s:"きびしい【じょうけん】。",w:"条件",y:"じょうけん"},
+  {d:"55",k:"限",s:"【さいしょうげん】のかず。",w:"最小限",y:"さいしょうげん"},
+  {d:"55",k:"設",s:"かいぎを【もう】ける。",w:"設ける",y:"もうける"},
+  {d:"55",k:"接",s:"【ちょくせつ】はなす。",w:"直接",y:"ちょくせつ"},
+  {d:"55",k:"保",s:"おんどを【たも】つ。",w:"保つ",y:"たもつ"},
+  {d:"55",k:"張",s:"あいての【しゅちょう】をきく。",w:"主張",y:"しゅちょう"},
+  {d:"55",k:"張",s:"テントを【は】る。",w:"張る",y:"はる"},
+  {d:"55",k:"",s:"【しつもん】にこたえる。",w:"質問",y:"しつもん"},
+  {d:"55",k:"",s:"ひゃくにん【ていど】のあつまり。",w:"程度",y:"ていど"},
+  {d:"55",k:"",s:"そうだんに【おう】じる。",w:"応じる",y:"おうじる"},
+  {d:"55",k:"",s:"かんがえを【の】べる。",w:"述べる",y:"のべる"},
+  {d:"55",k:"",s:"もんだいを【かいけつ】する。",w:"解決",y:"かいけつ"},
+  {d:"55",k:"",s:"【もくてき】をめいかくにする。",w:"目的",y:"もくてき"},
+  {d:"55",k:"",s:"もくてきを【めいかく】にする。",w:"明確",y:"めいかく"},
+  {d:"55",k:"",s:"【じょうほう】をきょうゆうする。",w:"情報",y:"じょうほう"},
+  {d:"55",k:"",s:"じょうほうを【きょうゆう】する。",w:"共有",y:"きょうゆう"},
+  {d:"55",k:"",s:"ちがいを【いしき】する。",w:"意識",y:"いしき"},
+  {d:"55",k:"",s:"【こうか】をたかめる。",w:"効果",y:"こうか"},
+  {d:"55",k:"",s:"【てほん】をしめす。",w:"手本",y:"てほん"},
+  {d:"55",k:"",s:"てほんを【しめ】す。",w:"示す",y:"しめす"},
+  {d:"手書き",k:"接",s:"ほねを【つ】ぐ。",w:"接ぐ",y:"つぐ"},
+  {d:"手書き",k:"接",s:"",w:"骨接ぎ",y:"ほねつぎ"}
+];
+
+// ===== 部首ヒント(10/1テスト範囲ぶん。部首名はひらがな固定・bushu.htmlで照合ずみ) =====
+// 字そのものが部首の字(支)は持たせない
+const RAD = { "提":"てへん","採":"てへん","接":"てへん","保":"にんべん","件":"にんべん",
+  "護":"ごんべん","設":"ごんべん","河":"さんずい","基":"つち","規":"みる",
+  "制":"りっとう","限":"こざとへん","条":"き","張":"ゆみへん" };
+const RADG = { "てへん":"扌","にんべん":"亻","ごんべん":"言","さんずい":"氵","つち":"土",
+  "みる":"見","りっとう":"刂","こざとへん":"阝","き":"木","ゆみへん":"弓" };
+
+// ===== 言葉のいみ(出題画面に表示。答えの字は使わない) =====
+// 10/1テスト範囲(提〜張)ぶん。まだ無い言葉は読みだけ表示
+const MEAN = {
+  "提出":"書類や宿題などを、先生や役所にわたすこと。",
+  "提案":"考えや計画をみんなに言って、話し合いにかけること。",
+  "提供":"自分のもっているものを、人のために使えるよう さしだすこと。",
+  "前提":"あることを考えたり決めたりするときに、先にみとめておく もとの考え。",
+  "支える":"たおれたり落ちたりしないように、下や横からおさえてもつ。",
+  "支度":"出かける前などに、必要な用意をすること。",
+  "支持":"ある人の考えや意見に 賛成して、応援すること。",
+  "支流":"大きな川に 注ぎこむ、枝分かれした小さな川。",
+  "採用":"人をやとったり、意見やアイデアを使うことに決めたりすること。",
+  "採集":"虫や草花などを、調べるために 取ってあつめること。",
+  "採点":"テストの答えに 丸やばつをつけて、得てんを出すこと。",
+  "採決":"賛成する人の 数で、どうするかを きめること。",
+  "保存":"ものをそのままの形で、長い間 とっておくこと。",
+  "保護":"弱いものを 危険から守ること。",
+  "保健":"体が元気でいられるように 気をつけること。",
+  "保温":"あたたかさを、そのまま たもつこと。",
+  "看護":"病気やけがの人の 世話をすること。",
+  "護衛":"大切な人のそばについて、危険から守ること。",
+  "愛護":"動物などを かわいがり、大切にすること。",
+  "河口":"川が 海やみずうみに 注ぐところ。",
+  "河川":"大小の かわを まとめたよび方。",
+  "大河":"幅が広く、水の量が多い 川。",
+  "運河":"船を通すために、人が土をほってつくった 水の通り道。",
+  "基本":"色々なことの 元になる、一番大切なこと。",
+  "基地":"活動の 中心になる場所。",
+  "基準":"比べたり 決めたりするときの 元になるもの。",
+  "基金":"ある目的のために ためておく おかね。",
+  "規則":"みんなが守るように 決められた 決まり。",
+  "規模":"物事の 仕組みや 大きさ。",
+  "定規":"線を引くときに使う、まっすぐな道具。",
+  "新規":"あたらしく はじめること。",
+  "制服":"学校や会社で、みんなが同じように着ると 決められているもの。",
+  "制度":"国や社会の 仕組みや 決まり。",
+  "制限":"ここまで、と はん囲を決めて、それより先を みとめないこと。",
+  "体制":"国や会社などの まとまり方や 仕組み。",
+  "設計":"家や機械などを作る前に、形や大きさを 考えて図にかくこと。",
+  "設立":"会社や学校などを 新しくつくること。",
+  "建設":"家やビル、道路などを たてること。",
+  "設備":"生活や仕事に 必要なものを そなえつけること。また、そのもの。",
+  "限界":"これ以上は無理、という ぎりぎりのところ。",
+  "限定":"数やはん囲を、ここまでと 決めること。",
+  "期限":"いつまでと 決められた日。しめ切り。",
+  "限る":"ここまでと はん囲を決める。それだけにする。",
+  "条件":"物事を決めたり ひきうけたりするときの 約束ごと。",
+  "条例":"都道府県や市町村が 決める 決まり。",
+  "条文":"決まりを ひとつずつ 書きならべた ぶん章。",
+  "事件":"人々が 驚くような できごと。",
+  "件数":"できごとや 用事が いくつあるかの かず。",
+  "用件":"しなければならないことや、伝えたいこと。",
+  "直接":"間に 何もはさまないで、じかに 関わること。",
+  "接近":"すぐそばまで ちかづくこと。",
+  "面接":"会って 話をしたり、様子を見たりすること。",
+  "接する":"ふれる。くっつく。人と会って つきあう。",
+  "主張":"自分の考えを 強く言うこと。",
+  "出張":"仕事のために、ふだんとちがう場所へ 行くこと。",
+  "張り切る":"やる気いっぱいで、元気に とりくむ。",
+  "見張り":"ずっと気をつけて 様子を うかがうこと。また、その人。",
+  "条約":"国と国とが、文書で取り決めた 決まり。"
+};
+
+// ===== 単元(はんい)定義 =====
+const ALL = [
+  ...DRILL0.map((it,i)=>({...it, id:"d-"+i, term:2, drill:0})),
+  ...T1.map((it,i)=>({...it,id:"t1-"+i,term:1})),
+  ...T2.map((it,i)=>({...it,id:"t2-"+i,term:2})),
+];
+const U1 = [ // 一学期 テスト回ごと(学習計画どおり)
+  {v:"u1-1",label:"回1 常〜謝(10字)",a:0,b:10},{v:"u1-2",label:"回2 情〜技(10字)",a:10,b:20},
+  {v:"u1-3",label:"回3 術〜職(15字)",a:20,b:35},{v:"u1-4",label:"回4 応〜貸(15字)",a:35,b:50},
+  {v:"u1-5",label:"回5 許〜能(15字)",a:50,b:65},{v:"u1-6",label:"回6 略〜性(15字)",a:65,b:80},
+  {v:"u1-7",label:"回7 評〜毒(15字)",a:80,b:95},
+];
+const TESTS = [ // 二学期 テスト日ごと(前半・後半はテスト範囲をほぼ半分ずつ。11/27はプリントの区切りどおり)
+  {d:"2026-10-01",lbl:"10/1(木)", parts:[[0,8],[8,15]]},
+  {d:"2026-10-09",lbl:"10/9(金)", parts:[[15,23],[23,31]]},
+  {d:"2026-10-26",lbl:"10/26(月)",parts:[[31,40],[40,49]]},
+  {d:"2026-11-09",lbl:"11/9(月)", parts:[[49,58],[58,67]]},
+  {d:"2026-11-27",lbl:"11/27(金)",parts:[[67,76],[76,86]]},
+  {d:"2026-12-07",lbl:"12/7(月)", parts:[[86,92],[92,98]]},
+];
+const rngLbl=(a,b)=>`${T2[a].k}〜${T2[b-1].k}(${b-a}字)`;
+const testRange=(t)=>[t.parts[0][0], t.parts[t.parts.length-1][1]];
+const nextTestIdx=()=>{const d=dayStr(); return TESTS.findIndex(t=>t.d>=d);};
+function rangeOf(v){ // "ts-i" = テスト範囲ぜんぶ / "ts-i-j" = 前半・後半
+  const m=/^ts-(\d+)(?:-(\d+))?$/.exec(v); if(!m) return null;
+  const t=TESTS[+m[1]]; if(!t) return null;
+  return m[2]===undefined ? testRange(t) : t.parts[+m[2]];
+}
+
+// ===== 保存・ユーティリティ =====
+const SAVE_KEY = "kanji5-save-v1";
+const $ = (s,el=document)=>el.querySelector(s);
+const shuffle=(arr)=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const norm=(s)=>(s||"").trim().replace(/\s/g,"").replace(/[ァ-ン]/g,(c)=>String.fromCharCode(c.charCodeAt(0)-0x60));
+const todayStr=()=>{const d=new Date();const p=(n)=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;};
+const escS=(s)=>String(s).replace(/</g,"&lt;");
+
+let save = { stats:{}, pts:0, total:0, pets:[] };
+const pad2=(n)=>String(n).padStart(2,"0");
+const dayStr=()=>{const d=new Date();return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;};
+const addDays=(n)=>{const d=new Date();d.setDate(d.getDate()+n);return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;};
+// 間隔反復:正解ごとに 1日→3日→1週間→2週間→1か月 と間をあけて再出題
+const IV=[1,3,7,14,30];
+function schedule(st,ok){
+  if(ok){ st.box=Math.min((st.box||0)+1,5); st.due=addDays(IV[Math.min(st.box-1,4)]); }
+  else { st.box=0; st.due=dayStr(); }
+}
+function dueItems(){
+  const t=dayStr();
+  return ALL.filter(i=>{const s=save.stats[i.id];return s&&s.due&&s.due<=t;})
+            .sort((a,b)=>(save.stats[a.id].box||0)-(save.stats[b.id].box||0));
+}
+function load(){
+  try{ const r=localStorage.getItem(SAVE_KEY); if(r) save={...save,...JSON.parse(r)}; }catch(e){}
+  // これまでの成績を間隔反復に引き継ぐ(box/dueが無いデータを変換)
+  let migrated=false;
+  Object.keys(save.stats).forEach(k=>{
+    const st=save.stats[k];
+    if(st && st.box===undefined){
+      st.box = (st.c>st.w) ? Math.min(st.c,3) : 0;   // 正解が多い字はある程度進んだ状態から
+      st.due = dayStr();                              // まずは一度チェックする
+      migrated=true;
+    }
+  });
+  if(migrated) persist();
+}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+// ===== ペット =====
+const CHAINS = [
+  {e:["🐣","🐤","🐓"],n:"ピヨ"},{e:["🐱","🐈","🦁"],n:"ニャー"},{e:["🐶","🐕","🐺"],n:"ワンタ"},{e:["🐟","🐠","🐬"],n:"スイスイ"},
+  {e:["🐭","🐹","🐻"],n:"チュー"},{e:["🐸","🦎","🐲"],n:"ケロ"},{e:["🐧","🦆","🦢"],n:"ペンペン"},{e:["🐮","🐄","🐃"],n:"モーモー"},
+  {e:["🐷","🐗","🦏"],n:"ブーブー"},{e:["🐑","🐐","🦌"],n:"メェメェ"},{e:["🐴","🦓","🦄"],n:"ポニー"},{e:["🐵","🐒","🦍"],n:"ウッキー"},
+  {e:["🐰","🐇","🦘"],n:"ラビ"},{e:["🐔","🦃","🦚"],n:"コッコ"},{e:["🐛","🦗","🦋"],n:"モゾモゾ"},{e:["🐞","🐝","🪲"],n:"ブンブン"},
+  {e:["🦐","🦀","🦞"],n:"ハサミン"},{e:["🐦","🕊️","🦅"],n:"ピーちゃん"},
+  {e:["🐢","🐊","🐉"],n:"カメキチ",r:1},{e:["🦔","🦡","🦦"],n:"ハリー",r:1},{e:["🐜","🕷️","🦂"],n:"アリンコ",r:1},
+  {e:["🐙","🦑","🐋"],n:"ニュルニュル",r:1},{e:["🐡","🦈","🐳"],n:"プクプク",r:1},{e:["🪱","🐍","🦕"],n:"ニョロ",r:1},
+  {e:["🦖","🐆","🐅"],n:"ガオー",r:1},{e:["🐘","🦣","🦛"],n:"パオン",r:1},{e:["🐨","🐼","🦥"],n:"モコモコ",r:1},
+  {e:["🦊","🦝","🐩"],n:"コンタ",r:1},{e:["🐿️","🦨","🦙"],n:"チョロ",r:1},{e:["🐪","🐫","🦒"],n:"ラクちゃん",r:1},
+];
+const EGG_N = 50, EGG_R = 150, FEED_COST = 30, MAX_LV = 9;
+const petStage=(lv)=> lv>=7?2 : lv>=4?1 : 0;
+function buyEgg(kind){
+  const cost = kind==="rare" ? EGG_R : EGG_N;
+  if(save.pts < cost) return;
+  save.pts -= cost;
+  const rareWanted = kind==="rare" ? Math.random()<0.65 : Math.random()<0.15;
+  let cand = CHAINS.map((x,i)=>i).filter(i=>!!CHAINS[i].r===rareWanted);
+  if(!cand.length) cand = CHAINS.map((x,i)=>i);
+  const nw = cand.filter(i=>!save.pets.some(p=>p.c===i));
+  const from = nw.length && Math.random()<0.8 ? nw : cand;
+  const c = from[Math.floor(Math.random()*from.length)];
+  save.pets.push({c, lv:1, n:CHAINS[c].n + (save.pets.filter(p=>p.c===c).length+1 > 1 ? save.pets.filter(p=>p.c===c).length+1 : "")});
+  persist(); render();
+  setTimeout(()=>alert("たまごがかえった!「"+save.pets[save.pets.length-1].n+"」がなかまになったよ "+CHAINS[c].e[0]),50);
+}
+function feed(i){
+  const p = save.pets[i];
+  if(!p || save.pts < FEED_COST || p.lv >= MAX_LV) return;
+  const before = petStage(p.lv);
+  save.pts -= FEED_COST; p.lv++;
+  persist(); render();
+  if(petStage(p.lv) > before) setTimeout(()=>alert("🎉 "+p.n+"がしんかした! "+CHAINS[p.c].e[petStage(p.lv)]),50);
+}
+function renamePet(i){
+  const nm = prompt("なまえをかえる", save.pets[i].n);
+  if(nm && nm.trim()){ save.pets[i].n = nm.trim().slice(0,8); persist(); render(); }
+}
+
+// ===== クイズ状態 =====
+let screen="menu", rangeV=null; // null=次のテストを自動で選ぶ
+let queue=[], idx=0, phase="ask", lastCorrect=null;
+let isRetry=false, retryRound=0;
+let hintUsed=false, lastPt=0;
+let session={c:0,w:0,wrongs:[],pt:0};
+
+function pool(v){
+  if(v==="t1all") return ALL.filter(i=>i.term===1);
+  if(v==="t2all") return ALL.filter(i=>i.term===2 && i.ws);
+  if(v==="all") return ALL.filter(i=>i.term===1 || i.ws);
+  if(v==="weak") return ALL.filter(i=>{const s=save.stats[i.id];return s&&s.w>0&&s.w>=s.c;});
+  if(v==="today"){
+    let p=dueItems();
+    if(p.length<10){ const rest=shuffle(ALL.filter(i=>!save.stats[i.id])); p=p.concat(rest.slice(0,10-p.length)); }
+    return p;
+  }
+  const u1=U1.find(u=>u.v===v); if(u1) return ALL.filter(i=>i.term===1).slice(u1.a,u1.b);
+  const mw=/^ts-(\d+)-w$/.exec(v);   // テスト範囲内の「まちがえたものだけ」
+  if(mw) return pool("ts-"+mw[1]).filter(i=>{const st=save.stats[i.id];return st && st.w>0 && (st.box||0)<4;});
+  const m=/^ts-(\d+)(?:-(\d+))?$/.exec(v);
+  if(m){
+    const ti=+m[1], t=TESTS[ti]; if(!t) return [];
+    const dr=ALL.filter(i=>i.drill===ti);
+    if(dr.length){                                   // ドリルがある範囲はドリルを出す
+      if(m[2]===undefined) return dr;
+      const p=t.parts[+m[2]], ks=new Set(T2.slice(p[0],p[1]).map(x=>x.k));
+      return dr.filter(i=>ks.has(i.k));              // 復習の問題(k なし)は「ぜんぶ」だけ
+    }
+    const r=m[2]===undefined?testRange(t):t.parts[+m[2]];
+    return ALL.filter(i=>i.term===2 && i.ws).slice(r[0],r[1]);
+  }
+  return [];
+}
+const pickWord=(it)=>{const x=it.ws[Math.floor(Math.random()*it.ws.length)];return {w:x[0],y:x[1]};};
+function start(){
+  rangeV = $("#rangeSel") ? $("#rangeSel").value : rangeV;
+  let p = pool(rangeV);
+  if(!p.length){ alert("このはんいには問題がありません。"); return; }
+  const t=dayStr();
+  if(rangeV!=="today"){
+    p = shuffle(p).sort((a,b)=>{
+      const sa=save.stats[a.id], sb=save.stats[b.id];
+      const pa=sa?(sa.due&&sa.due<=t?0:2):1, pb=sb?(sb.due&&sb.due<=t?0:2):1; // 復習期限→未出題→まだ先
+      return pa-pb;
+    });
+  }
+  queue = shuffle(p.slice(0, Math.min(rangeV==="today"?10:20,p.length))).slice(0,10).map(it=> it.ws ? {...it, ...pickWord(it)} : it);
+  isRetry=false; retryRound=0;
+  idx=0; phase="ask"; lastCorrect=null; hintUsed=false; session={c:0,w:0,wrongs:[],pt:0};
+  screen="quiz"; render();
+}
+function startRetry(){
+  if(!session.wrongs.length) return;
+  const items = session.wrongs.slice();
+  isRetry=true; retryRound++;
+  queue = items;                       // 出題は同じ言葉のまま
+  idx=0; phase="ask"; lastCorrect=null; hintUsed=false;
+  session={c:0,w:0,wrongs:[],pt:session.pt};
+  screen="quiz"; render();
+}
+// ヒントが出せる問題か(部首データあり かつ まだ定着前 box<=1)
+function hintAvail(item){ const st=save.stats[item.id]; return !!RAD[item.k] && ((st&&st.box)||0)<=1; }
+function record(item, ok){
+  const s = save.stats[item.id]||{c:0,w:0,box:0,due:dayStr()};
+  const offered = hintAvail(item), prevBox = s.box||0;
+  s.c+=ok?1:0; s.w+=ok?0:1;
+  // なおしタイムの正解は「今おぼえただけ」なので間かくは進めず、明日また出す
+  if(isRetry){ s.box=0; s.due=addDays(1); }
+  else if(ok && hintUsed && prevBox>=1){ s.due=addDays(1); } // ヒントを使った正解は box すえおきで明日また
+  else { schedule(s,ok); }
+  save.stats[item.id]=s;
+  // ヒントを使わずに正解 +3pt ボーナス(ヒントが出せた問題のみ)。ヒントを使っても減点はしない
+  lastPt = ok ? (offered && !hintUsed ? 13 : 10) : 0;
+  if(ok){ session.c++; session.pt+=lastPt; save.pts+=lastPt; save.total+=lastPt; }
+  else { session.w++; session.wrongs.push(item); }
+  persist();
+}
+function judgeKaki(ok){ lastCorrect=ok; record(queue[idx],ok); phase="judged"; render(); }
+function next(){
+  if(idx+1>=queue.length){
+    if(session.c===queue.length && queue.length>0){
+      const b = isRetry?10:30;
+      session.pt+=b; save.pts+=b; save.total+=b; persist();
+    }
+    screen="done";
+  } else { idx++; phase="ask"; lastCorrect=null; hintUsed=false; }
+  render();
+}
+
+// ===== 画面 =====
+function petGarden(){
+  let inner = save.pets.map((p,i)=>{
+    const st=petStage(p.lv);
+    return `<div class="pet">
+      <div class="face">${CHAINS[p.c].e[st]}${p.lv>=MAX_LV?"✨":""}</div>
+      <div class="nm" data-act="rename" data-i="${i}" style="cursor:pointer">${escS(p.n)}</div>
+      <div class="lv">Lv.${p.lv}${p.lv>=MAX_LV?" マスター!":""}</div>
+      ${p.lv<MAX_LV?`<button class="feed" data-act="feed" data-i="${i}" ${save.pts<FEED_COST?"disabled style='opacity:.5'":""}>えさ ${FEED_COST}pt</button>`:""}
+    </div>`;
+  }).join("");
+  inner += `<div class="pet" style="border-style:dashed">
+    <div class="face">🥚</div><div class="nm">たまご</div><div class="lv">なにがでるかな?</div>
+    <button class="feed" style="background:var(--gold)" data-act="egg" data-kind="normal" ${save.pts<EGG_N?"disabled style='opacity:.5;background:var(--gold)'":""}>ふつう ${EGG_N}pt</button>
+    <button class="feed" style="background:#8E5AA8;margin-top:2px" data-act="egg" data-kind="rare" ${save.pts<EGG_R?"disabled style='opacity:.5;background:#8E5AA8'":""}>レア ${EGG_R}pt</button>
+  </div>`;
+  return `<div class="card" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+      <p style="font-weight:900;font-size:14px">🌱 乙葉のまきば</p>
+      <span class="pt">⭐ ${save.pts} pt</span>
+    </div>
+    <div class="row">${inner}</div>
+    <div class="row" style="align-items:center;justify-content:space-between;margin-top:8px">
+      <p style="font-size:11px;font-weight:700;color:var(--gray);flex:1;min-width:180px">正解1問=10pt(ヒントなしなら13pt)・10問ぜんぶ正解=+30pt。えさでレベルアップ、Lv.4とLv.7でしんか!</p>
+      <button class="feed" style="background:var(--blue)" data-act="zukan">ずかん ${new Set(save.pets.map(p=>p.c)).size}/${CHAINS.length}</button>
+    </div>
+  </div>`;
+}
+
+function renderMenu(){
+  const items = ALL;
+  const mastered = items.filter(i=>{const s=save.stats[i.id];return s&&(s.box||0)>=4;}).length;
+  const dueCount = dueItems().length;
+  const weakCount = pool("weak").length;
+  const nt = nextTestIdx();
+  const testOpts = TESTS.map((t,i)=>{
+    const [a,b]=testRange(t), done=(i<nt||nt<0), dCnt=ALL.filter(x=>x.drill===i).length;
+    return `<optgroup label="${i===nt?"★つぎの":""}${t.lbl}テスト${done?"(おわった)":""}">
+      <option value="ts-${i}">${t.lbl}テスト ぜんぶ ${rngLbl(a,b)}${dCnt?`・ドリル${dCnt}問`:""}</option>
+      ${t.parts.map((p,j)=>`<option value="ts-${i}-${j}">${t.lbl} ${j===0?"前半":"後半"} ${rngLbl(p[0],p[1])}</option>`).join("")}
+      <option value="ts-${i}-w">${t.lbl} まちがえたものだけ(${pool("ts-"+i+"-w").length}こ)</option>
+    </optgroup>`;
+  });
+  const opts = `
+    <optgroup label="★おすすめ">
+      <option value="today">きょうの復習(わすれたころに出るおまかせ)</option>
+    </optgroup>
+    ${nt>=0 ? testOpts.slice(nt).join("")+testOpts.slice(0,nt).join("") : testOpts.join("")}
+    <optgroup label="1学期のふくしゅう(常〜毒)">
+      ${U1.map(u=>`<option value="${u.v}">${u.label}</option>`).join("")}
+      <option value="t1all">1学期ぜんぶ(95字)</option>
+    </optgroup>
+    <optgroup label="そのほか">
+      <option value="t2all">2学期 1字4語のれんしゅう(98字)</option>
+      <option value="all">5年生ぜんぶ(193字)</option>
+      <option value="weak">にがてだけ(${weakCount}こ)</option>
+    </optgroup>`;
+  return `
+  ${petGarden()}
+  <div class="card" style="margin-bottom:16px">
+    <p style="font-weight:900;font-size:14px;margin-bottom:6px">5年生の漢字 おぼえたじょうきょう</p>
+    <div class="bar-bg"><div class="bar" style="width:${(mastered/193)*100}%;${mastered>0?"min-width:18px":""}"></div></div>
+    <p style="font-weight:700;font-size:13px;margin-top:6px">おぼえた <b style="color:var(--red);font-size:18px">${mastered}</b> / 193字
+      <span style="color:var(--gray);margin-left:8px">${dueCount>0?`復習まち ${dueCount}問`:"復習まちなし!"}</span></p>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:2px">※1日→3日→1週間→2週間→1か月と間をあけて出題。4回連続で正解すると「おぼえた」!</p>
+  </div>
+  <div class="card">
+    <p style="font-weight:900;font-size:14px;margin-bottom:6px">範囲</p>
+    <select id="rangeSel" style="margin-bottom:12px">${opts}</select>
+    <p style="font-size:12px;font-weight:700;color:var(--gray);margin-top:-4px">読みを見て、紙に書こう(テストと同じ書きとり)</p>
+    <button class="btn" style="width:100%;background:linear-gradient(90deg,#ff7eb3,#ffb347,#7ad0ff,#b28cff);padding:14px;font-size:17px;margin-top:12px;text-shadow:0 1px 2px rgba(0,0,0,.15)" data-act="start">スタート!(10問)</button>
+  </div>
+  <div class="row" style="margin-top:14px;align-items:center">
+    <button class="link" data-act="list">にがてリスト</button>
+    <span style="color:var(--line)">|</span>
+    <button class="link" data-act="backup">バックアップ・ふっかつ</button>
+  </div>`;
+}
+
+function renderQuizSent(cur, sent, radHtml, hintHtml){
+  const board = `<p style="font-size:11px;font-weight:900;color:var(--gray);margin-bottom:8px">ドリル${cur.d}</p>
+      <p style="font-size:26px;font-weight:700;line-height:1.9;text-align:left">${sent}</p>
+      ${hintHtml}
+      ${phase!=="ask"?`<p style="font-size:12px;font-weight:900;color:var(--gray);margin-top:10px">こたえ <span class="kl" style="font-size:40px;color:var(--red);vertical-align:middle">${cur.w}</span>${cur.k?`　「<span class="kl">${cur.k}</span>」の練習`:""}</p>
+        ${radHtml?`<div>${radHtml}</div>`:""}`:""}`;
+  return quizFrame(board);
+}
+function renderQuiz(){
+  const cur=queue[idx];
+  const mean = MEAN[cur.w];
+  const rn = RAD[cur.k];
+  const radHtml = rn ? `<div class="radBox"><span class="g kl">${RADG[rn]}</span><span style="text-align:left"><span class="h">ぶしゅ</span><br><span class="n">${rn}</span></span></div>` : "";
+  let hintHtml = "";
+  if(phase==="ask" && hintAvail(cur)) hintHtml = hintUsed ? `<div>${radHtml}</div>` : `<button class="hintBtn" data-act="hint">💡 ヒント(ぶしゅ)</button>`;
+  const blank = (txt)=>`<span style="background:#fff0f6;border-bottom:4px solid var(--red);border-radius:6px;padding:0 6px;color:var(--red)">${txt}</span>`;
+  const sent = cur.s ? cur.s.replace(/【(.+?)】/, (_,x)=> blank(phase==="ask"? x : `<span class="kl">${cur.w}</span>`)) : "";
+  if(cur.s) return renderQuizSent(cur, sent, radHtml, hintHtml);
+  const board = `${mean?`<p style="font-size:12px;font-weight:900;color:var(--gray);margin-bottom:10px">${mean}</p>`:""}
+      <p style="font-size:38px;font-weight:900;letter-spacing:.1em">${cur.y}</p>
+      ${hintHtml}
+      ${phase!=="ask"?`<p class="kl" style="font-size:52px;margin-top:12px;color:var(--red)">${cur.w}</p>
+        <p style="font-size:12px;font-weight:900;color:var(--gray)">「<span class="kl">${cur.k}</span>」の練習</p>
+        ${radHtml?`<div>${radHtml}</div>`:""}`:""}`;
+  return quizFrame(board);
+}
+function quizFrame(board){
+  const cur=queue[idx];
+  let controls="";
+  if(phase==="ask"){
+    controls = `<button class="btn" style="width:100%;background:linear-gradient(90deg,#7aa8ff,#b28cff);padding:14px;font-size:16px" data-act="reveal">書けたら答えを見る</button>`;
+  } else if(phase==="reveal"){
+    controls = `<div class="row" style="flex-wrap:nowrap">
+      <button class="btn" style="flex:1;background:var(--green);padding:14px;font-size:16px" data-act="kakiOk">○ 書けた!</button>
+      <button class="btn" style="flex:1;background:var(--red);padding:14px;font-size:16px" data-act="kakiNg">× まちがえた</button>
+    </div>`;
+  }
+  let judged="";
+  if(phase==="judged"){
+    judged = `<div class="judge" style="background:${lastCorrect?"#e3faf5":"#ffe8f2"};border:3px solid ${lastCorrect?"var(--green)":"var(--red)"}">
+      <p style="font-weight:900;font-size:20px;color:${lastCorrect?"var(--green)":"var(--red)"}">${lastCorrect?`せいかい! +${lastPt}pt ⭐${lastPt>10?" ヒントなしボーナス!":""}`:"おしい!"}</p>
+      <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:4px">${lastCorrect?(save.stats[cur.id]&&save.stats[cur.id].due?`つぎは ${save.stats[cur.id].due} ごろにまた出すよ`:""):"「にがて」に登録したよ。あとでまた出すね。"}</p>
+      <button class="btn" style="margin-top:10px;background:linear-gradient(90deg,#7aa8ff,#b28cff);padding:12px 36px;font-size:15px" data-act="next">${idx+1>=queue.length?"けっかを見る":"つぎの問題 →"}</button>
+    </div>`;
+  }
+  return `
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <span style="font-weight:900;font-size:13px;color:${isRetry?"var(--red)":"var(--gray)"}">${isRetry?`なおしタイム${retryRound>1?"("+retryRound+"かい目)":""} `:""}だい ${idx+1} 問 / ${queue.length} 問</span>
+    <span style="font-weight:900;font-size:13px"><span style="color:var(--green)">○ ${session.c}</span>　<span style="color:var(--red)">× ${session.w}</span>　<span style="color:var(--gold)">⭐${session.pt}pt</span></span>
+  </div>
+  <div class="masu">${board}</div>
+  ${phase!=="judged"?controls:judged}`;
+}
+
+function renderDone(){
+  const perfect = session.c===queue.length && queue.length>0;
+  const cleared = isRetry && perfect;
+  const msg = cleared?"ぜんぶ なおせた!! ボーナス +10pt ⭐"
+    : perfect?(isRetry?"":"パーフェクト!! ボーナス +30pt ⭐")
+    : isRetry?"のこりを もう一回 なおそう!"
+    : session.c>=9?"90点レベル!目標たっせい!":session.c>=7?"あと少しで90点!にがてをつぶそう"
+    :"だいじょうぶ、くり返せば必ずおぼえられるよ";
+  const color = perfect?"var(--green)":session.c>=7?"var(--blue)":"var(--red)";
+  let wrongs="", retryBtn="";
+  if(session.wrongs.length){
+    wrongs = `<div style="background:#ffe8f2;border:2px solid var(--red);border-radius:12px;padding:14px;margin-top:14px;text-align:left">
+      <p style="font-weight:900;font-size:13px;color:var(--red);margin-bottom:6px">まちがえたもの(ノートに3回ずつ書いてから なおそう)</p>
+      ${session.wrongs.map(w0=>`<p style="margin:6px 0;line-height:1.3"><span class="kl" style="font-size:48px;color:var(--ink)">${w0.w}</span><span class="kl" style="font-size:32px;color:var(--gray);margin-left:8px">(${w0.y})</span></p>`).join("")}
+    </div>`;
+    retryBtn = `<button class="btn" style="width:100%;background:#c86cff;padding:15px;font-size:17px;margin-top:14px" data-act="retryWrong">
+      ✏️ なおしタイム(${session.wrongs.length}問)</button>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:6px">まちがえたものだけ、ぜんぶ書けるまでくりかえすよ</p>`;
+  }
+  const clearMsg = cleared?`<div style="background:#e3faf5;border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px">
+      <p style="font-weight:900;font-size:15px;color:var(--green)">きょうの積みのこし ゼロ! 🎉</p>
+      <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:4px">なおした漢字は、明日また出してたしかめるよ。</p>
+    </div>`:"";
+  return `<div style="text-align:center">
+    <div style="background:#fff;border:3px solid #b9a8ff;border-radius:16px;padding:24px">
+      <p style="font-weight:900;font-size:16px">${isRetry?"なおしタイムの けっか":"けっか"}</p>
+      <p style="font-weight:900;font-size:46px;color:${color}">${session.c} <span style="font-size:20px;color:var(--ink)">/ ${queue.length} 問</span></p>
+      ${msg?`<p style="font-weight:900;font-size:15px">${msg}</p>`:""}
+      <p class="pt" style="margin-top:8px">こんかい +${session.pt} pt(ぜんぶで ${save.pts} pt)</p>
+    </div>
+    ${clearMsg}
+    ${wrongs}
+    ${retryBtn}
+    <div class="row" style="margin-top:14px;flex-wrap:nowrap">
+      <button class="btn" style="flex:1;background:${session.wrongs.length?"var(--gray)":"var(--red)"};padding:13px;font-size:15px" data-act="retry">あたらしく10問</button>
+      <button style="flex:1;background:#fff;color:var(--ink);border:3px solid #b9a8ff;border-radius:12px;padding:13px;font-weight:900;font-size:15px" data-act="menu">まきばへもどる</button>
+    </div>
+  </div>`;
+}
+
+function renderZukan(){
+  const got=new Set(save.pets.map(p=>p.c));
+  const best=(c)=>Math.max(0,...save.pets.filter(p=>p.c===c).map(p=>petStage(p.lv)));
+  const cells=CHAINS.map((ch,i)=>{
+    const has=got.has(i); const st=has?best(i):0;
+    return `<div class="pet" style="width:92px;${has?"":"opacity:.55;border-style:dashed"}">
+      <div class="face">${has?ch.e[st]:"❓"}</div>
+      <div class="nm" style="font-size:11px">${has?ch.n:"???"}</div>
+      <div class="lv">${ch.r?"レア":"ふつう"}${has?"":"・みはっけん"}</div>
+    </div>`;
+  }).join("");
+  return `<h2 style="font-weight:900;font-size:16px;margin-bottom:4px">🐾 いきものずかん</h2>
+    <p style="font-weight:900;font-size:13px;color:var(--gray);margin-bottom:10px">あつめた種類 ${got.size} / ${CHAINS.length}(ぜんぶ集めたらマスター!)</p>
+    <div class="row">${cells}</div>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:10px">絵はいま育っているいちばん進化したすがた。レアはレアなたまごから出やすいよ。</p>`;
+}
+function renderBackup(){
+  const txt=JSON.stringify({save,version:1});
+  return `<h2 style="font-weight:900;font-size:16px;margin-bottom:10px">バックアップ・ふっかつ</h2>
+  <div class="card" style="margin-bottom:16px">
+    <p style="font-weight:900;font-size:14px;margin-bottom:4px">① いまの記ろくを保ぞんする</p>
+    <p style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:8px">
+      下のボタンをおしてコピーし、メモアプリやLINEの自分あてトークにはりつけて保管してください。</p>
+    <button class="btn" style="background:var(--green);padding:12px 20px;font-size:14px" data-act="copyBackup">コピーする</button>
+    <span id="copyMsg" style="font-weight:900;font-size:13px;color:var(--green);margin-left:10px"></span>
+    <textarea id="backupOut" readonly style="width:100%;height:90px;margin-top:10px;border:2px solid var(--line);border-radius:8px;padding:8px;font-size:11px;font-family:monospace">${txt.replace(/</g,"&lt;")}</textarea>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:4px">
+      ⭐${save.pts}pt / いきもの${save.pets.length}ひき / 練習した漢字${Object.keys(save.stats).length}字</p>
+  </div>
+  <div class="card">
+    <p style="font-weight:900;font-size:14px;margin-bottom:4px">② 保管した記ろくをもどす</p>
+    <p style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:8px">
+      コピーしておいた文字を下のわくにはりつけて、ボタンをおしてください。</p>
+    <textarea id="backupIn" placeholder="ここに はりつける" style="width:100%;height:90px;border:2px solid var(--line);border-radius:8px;padding:8px;font-size:11px;font-family:monospace"></textarea>
+    <button class="btn" style="background:var(--red);padding:12px 20px;font-size:14px;margin-top:8px" data-act="restoreBackup">この記ろくにもどす</button>
+  </div>
+  <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:10px">
+    おうちの方へ:ふだんの更新はファイル名を同じにして上書きすれば自動で引き継がれます。
+    別の端末に移すときや、念のための保管をしたいときにお使いください。</p>`;
+}
+function copyBackup(){
+  const ta=$("#backupOut"); if(!ta) return;
+  ta.select(); ta.setSelectionRange(0,999999);
+  let ok=false;
+  try{ ok=document.execCommand("copy"); }catch(e){}
+  if(!ok && navigator.clipboard){ navigator.clipboard.writeText(ta.value).then(()=>{},()=>{}); ok=true; }
+  const m=$("#copyMsg");
+  if(m) m.textContent = ok ? "コピーしました!" : "上のわくを長おしして「コピー」してね";
+}
+function restoreBackup(){
+  const ta=$("#backupIn"); if(!ta) return;
+  const v=ta.value.trim();
+  if(!v){ alert("はりつけてから ボタンをおしてください。"); return; }
+  try{
+    const data=JSON.parse(v);
+    if(typeof data.save!=="object") throw new Error("形式エラー");
+    if(!confirm("今の記ろくを、はりつけた内容で置きかえます。よろしいですか?")) return;
+    save=data.save; persist(); screen="menu"; render(); alert("もどしました!");
+  }catch(e){ alert("よみこめませんでした。コピーした文字がぜんぶ入っているか たしかめてください。"); }
+}
+function renderList(){
+  const weak = pool("weak");
+  let inner = weak.length ? weak.map(it=>{
+    const s=save.stats[it.id]||{c:0,w:0};
+    return `<div class="weakItem">
+      <span class="kl" style="font-size:30px">${it.k}</span>
+      <span class="kl" style="flex:1;font-size:16px">${it.ws ? it.ws.map(x=>x[0]+"("+x[1]+")").join("・") : it.w+"("+it.y+")"}</span>
+      <span style="font-size:12px;font-weight:700;color:var(--gray)">○${s.c} ×${s.w}</span>
+    </div>`;
+  }).join("") : `<p style="background:#e3faf5;border:2px solid var(--green);border-radius:12px;padding:14px;font-weight:700;font-size:13px">いまは「にがて」なし!すばらしい!</p>`;
+  return `<h2 style="font-weight:900;font-size:16px;margin-bottom:10px">にがてリスト</h2>${inner}
+    <p style="font-size:12px;font-weight:700;color:var(--gray);margin-top:10px">おうちの方へ:ここの漢字をノート練習→「にがてだけ」で再テスト、が定着の近道です。</p>`;
+}
+
+function render(){
+  $("#toMenu").classList.toggle("hidden", screen==="menu");
+  const v=$("#view");
+  if(screen==="menu"){ v.innerHTML=renderMenu(); const rs=$("#rangeSel"); if(rs){ if(rangeV===null){ const nt=nextTestIdx(); rangeV = nt>=0 ? "ts-"+nt : "today"; } rs.value=rangeV; if(rs.value!==rangeV){ rangeV="today"; rs.value="today"; } } }
+  else if(screen==="quiz") v.innerHTML=renderQuiz();
+  else if(screen==="done") v.innerHTML=renderDone();
+  else if(screen==="list") v.innerHTML=renderList();
+  else if(screen==="backup") v.innerHTML=renderBackup();
+  else if(screen==="zukan") v.innerHTML=renderZukan();
+}
+
+// ===== バックアップ =====
+// ===== イベント =====
+document.addEventListener("click",(e)=>{
+  if(e.target.id==="toMenu"){ screen="menu"; render(); return; }
+  const el=e.target.closest("[data-act]"); if(!el) return;
+  switch(el.dataset.act){
+    case "start": start(); break;
+    case "reveal": phase="reveal"; render(); break;
+    case "hint": hintUsed=true; render(); break;
+    case "kakiOk": judgeKaki(true); break;
+    case "kakiNg": judgeKaki(false); break;
+    case "next": next(); break;
+    case "retry": screen="menu"; start(); break;
+    case "retryWrong": startRetry(); break;
+    case "menu": isRetry=false; retryRound=0; screen="menu"; render(); break;
+    case "list": screen="list"; render(); break;
+    case "egg": buyEgg(el.dataset.kind); break;
+    case "zukan": screen="zukan"; render(); break;
+    case "feed": feed(Number(el.dataset.i)); break;
+    case "rename": renamePet(Number(el.dataset.i)); break;
+    case "backup": screen="backup"; render(); break;
+    case "copyBackup": copyBackup(); break;
+    case "restoreBackup": restoreBackup(); break;
+  }
+});
+document.addEventListener("change",(e)=>{
+  if(e.target.id==="rangeSel"){ rangeV=e.target.value; }
+});
+
+load();
+render();
+</script>
+</body>
+</html>
