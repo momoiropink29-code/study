@@ -523,6 +523,8 @@ function pool(v){
     return p;
   }
   const u1=U1.find(u=>u.v===v); if(u1) return ALL.filter(i=>i.term===1).slice(u1.a,u1.b);
+  const mn=/^ts-(\d+)-n$/.exec(v);   // まだ一度も出していない問題
+  if(mn) return pool("ts-"+mn[1]).filter(i=>!save.stats[i.id]);
   const mw=/^ts-(\d+)-w$/.exec(v);   // テスト範囲内の「まちがえたものだけ」
   if(mw) return pool("ts-"+mw[1]).filter(i=>{const st=save.stats[i.id];return st && st.w>0 && (st.box||0)<4;});
   const m=/^ts-(\d+)(?:-(\d+))?$/.exec(v);
@@ -642,8 +644,9 @@ function renderMenu(){
   const testOpts = TESTS.map((t,i)=>{
     const [a,b]=testRange(t), done=(i<nt||nt<0), dCnt=ALL.filter(x=>x.drill===i).length;
     return `<optgroup label="${i===nt?"★つぎの":""}${t.lbl}テスト${done?"(おわった)":""}">
-      <option value="ts-${i}">${t.lbl}テスト ぜんぶ ${rngLbl(a,b)}${dCnt?`・ドリル${dCnt}問`:""}</option>
+      <option value="ts-${i}">${t.lbl}テスト ぜんぶ ${rngLbl(a,b)}${dCnt?`・ドリル${dCnt}問(まだ${ALL.filter(x=>x.drill===i&&!save.stats[x.id]).length}問)`:""}</option>
       ${t.parts.map((p,j)=>`<option value="ts-${i}-${j}">${t.lbl} ${j===0?"前半":"後半"} ${rngLbl(p[0],p[1])}</option>`).join("")}
+      ${dCnt?`<option value="ts-${i}-n">${t.lbl} まだやってない問題(${ALL.filter(x=>x.drill===i&&!save.stats[x.id]).length}こ)</option>`:""}
       <option value="ts-${i}-w">${t.lbl} まちがえたものだけ(${pool("ts-"+i+"-w").length}こ)</option>
     </optgroup>`;
   });
@@ -661,8 +664,23 @@ function renderMenu(){
       <option value="all">5年生ぜんぶ(193字)</option>
       <option value="weak">にがてだけ(${weakCount}こ)</option>
     </optgroup>`;
+  // テスト範囲ごとの進みぐあい(ドリルのある範囲だけ)
+  const testProg = TESTS.map((t,i)=>{
+    const dr=ALL.filter(x=>x.drill===i); if(!dr.length) return "";
+    const done=dr.filter(x=>save.stats[x.id]).length;
+    const mst=dr.filter(x=>{const st=save.stats[x.id];return st&&(st.box||0)>=4;}).length;
+    const yet=dr.length-done;
+    return `<div style="margin-top:10px">
+      <p style="font-weight:900;font-size:13px;margin-bottom:4px">${t.lbl}テスト ドリル${dr.length}問</p>
+      <div class="bar-bg"><div class="bar" style="width:${(done/dr.length)*100}%;${done>0?"min-width:18px":""}"></div></div>
+      <p style="font-weight:700;font-size:13px;margin-top:4px">1回はやった <b style="color:var(--red);font-size:18px">${done}</b> / ${dr.length}問
+        <span style="color:var(--gray);margin-left:8px">おぼえた ${mst}問</span>
+        <span style="color:${yet?"var(--red)":"var(--green)"};margin-left:8px;font-weight:900">${yet?`まだ ${yet}問`:"ぜんぶ やった!"}</span></p>
+    </div>`;
+  }).join("");
   return `
   ${petGarden()}
+  ${testProg?`<div class="card" style="margin-bottom:16px"><p style="font-weight:900;font-size:14px">テストはんいの進みぐあい</p>${testProg}</div>`:""}
   <div class="card" style="margin-bottom:16px">
     <p style="font-weight:900;font-size:14px;margin-bottom:6px">5年生の漢字 おぼえたじょうきょう</p>
     <div class="bar-bg"><div class="bar" style="width:${(mastered/193)*100}%;${mastered>0?"min-width:18px":""}"></div></div>
