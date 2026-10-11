@@ -109,7 +109,7 @@ ruby rt{font-size:.5em;font-weight:normal}
 <script>
 (function(){
 "use strict";
-var VERSION="v4.1 (2026-10-11)";
+var VERSION="v4.2 (2026-10-11)";
 var KEY="bunsu_kaseki_v1";
 var COST=30;
 var C_TAKE="#f28c1e", C_BASE="#fff4dc", C_LINE="#6d4a28";
@@ -199,7 +199,7 @@ function toSpeech(el){
   t=t.replace(/何倍/g,"なんばい").replace(/倍/g,"ばい").replace(/何ばい/g,"なんばい").replace(/何円/g,"なんえん").replace(/何切れ/g,"なんきれ").replace(/何こ/g,"なんこ").replace(/元/g,"もと");
   t=t.replace(/半分/g,"はんぶん").replace(/分/g,"ぶん");
   t=t.replace(/\s+/g," ").replace(/。\s*を/g," を");
-  t=t.replace(/(^|[\s0-9円])は(?=[\s、。？！]|$)/g,"$1わ");
+  t=t.replace(/は(?=[\s、。？！]|$)/g,"わ");
   t=t.replace(/[、。\s]*。[、。\s]*/g,"。").replace(/、[、\s]+/g,"、").replace(/([？！])[、。\s]+/g,"$1 ").replace(/^[\s、。]+/,"");
   return t;
 }
