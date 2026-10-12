@@ -245,7 +245,31 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 .task-row input{box-sizing:border-box}
 .task-row .tr-pts{text-align:center;padding-left:4px;padding-right:4px}
 @media (max-width:520px){.task-row{grid-template-columns:minmax(0,1fr) 64px auto auto}.task-row .tr-date{grid-column:1/-1}}
+
+:root{--rose:#d47d9c;--rose-soft:#f8e3eb;--ev:#cdc2ee;--ev-d:#6f61b0}
+.tag{text-align:left}
+.tag.rt{background:var(--rose);color:#fff}
+.tag.e,.tag.tn{background:var(--ev);color:var(--ev-d)}
+.ev .k.hw{background:var(--leaf);color:#fff}
+.ev .k.test.re{background:var(--rose);color:#fff}
+.ev .k.event,.ev .k.tennis{background:var(--ev);color:var(--ev-d)}
+.subj.re{background:var(--rose-soft);color:var(--rose);border-color:#efc6d5}
+.fgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.fgrid input[type=date],.task-row input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;width:100%;box-sizing:border-box;text-align:left;min-height:44px;line-height:1.2}
+.task-row{grid-template-columns:minmax(0,150px) minmax(0,1fr) 60px auto auto}
+.task-row > *{min-width:0}
+.task-row .tr-pts{text-align:center}
+.fgrid input[type=number]{text-align:center}
 @media (max-width:480px){.task-row{grid-template-columns:1fr 56px auto auto}.task-row .tr-date{grid-column:1/-1}.pt-side{text-align:left}}
+
+:root{--ev:#d6cbf1;--ev-d:#5f5099}
+.tag.e{background:var(--ev);color:var(--ev-d)}
+.tag.tn{background:var(--gold-soft);color:#a0813a;border:1px solid #efe0b8}
+.ev .k.event{background:var(--ev);color:var(--ev-d)}
+.ev .k.tennis{background:var(--gold-soft);color:#a0813a}
+.ev .k.hw{background:var(--leaf);color:#fff}
+.fgrid label{min-width:0;overflow:hidden}
+.fgrid input[type=date]{width:100%}
 @media (max-width:480px){
   .ms{width:44px;height:44px}
   .tl-day{grid-template-columns:72px 1fr}
@@ -453,12 +477,12 @@ function renderTodo(om){
     var tasks=(t.tasks||[]).filter(function(x){return x.date===TODAY||(x.date<TODAY&&!x.done)||(x.done===TODAY)});
     tasks.forEach(function(x){
       var did=!!x.done,left=x.date<TODAY&&!did;
-      li.push('<li class="todo-item'+(did?' done':'')+'"><div class="ic t">テ</div><div><div class="what">'+esc(x.text)+(left?'<span class="late">やり残し</span>':'')+(did?'<span class="ok">できた！</span>':'')+'</div><div class="why">'+esc(t.subject||"")+'テスト '+md(t.date)+'（'+cdText(diff(TODAY,t.date))+'）'+(x.pts?'・'+x.pts+'pt':'')+'</div><button class="btn small '+(did?'':'pink')+'" data-act="task" data-id="'+esc(t.id)+'" data-t="'+esc(x.id)+'">'+(did?'とりけす':'できた！'+(x.pts?' +'+x.pts+'pt':''))+'</button></div></li>');
+      li.push('<li class="todo-item'+(did?' done':'')+'"><div class="ic t">テ</div><div><div class="what">'+esc(x.text)+(left?'<span class="late">やり残し</span>':'')+(did?'<span class="ok">できた！</span>':'')+'</div><div class="why">'+esc(testName(t))+' '+md(t.date)+'（'+cdText(diff(TODAY,t.date))+'）'+(x.pts?'・'+x.pts+'pt':'')+'</div><button class="btn small '+(did?'':'pink')+'" data-act="task" data-id="'+esc(t.id)+'" data-t="'+esc(x.id)+'">'+(did?'とりけす':'できた！'+(x.pts?' +'+x.pts+'pt':''))+'</button></div></li>');
     });
     var n=diff(TODAY,t.date);
     if(!(t.tasks||[]).length&&n>=1&&n<=(state.settings.testPrep||3)){
       var st=(t.studied||[]).indexOf(TODAY)>=0;
-      li.push('<li class="todo-item'+(st?' done':'')+'"><div class="ic t">テ</div><div><div class="what">'+esc(t.subject||"")+'テストの勉強'+(st?'<span class="ok">やった！</span>':'')+'</div><div class="why">'+esc(t.title||"")+'・'+md(t.date)+'（'+cdText(n)+'）</div><button class="btn small '+(st?'':'pink')+'" data-act="study" data-id="'+esc(t.id)+'">'+(st?'とりけす':'今日やった！')+'</button></div></li>');
+      li.push('<li class="todo-item'+(st?' done':'')+'"><div class="ic t">テ</div><div><div class="what">'+esc(testName(t))+'の勉強'+(st?'<span class="ok">やった！</span>':'')+'</div><div class="why">'+esc(t.title||"")+'・'+md(t.date)+'（'+cdText(n)+'）</div><button class="btn small '+(st?'':'pink')+'" data-act="study" data-id="'+esc(t.id)+'">'+(st?'とりけす':'今日やった！')+'</button></div></li>');
     }
   });
   sorted("hw").forEach(function(x){if(x.date>=TODAY&&diff(TODAY,x.date)<=3){
@@ -506,7 +530,7 @@ function renderTests(om){
   if(!up.length)h.push('<p class="muted">テストの予定はありません</p>');
   else{h.push('<div class="tests">');up.forEach(function(x){var n=diff(TODAY,x.date),c=breakdown(TODAY,x.date,om),ts=x.tasks||[];
     var dn=ts.filter(function(t){return t.done}).length;
-    h.push('<div class="trow"><div class="cd'+(n>7?' far':'')+'"><div class="n num">'+(n===0?'今日':n)+'</div><div class="u">'+(n===0?'':'日後')+'</div></div><div><div class="t1"><span class="subj">'+esc(x.subject||"")+'</span>'+esc(x.title||"")+'</div><div class="t2 num">'+md(x.date)+'・'+bdText(c)+'</div>'+(ts.length?'<div class="t2">やること '+dn+'/'+ts.length+' おわり</div>':'')+'</div></div>');});
+    h.push('<div class="trow"><div class="cd'+(n>7?' far':'')+'"><div class="n num">'+(n===0?'今日':n)+'</div><div class="u">'+(n===0?'':'日後')+'</div></div><div><div class="t1"><span class="subj'+(x.retest?' re':'')+'">'+esc(subj(x)+(x.retest?' 再テスト':''))+'</span>'+esc(x.title||"")+'</div><div class="t2 num">'+md(x.date)+'・'+bdText(c)+'</div>'+(ts.length?'<div class="t2">やること '+dn+'/'+ts.length+' おわり</div>':'')+'</div></div>');});
     h.push('</div>');}
   return h.join("")+'</section>';
 }
@@ -521,29 +545,29 @@ function renderCal(om){
   for(var dd=1;dd<=last;dd++){var s=y+"-"+pad(m+1)+"-"+pad(dd),t=dayType(s,om);
     var tags=(byDate[s]||[]).filter(function(it){return it.kind!=="off"}).map(function(it){
       if(it.kind==="kanji")return '<span class="tag k">漢字提出</span>';
-      if(it.kind==="test")return '<span class="tag t">'+esc(subj(it))+'テスト</span>';
-      if(it.kind==="hw")return '<span class="tag k">'+esc(subj(it)?subj(it)+"提出":"宿題提出")+'</span>';
-      if(it.kind==="tennis")return '<span class="tag tn">テニス'+esc(it.title||"")+'</span>';
+      if(it.kind==="test")return '<span class="tag '+(it.retest?'rt':'t')+'">'+esc(testName(it))+'</span>';
+      if(it.kind==="hw")return '<span class="tag k">'+esc((subj(it)||"宿題")+"提出")+'</span>';
+      if(it.kind==="tennis")return '<span class="tag e">'+esc("テニス"+(it.title?" "+it.title:""))+'</span>';
       return '<span class="tag e">'+esc(it.title||"イベント")+'</span>';}).join("");
     if(om[s])tags='<span class="tag o">休校</span>'+tags;else if(HOL[s])tags='<span class="tag p">'+HOL[s]+'</span>'+tags;
     h.push('<button class="cell '+t+(s===TODAY?' today':'')+(s<TODAY?' past':'')+'" data-act="cell" data-date="'+s+'"><span class="dn num">'+dd+'</span>'+tags+'</button>');}
-  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">宿題提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--lav)">休校</span><span style="--c:#f2d36b">テニス</span><span style="--c:var(--gold)">イベント</span></div></section>');
+  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">漢字・宿題提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--rose)">再テスト</span><span style="--c:var(--ev)">イベント・テニス</span><span style="--c:var(--lav-soft)">休校</span></div></section>');
   return h.join("");
 }
 function subj(it){return it.subject&&it.subject!=="未選択"?it.subject:""}
+function testName(t){return subj(t)+(t.retest?"再テスト":"テスト")}
 
 function evText(it){
   if(it.kind==="kanji")return esc(it.title)+" "+esc(it.range)+'（'+(it.l1||[]).length+'文字）';
   if(it.kind==="test")return esc(it.title||"");
-  if(it.kind==="tennis")return "テニス"+esc(it.title||"");
   var s=[];if(subj(it))s.push(esc(subj(it)));if(it.title)s.push(esc(it.title));
   return s.join("・");
 }
-function evLabel(it){return it.kind==="kanji"?"漢字提出":it.kind==="test"?subj(it)+"テスト":it.kind==="hw"?"宿題提出":it.kind==="tennis"?"テニス":it.kind==="event"?"イベント":"休校"}
+function evLabel(it){return it.kind==="kanji"?"漢字提出":it.kind==="test"?testName(it):it.kind==="hw"?(subj(it)||"宿題")+"提出":it.kind==="tennis"?"テニス":it.kind==="event"?"イベント":"休校"}
 function evLine(it,withEdit){
   var txt=evText(it);
   if(it.kind==="test"&&(it.tasks||[]).length)txt+='<span class="note">やること：'+it.tasks.map(function(x){return md(x.date)+' '+esc(x.text)+(x.done?' ✓':'')}).join(' ／ ')+'</span>';
-  return '<div class="ev"><span class="k '+it.kind+'">'+esc(evLabel(it))+'</span><span class="txt">'+txt+(it.note?'<span class="note">'+esc(it.note)+'</span>':'')+'</span>'+(withEdit?'<span class="acts"><button class="btn small" data-act="edit" data-id="'+esc(it.id)+'">編集</button></span>':'')+'</div>';
+  return '<div class="ev"><span class="k '+it.kind+(it.retest?' re':'')+'">'+esc(evLabel(it))+'</span><span class="txt">'+txt+(it.note?'<span class="note">'+esc(it.note)+'</span>':'')+'</span>'+(withEdit?'<span class="acts"><button class="btn small" data-act="edit" data-id="'+esc(it.id)+'">編集</button></span>':'')+'</div>';
 }
 function renderTimeline(){
   var list=sorted().filter(function(it){return (it.kind==="test"||it.kind==="hw"||it.kind==="kanji")&&(ui.past?it.date<TODAY:it.date>=TODAY)});if(ui.past)list.reverse();
@@ -575,25 +599,26 @@ function taskRow(x,testDate){
   return '<div class="task-row" data-tid="'+esc(x.id||"")+'" data-done="'+esc(x.done||"")+'"><input type="date" class="tr-date" value="'+esc(x.date||"")+'" max="'+esc(testDate||"")+'" aria-label="やる日"><input class="tr-text" value="'+esc(x.text||"")+'" aria-label="やること"><input type="number" class="tr-pts" min="0" max="50" value="'+esc(x.pts==null?5:x.pts)+'" aria-label="ポイント"><span class="pt-u">pt</span><button type="button" class="btn small" data-act="task-del" aria-label="この行を消す">✕</button></div>';
 }
 var SUBJECTS=["未選択","漢字","国語","算数","理科","社会","英語","その他"];
-var KIND={test:"テスト",hw:"宿題提出",event:"イベント",tennis:"テニス",off:"休校"};
+var KIND={test:"テスト",retest:"再テスト",hw:"宿題提出",event:"イベント",tennis:"テニス",off:"休校"};
 function renderSheet(){
   var s=ui.sheet;
   if(s.mode==="day")return renderDay();
   if(s.mode==="list")return renderList();
   var it=s.item,isK=it.kind==="kanji";
-  function show(kinds){return ' data-for="'+kinds+'"'+(kinds.split(",").indexOf(it.kind)<0?' hidden':'')}
+  var sk=it.retest?"retest":it.kind;
+  function show(kinds){return ' data-for="'+kinds+'"'+(kinds.split(",").indexOf(sk)<0?' hidden':'')}
   var h=['<div class="scrim" data-act="scrim"><div class="sheetp" role="dialog" aria-modal="true" aria-label="予定の登録"><h3>'+(s.mode==="add"?'予定を追加':'予定を編集')+'</h3><form id="f" class="fgrid">'];
   if(isK)h.push('<label>種類<select id="f-kind" name="kind" disabled><option value="kanji">漢字ノート提出</option></select></label>');
-  else h.push('<label>種類<select id="f-kind" name="kind">'+Object.keys(KIND).map(function(k){return '<option value="'+k+'"'+(it.kind===k?' selected':'')+'>'+KIND[k]+'</option>'}).join("")+'</select></label>');
+  else h.push('<label>種類<select id="f-kind" name="kind">'+Object.keys(KIND).map(function(k){return '<option value="'+k+'"'+(sk===k?' selected':'')+'>'+KIND[k]+'</option>'}).join("")+'</select></label>');
   h.push('<label>日付<input id="f-date" type="date" name="date" required value="'+esc(it.date||TODAY)+'"></label>');
   if(isK){
     h.push('<label class="full">内容<input id="f-range" name="range" value="'+esc(it.range)+'"></label>');
     h.push('<p class="full muted" style="margin:0;font-size:12.5px">漢字ノートは日付と内容（例：境〜講）だけ変えられます。内容を変えると書いた記録はリセットされます</p>');
   } else {
-    h.push('<label'+show("test,hw,event,tennis")+'>教科<select id="f-subject" name="subject">'+SUBJECTS.map(function(x){return '<option'+((it.subject||"未選択")===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label>');
+    h.push('<label'+show("test,retest,hw,event,tennis")+'>教科<select id="f-subject" name="subject">'+SUBJECTS.map(function(x){return '<option'+((it.subject||"未選択")===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label>');
     h.push('<label class="full">内容<input id="f-title" name="title" value="'+esc(it.title)+'"></label>');
     h.push('<label'+show("hw")+'>ポイント<input id="f-pts" type="number" min="0" max="50" name="pts" value="'+esc(it.pts==null?0:it.pts)+'"></label>');
-    h.push('<div class="full task-box"'+show("test")+'><div class="tb-h">テスト対策でやること</div><div id="task-rows">'+((it.tasks&&it.tasks.length)?it.tasks.map(function(x){return taskRow(x,it.date)}).join(""):taskRow(null,it.date))+'</div><button type="button" class="btn small" data-act="task-add">＋ やることを追加</button></div>');
+    h.push('<div class="full task-box"'+show("test,retest")+'><div class="tb-h">テスト対策でやること</div><div id="task-rows">'+((it.tasks&&it.tasks.length)?it.tasks.map(function(x){return taskRow(x,it.date)}).join(""):taskRow(null,it.date))+'</div><button type="button" class="btn small" data-act="task-add">＋ やることを追加</button></div>');
   }
   h.push('<label class="full">メモ<input id="f-note" name="note" value="'+esc(it.note)+'"></label>');
   h.push('</form><div class="fbtns">');
@@ -628,10 +653,11 @@ function renderDay(){
 function submitSheet(){
   var f=document.getElementById("f");if(!f)return;
   var fd=new FormData(f),old=ui.sheet.mode==="edit"?ui.sheet.item:null;
-  var kind=old&&old.kind==="kanji"?"kanji":fd.get("kind"),date=fd.get("date");
+  var kind=old&&old.kind==="kanji"?"kanji":fd.get("kind"),date=fd.get("date"),re=kind==="retest";if(re)kind="test";
   if(!date){ui.flash="日付を入れてください";render();return}
   var it={id:old?old.id:(kind[0]+Date.now().toString(36)),kind:kind,date:date};
   var note=(fd.get("note")||"").trim();if(note)it.note=note;
+  if(re)it.retest=true;
   if(kind==="kanji"){
     it.title=old.title;it.range=(fd.get("range")||"").trim()||old.range;
     var ch=it.range===old.range?old.chars:(charsFor(it.range)||old.chars);
