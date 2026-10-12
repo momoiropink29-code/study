@@ -266,6 +266,14 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 .tag.tns .ball::before,.tag.tns .ball::after{content:"";position:absolute;width:10px;height:10px;border:1.3px solid #fff;border-radius:50%;top:0}
 .tag.tns .ball::before{left:-7px} .tag.tns .ball::after{right:-7px}
 .ev .k.tennis{background:#e6f3c4;color:#6b8a2c}
+
+.kfold summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.kfold summary::-webkit-details-marker{display:none}
+.kfold .kf-t{font-size:20px;color:var(--char)}
+.kfold .kf-d{font-size:13px}
+.kfold .kf-arrow{margin-left:auto;color:var(--sub);transition:transform .2s}
+.kfold[open] .kf-arrow{transform:rotate(180deg)}
+.kfold .kf-body{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
 @media (max-width:480px){.task-row{grid-template-columns:1fr 56px auto auto}.task-row .tr-date{grid-column:1/-1}.pt-side{text-align:left}}
 
 :root{--ev:#d6cbf1;--ev-d:#5f5099}
@@ -450,7 +458,7 @@ function render(){
   if(ui.flash)h.push('<div class="flash">'+esc(ui.flash)+'</div>');
   h.push(renderTodo(om));
   h.push(renderPoints());
-  var nk=sorted("kanji").filter(function(k){return k.date>=TODAY})[0];
+  var nk=sorted("kanji").filter(function(k){return k.date>TODAY})[0];
   if(nk)h.push(renderKanji(nk,om));
   h.push(renderTests(om));
   h.push(renderCal(om));
@@ -510,7 +518,7 @@ function renderKanji(k,om){
   var r=kanjiInfo(k),n=r.n,P=state.settings.pts,phase2=r.l1c===n;
   var due=diff(TODAY,k.date),wd=Math.max(0,diff(TODAY,r.end)+1);
   var todoSet={};r.todo.forEach(function(u){todoSet[u.lap+"-"+u.i]=1});
-  var h=['<section class="card"><div class="k-head"><div><div class="k-label">つぎの漢字ノート提出</div><h2 class="k-title"><small>'+esc(k.title)+'</small>'+esc(k.range)+'</h2></div>'];
+  var h=['<div class="k-head"><div><div class="k-label">次の漢字ノート提出</div><h2 class="k-title"><small>'+esc(k.title)+'</small>'+esc(k.range)+'</h2></div>'];
   h.push('<div class="count'+(due<=1&&!r.complete?' urgent':'')+'"><div class="d">提出 <b>'+md(k.date)+'</b></div><div class="n2">'+(wd>0?'書く日 あと<b class="num">'+wd+'</b>日<span class="d">（'+(function(){var a=[];for(var d=TODAY;d<=r.end;d=add(d,1))a.push(dnum(d));return a.join("・")})()+'）</span>':(due>0?'今日からは見直しの日':'今日提出'))+'</div></div></div>');
   h.push('<div class="laps"><span class="lap l1">1周目 練習</span> <b class="num">'+r.l1c+'</b>/'+n+'　<span class="lap l2">2周目 文作り（1字2問）</span> <b class="num">'+r.l2c+'</b>/'+n+'</div>');
   h.push('<div class="hint">'+(phase2?'文作りがおわった字をタップ（1字 '+P.l2+'pt）':'練習がおわった字をタップ（1字 '+P.l1+'pt）。全部おわったら文作りへ')+'・金色の点線＝今日やる字</div><div class="masu">');
@@ -527,12 +535,14 @@ function renderKanji(k,om){
     if(d===k.date)q="提出";else if(d<=r.end){var wv=d===TODAY?r.todo.length:Math.round(r.tgt(d)-r.tgt(add(d,-1)));q=wv>0?wv+"字":"";}else q="見直し";
     h.push('<div class="chip '+t+(d===TODAY?' today':'')+(d===k.date?' due':'')+'"><span class="dd num">'+dnum(d)+'</span>'+WD[dow(d)]+(t==="off"?'<span class="q">休校</span>':t==="hol"?'<span class="q">祝</span>':'')+'<span class="q">'+q+'</span></div>');}
   h.push('</div><div class="legend"><span style="--c:var(--leaf)">提出まで '+bdText(c2)+'</span></div>');
-  return h.join("")+'<p class="tip">提出日には「漢字ドリル」も持っていく</p></section>';
+  var body=h.join("")+'<p class="tip">提出日には「漢字ドリル」も持っていく</p>';
+  if(!r.complete)return '<section class="card">'+body+'</section>';
+  return '<details class="card kfold"'+(ui.kOpen?' open':'')+'><summary><span class="k-label">次の漢字ノート提出</span><span class="kf-t">'+esc(k.title)+' '+esc(k.range)+'</span><span class="ok">完成！</span><span class="muted kf-d">提出 '+md(k.date)+'</span><span class="kf-arrow" aria-hidden="true">▾</span></summary><div class="kf-body">'+body+'</div></details>';
 }
 
 function renderTests(om){
   var up=sorted("test").filter(function(x){return x.date>=TODAY}).slice(0,4);
-  var h=['<section class="card"><div class="sec-h"><h2>つぎのテスト</h2></div>'];
+  var h=['<section class="card"><div class="sec-h"><h2>次のテスト</h2></div>'];
   if(!up.length)h.push('<p class="muted">テストの予定はありません</p>');
   else{h.push('<div class="tests">');up.forEach(function(x){var n=diff(TODAY,x.date),c=breakdown(TODAY,x.date,om),ts=x.tasks||[];
     var dn=ts.filter(function(t){return t.done}).length;
@@ -723,7 +733,7 @@ root.addEventListener("click",function(ev){
     var after=kanjiInfo(k);render();
     if(gained){popAt('[data-act="masu"][data-id="'+id+'"][data-i="'+i+'"]');
       if(after.complete&&!before.complete)toast("完成！ "+k.range,after.bonus?"予定どおりボーナス +"+P.bonus+"pt":"よくがんばったね");
-      else if(after.l1c===n&&before.l1c<n)toast("練習ぜんぶおわり！","つぎは文作り ☘");
+      else if(after.l1c===n&&before.l1c<n)toast("練習ぜんぶおわり！","次は文作り ☘");
       else if(!after.todo.length&&before.todo.length)toast("今日の分クリア！","+"+gained+"pt");}
     return}
   if(a==="task"){var t=find(id),tid=b.getAttribute("data-t");if(!t)return;var x=(t.tasks||[]).filter(function(z){return z.id===tid})[0];if(!x)return;
@@ -750,6 +760,7 @@ root.addEventListener("change",function(ev){
     persist();return}
   if(t.id==="f-kind"){var k=t.value;root.querySelectorAll("[data-for]").forEach(function(el){el.hidden=el.getAttribute("data-for").split(",").indexOf(k)<0})}
 });
+root.addEventListener("toggle",function(ev){if(ev.target.classList&&ev.target.classList.contains("kfold"))ui.kOpen=ev.target.open},true);
 root.addEventListener("submit",function(ev){ev.preventDefault();if(ev.target.id==="f")submitSheet();if(ev.target.id==="pinf")submitPin()});
 document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&ui.sheet){ui.sheet=null;render()}});
 render();
