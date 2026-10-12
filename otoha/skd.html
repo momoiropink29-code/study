@@ -235,6 +235,16 @@ button.cell{cursor:default}
 .setbox .settings{margin-top:8px}
 .sheetp .tl-items{margin:6px 0}
 .cell{cursor:pointer}
+.tag{text-align:left}
+.tag.tn{background:#f2d36b;color:#5e4a10}
+.ev .k.tennis{background:#f2d36b;color:#5e4a10}
+.fgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;box-sizing:border-box;text-align:left;min-height:44px}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+.task-row{grid-template-columns:150px minmax(0,1fr) 64px auto auto}
+.task-row input{box-sizing:border-box}
+.task-row .tr-pts{text-align:center;padding-left:4px;padding-right:4px}
+@media (max-width:520px){.task-row{grid-template-columns:minmax(0,1fr) 64px auto auto}.task-row .tr-date{grid-column:1/-1}}
 @media (max-width:480px){.task-row{grid-template-columns:1fr 56px auto auto}.task-row .tr-date{grid-column:1/-1}.pt-side{text-align:left}}
 @media (max-width:480px){
   .ms{width:44px;height:44px}
@@ -511,13 +521,13 @@ function renderCal(om){
   for(var dd=1;dd<=last;dd++){var s=y+"-"+pad(m+1)+"-"+pad(dd),t=dayType(s,om);
     var tags=(byDate[s]||[]).filter(function(it){return it.kind!=="off"}).map(function(it){
       if(it.kind==="kanji")return '<span class="tag k">漢字提出</span>';
-      if(it.kind==="test")return '<span class="tag t">'+esc(subj(it))+'テ</span>';
-      if(it.kind==="hw")return '<span class="tag h">'+esc(subj(it)||it.title||"宿題")+'</span>';
-      if(it.kind==="tennis")return '<span class="tag tn">'+esc(it.title||"テニス")+'</span>';
+      if(it.kind==="test")return '<span class="tag t">'+esc(subj(it))+'テスト</span>';
+      if(it.kind==="hw")return '<span class="tag k">'+esc(subj(it)?subj(it)+"提出":"宿題提出")+'</span>';
+      if(it.kind==="tennis")return '<span class="tag tn">テニス'+esc(it.title||"")+'</span>';
       return '<span class="tag e">'+esc(it.title||"イベント")+'</span>';}).join("");
     if(om[s])tags='<span class="tag o">休校</span>'+tags;else if(HOL[s])tags='<span class="tag p">'+HOL[s]+'</span>'+tags;
     h.push('<button class="cell '+t+(s===TODAY?' today':'')+(s<TODAY?' past':'')+'" data-act="cell" data-date="'+s+'"><span class="dn num">'+dd+'</span>'+tags+'</button>');}
-  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">漢字提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--lav)">宿題・休校</span><span style="--c:var(--mint)">テニス</span><span style="--c:var(--gold)">イベント</span></div></section>');
+  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">宿題提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--lav)">休校</span><span style="--c:#f2d36b">テニス</span><span style="--c:var(--gold)">イベント</span></div></section>');
   return h.join("");
 }
 function subj(it){return it.subject&&it.subject!=="未選択"?it.subject:""}
@@ -525,6 +535,7 @@ function subj(it){return it.subject&&it.subject!=="未選択"?it.subject:""}
 function evText(it){
   if(it.kind==="kanji")return esc(it.title)+" "+esc(it.range)+'（'+(it.l1||[]).length+'文字）';
   if(it.kind==="test")return esc(it.title||"");
+  if(it.kind==="tennis")return "テニス"+esc(it.title||"");
   var s=[];if(subj(it))s.push(esc(subj(it)));if(it.title)s.push(esc(it.title));
   return s.join("・");
 }
@@ -561,7 +572,7 @@ function newItem(date){return {kind:"test",date:date||TODAY,subject:"未選択",
 
 function taskRow(x,testDate){
   x=x||{};
-  return '<div class="task-row" data-tid="'+esc(x.id||"")+'" data-done="'+esc(x.done||"")+'"><input type="date" class="tr-date" value="'+esc(x.date||"")+'" max="'+esc(testDate||"")+'" aria-label="やる日"><input class="tr-text" placeholder="例：あっぱれ P20〜21" value="'+esc(x.text||"")+'" aria-label="やること"><input type="number" class="tr-pts" min="0" max="50" value="'+esc(x.pts==null?5:x.pts)+'" aria-label="ポイント"><span class="pt-u">pt</span><button type="button" class="btn small" data-act="task-del" aria-label="この行を消す">✕</button></div>';
+  return '<div class="task-row" data-tid="'+esc(x.id||"")+'" data-done="'+esc(x.done||"")+'"><input type="date" class="tr-date" value="'+esc(x.date||"")+'" max="'+esc(testDate||"")+'" aria-label="やる日"><input class="tr-text" value="'+esc(x.text||"")+'" aria-label="やること"><input type="number" class="tr-pts" min="0" max="50" value="'+esc(x.pts==null?5:x.pts)+'" aria-label="ポイント"><span class="pt-u">pt</span><button type="button" class="btn small" data-act="task-del" aria-label="この行を消す">✕</button></div>';
 }
 var SUBJECTS=["未選択","漢字","国語","算数","理科","社会","英語","その他"];
 var KIND={test:"テスト",hw:"宿題提出",event:"イベント",tennis:"テニス",off:"休校"};
@@ -580,9 +591,9 @@ function renderSheet(){
     h.push('<p class="full muted" style="margin:0;font-size:12.5px">漢字ノートは日付と内容（例：境〜講）だけ変えられます。内容を変えると書いた記録はリセットされます</p>');
   } else {
     h.push('<label'+show("test,hw,event,tennis")+'>教科<select id="f-subject" name="subject">'+SUBJECTS.map(function(x){return '<option'+((it.subject||"未選択")===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label>');
-    h.push('<label class="full">内容<input id="f-title" name="title" placeholder="例：単位量2（速さ）／ テニス試合 午前" value="'+esc(it.title)+'"></label>');
+    h.push('<label class="full">内容<input id="f-title" name="title" value="'+esc(it.title)+'"></label>');
     h.push('<label'+show("hw")+'>ポイント<input id="f-pts" type="number" min="0" max="50" name="pts" value="'+esc(it.pts==null?0:it.pts)+'"></label>');
-    h.push('<div class="full task-box"'+show("test")+'><div class="tb-h">テスト対策でやること（やる日・内容・ポイント）</div><div id="task-rows">'+((it.tasks&&it.tasks.length)?it.tasks.map(function(x){return taskRow(x,it.date)}).join(""):taskRow(null,it.date))+'</div><button type="button" class="btn small" data-act="task-add">＋ やることを追加</button></div>');
+    h.push('<div class="full task-box"'+show("test")+'><div class="tb-h">テスト対策でやること</div><div id="task-rows">'+((it.tasks&&it.tasks.length)?it.tasks.map(function(x){return taskRow(x,it.date)}).join(""):taskRow(null,it.date))+'</div><button type="button" class="btn small" data-act="task-add">＋ やることを追加</button></div>');
   }
   h.push('<label class="full">メモ<input id="f-note" name="note" value="'+esc(it.note)+'"></label>');
   h.push('</form><div class="fbtns">');
