@@ -260,6 +260,12 @@ input[type=date]::-webkit-date-and-time-value{text-align:left}
 .task-row > *{min-width:0}
 .task-row .tr-pts{text-align:center}
 .fgrid input[type=number]{text-align:center}
+
+.tag.tns{background:linear-gradient(90deg,#f3f9d6,#e6f3c4);color:#6b8a2c;border:1px solid #d9eaa8;border-radius:999px;padding:0 6px 0 3px;display:flex;align-items:center;gap:3px}
+.tag.tns .ball{flex:0 0 auto;width:11px;height:11px;border-radius:50%;background:#d6ea6a;position:relative;overflow:hidden;box-shadow:inset -1px -1px 0 rgba(0,0,0,.08)}
+.tag.tns .ball::before,.tag.tns .ball::after{content:"";position:absolute;width:10px;height:10px;border:1.3px solid #fff;border-radius:50%;top:0}
+.tag.tns .ball::before{left:-7px} .tag.tns .ball::after{right:-7px}
+.ev .k.tennis{background:#e6f3c4;color:#6b8a2c}
 @media (max-width:480px){.task-row{grid-template-columns:1fr 56px auto auto}.task-row .tr-date{grid-column:1/-1}.pt-side{text-align:left}}
 
 :root{--ev:#d6cbf1;--ev-d:#5f5099}
@@ -547,20 +553,21 @@ function renderCal(om){
       if(it.kind==="kanji")return '<span class="tag k">漢字提出</span>';
       if(it.kind==="test")return '<span class="tag '+(it.retest?'rt':'t')+'">'+esc(testName(it))+'</span>';
       if(it.kind==="hw")return '<span class="tag k">'+esc((subj(it)||"宿題")+"提出")+'</span>';
-      if(it.kind==="tennis")return '<span class="tag e">'+esc("テニス"+(it.title?" "+it.title:""))+'</span>';
+      if(it.kind==="tennis")return '<span class="tag tns"><i class="ball" aria-hidden="true"></i>'+esc("テニス"+(tnText(it.title)?" "+tnText(it.title):""))+'</span>';
       return '<span class="tag e">'+esc(it.title||"イベント")+'</span>';}).join("");
     if(om[s])tags='<span class="tag o">休校</span>'+tags;else if(HOL[s])tags='<span class="tag p">'+HOL[s]+'</span>'+tags;
     h.push('<button class="cell '+t+(s===TODAY?' today':'')+(s<TODAY?' past':'')+'" data-act="cell" data-date="'+s+'"><span class="dn num">'+dd+'</span>'+tags+'</button>');}
-  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">漢字・宿題提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--rose)">再テスト</span><span style="--c:var(--ev)">イベント・テニス</span><span style="--c:var(--lav-soft)">休校</span></div></section>');
+  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">漢字・宿題提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--rose)">再テスト</span><span style="--c:var(--ev)">イベント</span><span style="--c:#d6ea6a">テニス</span><span style="--c:var(--lav-soft)">休校</span></div></section>');
   return h.join("");
 }
 function subj(it){return it.subject&&it.subject!=="未選択"?it.subject:""}
+function tnText(t){return String(t||"").replace(/^テニス[\s　・]*/,"")}
 function testName(t){return subj(t)+(t.retest?"再テスト":"テスト")}
 
 function evText(it){
   if(it.kind==="kanji")return esc(it.title)+" "+esc(it.range)+'（'+(it.l1||[]).length+'文字）';
   if(it.kind==="test")return esc(it.title||"");
-  var s=[];if(subj(it))s.push(esc(subj(it)));if(it.title)s.push(esc(it.title));
+  var s=[];if(subj(it))s.push(esc(subj(it)));var tt=it.kind==="tennis"?tnText(it.title):it.kind==="off"?String(it.title||"").replace(/^休校$/,""):it.title;if(tt)s.push(esc(tt));
   return s.join("・");
 }
 function evLabel(it){return it.kind==="kanji"?"漢字提出":it.kind==="test"?testName(it):it.kind==="hw"?(subj(it)||"宿題")+"提出":it.kind==="tennis"?"テニス":it.kind==="event"?"イベント":"休校"}
