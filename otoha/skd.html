@@ -38,7 +38,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .top .subt{font-size:12.5px;color:var(--sub);margin:4px 0 2px;letter-spacing:.22em}
 .today{font-size:17px;color:var(--char)}
 .today .wd-sat{color:var(--blue)} .today .wd-sun{color:var(--coral)}
-.top .mamabtn{position:absolute;top:0;right:0}
+.top .mamabtns{position:absolute;top:0;right:0;display:flex;gap:6px}
 
 /* カード・見出し */
 .card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 3px 10px rgba(150,195,220,.18)}
@@ -227,12 +227,20 @@ button.cell{cursor:default}
 .task-row input{font-size:15px;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:12px;padding:7px 8px;min-width:0;width:100%}
 .pt-u{font-size:12px;color:var(--sub)}
 .btn[disabled]{opacity:.45}
+[hidden]{display:none!important}
+.tag.tn{background:var(--mint);color:#fff}
+.ev .k.tennis{background:var(--mint);color:#fff}
+.setbox{margin-top:16px;border-top:1px dashed var(--line);padding-top:10px}
+.setbox summary{cursor:pointer;color:var(--blue);font-size:14px;padding:4px 0}
+.setbox .settings{margin-top:8px}
+.sheetp .tl-items{margin:6px 0}
+.cell{cursor:pointer}
 @media (max-width:480px){.task-row{grid-template-columns:1fr 56px auto auto}.task-row .tr-date{grid-column:1/-1}.pt-side{text-align:left}}
 @media (max-width:480px){
   .ms{width:44px;height:44px}
   .tl-day{grid-template-columns:72px 1fr}
   .rounds .hide-s{display:none}
-  .top .mamabtn{position:static;margin-top:8px}
+  .top .mamabtns{position:static;margin-top:8px;justify-content:center}
 }
 </style>
 </head>
@@ -332,6 +340,7 @@ function migrate(st){
     }
     if(it.kind==="test"&&!Array.isArray(it.tasks))it.tasks=[];
     if(it.kind==="hw"&&it.finished===true)it.finished="-";
+    if(it.kind!=="kanji"&&it.range){it.title=it.title?it.title+"・"+it.range:it.range;delete it.range}
   });
 }
 migrate(state);
@@ -339,7 +348,6 @@ var savedJson="";
 var root=document.getElementById("root");
 
 var HOL={"2026-09-21":"敬老の日","2026-09-22":"国民の休日","2026-09-23":"秋分の日","2026-10-12":"スポーツの日","2026-11-03":"文化の日","2026-11-23":"勤労感謝の日","2027-01-01":"元日","2027-01-11":"成人の日","2027-02-11":"建国記念の日","2027-02-23":"天皇誕生日","2027-03-21":"春分の日","2027-03-22":"振替休日"};
-var KIND={kanji:"漢字ノート提出",test:"テスト",hw:"宿題",event:"行事",off:"休校・休み"};
 
 function offMap(){var m={};state.items.forEach(function(it){if(it.kind==="off")m[it.date]=it.title||"休校"});return m}
 function dayType(s,om){if(om[s])return "off";if(HOL[s])return "hol";var w=dow(s);return w===0?"sun":w===6?"sat":"school"}
@@ -389,7 +397,7 @@ function points(){
   return {total:tot,today:today,unsettled:Math.max(0,tot-(state.settings.settled||0))};
 }
 
-var ui={mama:false,cal:null,past:false,sheet:null,del:null,flash:""};
+var ui={unlocked:false,cal:null,past:false,sheet:null,del:null,flash:""};
 var t0=parse(TODAY);ui.cal=[t0.getFullYear(),t0.getMonth()];
 
 function persist(){var j=JSON.stringify(state);if(j===savedJson)return;try{localStorage.setItem(KEY,j);savedJson=j}catch(e){ui.flash="この端末に保存できませんでした"}}
@@ -397,16 +405,8 @@ function persist(){var j=JSON.stringify(state);if(j===savedJson)return;try{local
 function render(){
   persist();
   var om=offMap(),h=[],td=parse(TODAY);
-  root.className=ui.mama?"mama":"";
   h.push('<header class="top"><img class="mascot" src="mascot.png" alt="" onerror="this.onerror=null;this.src=window.MASCOT_FB"><div class="title">Homework Diary<span class="cl">☘</span></div><div class="subt">乙葉のしゅくだい帳・5年2学期</div><div class="today num">'+(td.getMonth()+1)+'月'+td.getDate()+'日<span class="wd-'+(wdClass(TODAY)||"x")+'">（'+WD[td.getDay()]+'）</span></div>');
-  h.push('<button class="btn small mamabtn'+(ui.mama?' on':'')+'" data-act="mama">'+(ui.mama?'ママ登録をおわる':'ママ登録')+'</button></header>');
-  if(ui.mama){
-    var P=state.settings.pts;
-    h.push('<div class="mamabar"><span>ママ登録中：予定の追加・変更・削除ができます</span><button class="btn small aqua" data-act="add">＋ 予定を追加</button></div>');
-    h.push('<div class="card settings"><span>漢字は提出の</span><select id="set-fb">'+[1,2,3].map(function(n){return '<option value="'+n+'"'+(state.settings.finishBefore===n?' selected':'')+'>'+n+'日前</option>'}).join("")+'</select><span>までに書き終える／やることがないテストは</span><select id="set-tp">'+[2,3,4,5,7].map(function(n){return '<option value="'+n+'"'+(state.settings.testPrep===n?' selected':'')+'>'+n+'日前</option>'}).join("")+'</select><span>から「テスト勉強」を出す</span>'
-      +'<span class="setline">ポイント：漢字の練習 1字 <input id="set-p1" type="number" min="0" max="20" value="'+P.l1+'">pt ／ 文作り 1字 <input id="set-p2" type="number" min="0" max="20" value="'+P.l2+'">pt ／ 予定どおり完成ボーナス <input id="set-pb" type="number" min="0" max="50" value="'+P.bonus+'">pt</span>'
-      +'<button class="btn small" data-act="pin-change">暗証番号を変える</button></div>');
-  }
+  h.push('<div class="mamabtns"><button class="btn small" data-act="add">＋ 予定を追加</button><button class="btn small" data-act="editlist">編集</button></div></header>');
   if(ui.flash)h.push('<div class="flash">'+esc(ui.flash)+'</div>');
   h.push(renderTodo(om));
   h.push(renderPoints());
@@ -415,7 +415,6 @@ function render(){
   h.push(renderTests(om));
   h.push(renderCal(om));
   h.push(renderTimeline());
-  h.push(renderRounds());
   h.push('<div class="foot">May your study day sparkle!</div>');
   if(ui.sheet)h.push(ui.sheet.mode==="pin"?renderPin():renderSheet());
   root.innerHTML=h.join("");
@@ -449,7 +448,7 @@ function renderTodo(om){
     var n=diff(TODAY,t.date);
     if(!(t.tasks||[]).length&&n>=1&&n<=(state.settings.testPrep||3)){
       var st=(t.studied||[]).indexOf(TODAY)>=0;
-      li.push('<li class="todo-item'+(st?' done':'')+'"><div class="ic t">テ</div><div><div class="what">'+esc(t.subject||"")+'テストの勉強'+(st?'<span class="ok">やった！</span>':'')+'</div><div class="why">'+esc(t.range||"")+'・'+md(t.date)+'（'+cdText(n)+'）</div><button class="btn small '+(st?'':'pink')+'" data-act="study" data-id="'+esc(t.id)+'">'+(st?'とりけす':'今日やった！')+'</button></div></li>');
+      li.push('<li class="todo-item'+(st?' done':'')+'"><div class="ic t">テ</div><div><div class="what">'+esc(t.subject||"")+'テストの勉強'+(st?'<span class="ok">やった！</span>':'')+'</div><div class="why">'+esc(t.title||"")+'・'+md(t.date)+'（'+cdText(n)+'）</div><button class="btn small '+(st?'':'pink')+'" data-act="study" data-id="'+esc(t.id)+'">'+(st?'とりけす':'今日やった！')+'</button></div></li>');
     }
   });
   sorted("hw").forEach(function(x){if(x.date>=TODAY&&diff(TODAY,x.date)<=3){
@@ -464,7 +463,6 @@ function renderTodo(om){
 function renderPoints(){
   var p=points();
   var h='<section class="card pts"><div class="pt-main"><div><div class="k-label">ためたポイント</div><div class="pt-n num">'+p.total+'<small>pt</small></div></div><div class="pt-side"><div>今日 <b class="num">+'+p.today+'</b>pt</div><div class="muted">ポイント制度にまだ入れていない分 <b class="num">'+p.unsettled+'</b>pt</div></div></div>';
-  if(ui.mama)h+='<div class="pt-mama"><button class="btn small aqua" data-act="settle"'+(p.unsettled?'':' disabled')+'>ポイント制度に入れた（'+p.unsettled+'pt）</button><span class="muted">押すと「まだ入れていない分」が0に戻ります</span></div>';
   return h+'</section>';
 }
 
@@ -498,10 +496,11 @@ function renderTests(om){
   if(!up.length)h.push('<p class="muted">テストの予定はありません</p>');
   else{h.push('<div class="tests">');up.forEach(function(x){var n=diff(TODAY,x.date),c=breakdown(TODAY,x.date,om),ts=x.tasks||[];
     var dn=ts.filter(function(t){return t.done}).length;
-    h.push('<div class="trow"><div class="cd'+(n>7?' far':'')+'"><div class="n num">'+(n===0?'今日':n)+'</div><div class="u">'+(n===0?'':'日後')+'</div></div><div><div class="t1"><span class="subj">'+esc(x.subject||"")+'</span>'+esc(x.range||x.title||"")+'</div><div class="t2 num">'+md(x.date)+'・'+bdText(c)+'</div>'+(ts.length?'<div class="t2">やること '+dn+'/'+ts.length+' おわり</div>':'')+'</div></div>');});
+    h.push('<div class="trow"><div class="cd'+(n>7?' far':'')+'"><div class="n num">'+(n===0?'今日':n)+'</div><div class="u">'+(n===0?'':'日後')+'</div></div><div><div class="t1"><span class="subj">'+esc(x.subject||"")+'</span>'+esc(x.title||"")+'</div><div class="t2 num">'+md(x.date)+'・'+bdText(c)+'</div>'+(ts.length?'<div class="t2">やること '+dn+'/'+ts.length+' おわり</div>':'')+'</div></div>');});
     h.push('</div>');}
   return h.join("")+'</section>';
 }
+
 
 function renderCal(om){
   var y=ui.cal[0],m=ui.cal[1],first=new Date(y,m,1),last=new Date(y,m+1,0).getDate(),lead=(first.getDay()+6)%7;
@@ -512,113 +511,140 @@ function renderCal(om){
   for(var dd=1;dd<=last;dd++){var s=y+"-"+pad(m+1)+"-"+pad(dd),t=dayType(s,om);
     var tags=(byDate[s]||[]).filter(function(it){return it.kind!=="off"}).map(function(it){
       if(it.kind==="kanji")return '<span class="tag k">漢字提出</span>';
-      if(it.kind==="test")return '<span class="tag t">'+esc(it.subject||"")+'テ</span>';
-      if(it.kind==="hw")return '<span class="tag h">'+esc(it.subject||it.title||"宿題")+'</span>';
-      return '<span class="tag e">'+esc(it.title||"行事")+'</span>';}).join("");
-    if(om[s])tags='<span class="tag o">'+esc(om[s])+'</span>'+tags;else if(HOL[s])tags='<span class="tag p">'+HOL[s]+'</span>'+tags;
-    h.push('<button class="cell '+t+(s===TODAY?' today':'')+(s<TODAY?' past':'')+'" data-act="cell" data-date="'+s+'"'+(ui.mama?'':' tabindex="-1"')+'><span class="dn num">'+dd+'</span>'+tags+'</button>');}
-  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">漢字提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--lav)">休校</span>'+(ui.mama?'<span style="--c:var(--gold)">日付をタップで予定を追加</span>':'')+'</div></section>');
+      if(it.kind==="test")return '<span class="tag t">'+esc(subj(it))+'テ</span>';
+      if(it.kind==="hw")return '<span class="tag h">'+esc(subj(it)||it.title||"宿題")+'</span>';
+      if(it.kind==="tennis")return '<span class="tag tn">'+esc(it.title||"テニス")+'</span>';
+      return '<span class="tag e">'+esc(it.title||"イベント")+'</span>';}).join("");
+    if(om[s])tags='<span class="tag o">休校</span>'+tags;else if(HOL[s])tags='<span class="tag p">'+HOL[s]+'</span>'+tags;
+    h.push('<button class="cell '+t+(s===TODAY?' today':'')+(s<TODAY?' past':'')+'" data-act="cell" data-date="'+s+'"><span class="dn num">'+dd+'</span>'+tags+'</button>');}
+  h.push('</div></div><div class="legend" style="margin-top:10px"><span style="--c:var(--leaf)">漢字提出</span><span style="--c:var(--pink)">テスト</span><span style="--c:var(--lav)">宿題・休校</span><span style="--c:var(--mint)">テニス</span><span style="--c:var(--gold)">イベント</span></div></section>');
   return h.join("");
 }
+function subj(it){return it.subject&&it.subject!=="未選択"?it.subject:""}
 
-function evLine(it){
-  var label=it.kind==="kanji"?"漢字提出":it.kind==="test"?(it.subject||"")+"テスト":it.kind==="hw"?"宿題":it.kind==="event"?"行事":"休み";
-  var txt=it.kind==="kanji"?esc(it.title)+" "+esc(it.range)+'（'+(it.l1||[]).length+'文字）':it.kind==="test"?esc(it.range||it.title||""):it.kind==="hw"?esc((it.subject?it.subject+"：":"")+(it.title||"")):esc(it.title||"");
+function evText(it){
+  if(it.kind==="kanji")return esc(it.title)+" "+esc(it.range)+'（'+(it.l1||[]).length+'文字）';
+  if(it.kind==="test")return esc(it.title||"");
+  var s=[];if(subj(it))s.push(esc(subj(it)));if(it.title)s.push(esc(it.title));
+  return s.join("・");
+}
+function evLabel(it){return it.kind==="kanji"?"漢字提出":it.kind==="test"?subj(it)+"テスト":it.kind==="hw"?"宿題提出":it.kind==="tennis"?"テニス":it.kind==="event"?"イベント":"休校"}
+function evLine(it,withEdit){
+  var txt=evText(it);
   if(it.kind==="test"&&(it.tasks||[]).length)txt+='<span class="note">やること：'+it.tasks.map(function(x){return md(x.date)+' '+esc(x.text)+(x.done?' ✓':'')}).join(' ／ ')+'</span>';
-  var h='<div class="ev"><span class="k '+it.kind+'">'+esc(label)+'</span><span class="txt">'+txt+(it.note?'<span class="note">'+esc(it.note)+'</span>':'')+'</span>';
-  if(ui.mama){
-    if(ui.del===it.id)h+='<span class="acts"><button class="btn small danger" data-act="del-yes" data-id="'+esc(it.id)+'">削除する</button><button class="btn small" data-act="del-no">やめる</button></span>';
-    else h+='<span class="acts"><button class="btn small" data-act="edit" data-id="'+esc(it.id)+'">編集</button><button class="btn small" data-act="del" data-id="'+esc(it.id)+'">削除</button></span>';
-  }
-  return h+'</div>';
+  return '<div class="ev"><span class="k '+it.kind+'">'+esc(evLabel(it))+'</span><span class="txt">'+txt+(it.note?'<span class="note">'+esc(it.note)+'</span>':'')+'</span>'+(withEdit?'<span class="acts"><button class="btn small" data-act="edit" data-id="'+esc(it.id)+'">編集</button></span>':'')+'</div>';
 }
 function renderTimeline(){
-  var list=sorted().filter(function(it){return ui.past?it.date<TODAY:it.date>=TODAY});if(ui.past)list.reverse();
+  var list=sorted().filter(function(it){return (it.kind==="test"||it.kind==="hw"||it.kind==="kanji")&&(ui.past?it.date<TODAY:it.date>=TODAY)});if(ui.past)list.reverse();
   var groups=[],cur=null;list.forEach(function(it){if(!cur||cur.date!==it.date){cur={date:it.date,items:[]};groups.push(cur)}cur.items.push(it)});
-  var h=['<section class="card"><div class="sec-h"><h2>よてい</h2><div class="seg" role="tablist"><button role="tab" aria-selected="'+(!ui.past)+'" class="'+(ui.past?'':'on')+'" data-act="past" data-v="0">これから</button><button role="tab" aria-selected="'+ui.past+'" class="'+(ui.past?'on':'')+'" data-act="past" data-v="1">もう過ぎた日</button></div></div><div class="tl">'];
+  var h=['<section class="card"><div class="sec-h"><h2>予定</h2><div class="seg" role="tablist"><button role="tab" aria-selected="'+(!ui.past)+'" class="'+(ui.past?'':'on')+'" data-act="past" data-v="0">これから</button><button role="tab" aria-selected="'+ui.past+'" class="'+(ui.past?'on':'')+'" data-act="past" data-v="1">もう過ぎた日</button></div><span class="sub">宿題提出とテスト</span></div><div class="tl">'];
   if(!groups.length)h.push('<p class="muted">予定はありません</p>');
   groups.forEach(function(g){var n=diff(TODAY,g.date);
-    h.push('<div class="tl-day"><div class="tl-date num '+wdClass(g.date)+'">'+md(g.date)+'<span class="cdx'+(n>=0&&n<=3?' soon':'')+'">'+cdText(n)+'</span></div><div class="tl-items">'+g.items.map(evLine).join("")+'</div></div>');});
+    h.push('<div class="tl-day"><div class="tl-date num '+wdClass(g.date)+'">'+md(g.date)+'<span class="cdx'+(n>=0&&n<=3?' soon':'')+'">'+cdText(n)+'</span></div><div class="tl-items">'+g.items.map(function(it){return evLine(it,false)}).join("")+'</div></div>');});
   return h.join("")+'</div></section>';
 }
 
-function renderRounds(){
-  var ks=sorted("kanji"),tot=0,dn=0;ks.forEach(function(k){var n=(k.l1||[]).length;tot+=n*2;dn+=cnt(k.l1)+cnt(k.l2)});
-  var nk=ks.filter(function(k){return k.date>=TODAY})[0];
-  var h=['<section class="card"><div class="sec-h"><h2>2学期の漢字</h2></div>'];
-  h.push('<div class="total num"><span>2周ぶん <b>'+dn+'</b> / '+tot+'</span><span class="muted">（練習＋文作り）</span></div><div class="bar"><i style="width:'+(tot?Math.round(dn/tot*100):0)+'%"></i></div>');
-  h.push('<div class="tbl-wrap"><table class="rounds num"><thead><tr><th>回</th><th>漢字</th><th>提出日</th><th>練習</th><th>文作り</th><th>状態</th></tr></thead><tbody>');
-  ks.forEach(function(k){var r=kanjiInfo(k),n=r.n,d=diff(TODAY,k.date);
-    var st=r.complete?'<span class="st done">'+(d<0?'提出済':'完成')+'</span>':d<0?'<span class="st late">未完成</span>':'<span class="st">'+cdText(d)+'</span>';
-    h.push('<tr'+(k===nk?' class="cur"':'')+'><td>'+esc(k.title).replace(/第|回/g,"")+'</td><td class="rng">'+esc(k.range)+'</td><td>'+md(k.date)+'</td><td>'+r.l1c+'/'+n+'</td><td>'+r.l2c+'/'+n+'</td><td>'+st+'</td></tr>');});
-  return h.join("")+'</tbody></table></div></section>';
-}
-
+/* ===== ママだけ：暗証番号で開く ===== */
+function gate(next){ui.sheet=next;render()}
 function renderPin(){
   var setting=!state.settings.pin||ui.sheet.change;
-  return '<div class="scrim" data-act="scrim"><div class="sheetp" role="dialog" aria-modal="true" aria-label="暗証番号"><h3>'+(setting?'ママ用の暗証番号を決めてください':'暗証番号を入れてください')+'</h3><form id="pinf" class="fgrid"><label class="full">4けた以上の数字<input id="pin-in" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off"></label></form><div class="fbtns"><button class="btn" data-act="sheet-close">キャンセル</button><button class="btn aqua" data-act="pin-ok">'+(setting?'この番号にする':'ひらく')+'</button></div></div></div>';
+  return '<div class="scrim" data-act="scrim"><div class="sheetp" role="dialog" aria-modal="true" aria-label="暗証番号"><h3>'+(setting?'ママ用の暗証番号を決めてください':'ママの暗証番号を入れてください')+'</h3><form id="pinf" class="fgrid"><label class="full">4けた以上の数字<input id="pin-in" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off"></label></form><div class="fbtns"><button class="btn" data-act="sheet-close">キャンセル</button><button class="btn aqua" data-act="pin-ok">'+(setting?'この番号にする':'ひらく')+'</button></div></div></div>';
 }
 function submitPin(){
-  var v=(document.getElementById("pin-in")||{}).value||"";
+  var v=(document.getElementById("pin-in")||{}).value||"",sh=ui.sheet;
   if(!/^\d{4,8}$/.test(v)){ui.flash="4けた以上の数字で入れてください";ui.sheet=null;render();return}
-  if(!state.settings.pin||ui.sheet.change){state.settings.pin=v;ui.mama=true;ui.flash="";ui.sheet=null;render();return}
-  if(v===state.settings.pin){ui.mama=true;ui.flash=""}else ui.flash="暗証番号がちがいます";
-  ui.sheet=null;render();
+  if(!state.settings.pin||sh.change){state.settings.pin=v;ui.unlocked=true;ui.flash="";ui.sheet=sh.change?{mode:"add",item:newItem(TODAY)}:sh.next;render();return}
+  if(v===state.settings.pin){ui.unlocked=true;ui.flash="";ui.sheet=sh.next}else{ui.flash="暗証番号がちがいます";ui.sheet=null}
+  render();
 }
+function newItem(date){return {kind:"test",date:date||TODAY,subject:"未選択",tasks:[]}}
 
 function taskRow(x,testDate){
   x=x||{};
   return '<div class="task-row" data-tid="'+esc(x.id||"")+'" data-done="'+esc(x.done||"")+'"><input type="date" class="tr-date" value="'+esc(x.date||"")+'" max="'+esc(testDate||"")+'" aria-label="やる日"><input class="tr-text" placeholder="例：あっぱれ P20〜21" value="'+esc(x.text||"")+'" aria-label="やること"><input type="number" class="tr-pts" min="0" max="50" value="'+esc(x.pts==null?5:x.pts)+'" aria-label="ポイント"><span class="pt-u">pt</span><button type="button" class="btn small" data-act="task-del" aria-label="この行を消す">✕</button></div>';
 }
+var SUBJECTS=["未選択","漢字","国語","算数","理科","社会","英語","その他"];
+var KIND={test:"テスト",hw:"宿題提出",event:"イベント",tennis:"テニス",off:"休校"};
 function renderSheet(){
-  var s=ui.sheet,it=s.item;
+  var s=ui.sheet;
+  if(s.mode==="day")return renderDay();
+  if(s.mode==="list")return renderList();
+  var it=s.item,isK=it.kind==="kanji";
   function show(kinds){return ' data-for="'+kinds+'"'+(kinds.split(",").indexOf(it.kind)<0?' hidden':'')}
-  var subjects=["漢字","国語","算数","理科","社会","英語","その他"];
   var h=['<div class="scrim" data-act="scrim"><div class="sheetp" role="dialog" aria-modal="true" aria-label="予定の登録"><h3>'+(s.mode==="add"?'予定を追加':'予定を編集')+'</h3><form id="f" class="fgrid">'];
-  h.push('<label>種類<select id="f-kind" name="kind">'+Object.keys(KIND).map(function(k){return '<option value="'+k+'"'+(it.kind===k?' selected':'')+'>'+KIND[k]+'</option>'}).join("")+'</select></label>');
+  if(isK)h.push('<label>種類<select id="f-kind" name="kind" disabled><option value="kanji">漢字ノート提出</option></select></label>');
+  else h.push('<label>種類<select id="f-kind" name="kind">'+Object.keys(KIND).map(function(k){return '<option value="'+k+'"'+(it.kind===k?' selected':'')+'>'+KIND[k]+'</option>'}).join("")+'</select></label>');
   h.push('<label>日付<input id="f-date" type="date" name="date" required value="'+esc(it.date||TODAY)+'"></label>');
-  h.push('<label'+show("test,hw")+'>教科<select id="f-subject" name="subject">'+subjects.map(function(x){return '<option'+(it.subject===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label>');
-  h.push('<label'+show("kanji")+'>回<input id="f-title-k" name="title_k" placeholder="第12回" value="'+esc(it.kind==="kanji"?it.title:"")+'"></label>');
-  h.push('<label class="full"'+show("kanji,test")+'>範囲<input id="f-range" name="range" placeholder="例：境〜講" value="'+esc(it.range)+'"></label>');
-  h.push('<label class="full"'+show("kanji")+'>漢字（2学期の字は範囲から自動。それ以外は並べて入力）<input id="f-chars" name="chars" placeholder="例：境査航停貿易婦酸講" value="'+esc(it.kind==="kanji"?it.chars:"")+'"></label>');
-  h.push('<label class="full"'+show("hw,event,off")+'>内容<input id="f-title" name="title" placeholder="例：休校" value="'+esc(it.kind!=="kanji"?it.title:"")+'"></label>');
-  h.push('<label'+show("hw")+'>ポイント<input id="f-pts" type="number" min="0" max="50" name="pts" value="'+esc(it.pts==null?0:it.pts)+'"></label>');
-  h.push('<div class="full task-box"'+show("test")+'><div class="tb-h">テスト対策でやること（やる日・内容・ポイント）</div><div id="task-rows">'+((it.tasks&&it.tasks.length)?it.tasks.map(function(x){return taskRow(x,it.date)}).join(""):taskRow(null,it.date))+'</div><button type="button" class="btn small" data-act="task-add">＋ やることを追加</button></div>');
+  if(isK){
+    h.push('<label class="full">内容<input id="f-range" name="range" value="'+esc(it.range)+'"></label>');
+    h.push('<p class="full muted" style="margin:0;font-size:12.5px">漢字ノートは日付と内容（例：境〜講）だけ変えられます。内容を変えると書いた記録はリセットされます</p>');
+  } else {
+    h.push('<label'+show("test,hw,event,tennis")+'>教科<select id="f-subject" name="subject">'+SUBJECTS.map(function(x){return '<option'+((it.subject||"未選択")===x?' selected':'')+'>'+x+'</option>'}).join("")+'</select></label>');
+    h.push('<label class="full">内容<input id="f-title" name="title" placeholder="例：単位量2（速さ）／ テニス試合 午前" value="'+esc(it.title)+'"></label>');
+    h.push('<label'+show("hw")+'>ポイント<input id="f-pts" type="number" min="0" max="50" name="pts" value="'+esc(it.pts==null?0:it.pts)+'"></label>');
+    h.push('<div class="full task-box"'+show("test")+'><div class="tb-h">テスト対策でやること（やる日・内容・ポイント）</div><div id="task-rows">'+((it.tasks&&it.tasks.length)?it.tasks.map(function(x){return taskRow(x,it.date)}).join(""):taskRow(null,it.date))+'</div><button type="button" class="btn small" data-act="task-add">＋ やることを追加</button></div>');
+  }
   h.push('<label class="full">メモ<input id="f-note" name="note" value="'+esc(it.note)+'"></label>');
-  h.push('</form><div class="fbtns"><button class="btn" data-act="sheet-close">キャンセル</button><button class="btn aqua" data-act="sheet-ok">'+(s.mode==="add"?'追加':'変更')+'</button></div></div></div>');
-  return h.join("");
+  h.push('</form><div class="fbtns">');
+  if(s.mode==="edit")h.push(ui.del===it.id?'<button class="btn small danger" data-act="del-yes" data-id="'+esc(it.id)+'">本当に削除する</button><button class="btn small" data-act="del-no">やめる</button>':'<button class="btn small danger" data-act="del" data-id="'+esc(it.id)+'">削除</button>');
+  h.push('<span style="flex:1"></span><button class="btn" data-act="sheet-close">キャンセル</button><button class="btn aqua" data-act="sheet-ok">'+(s.mode==="add"?'追加':'変更')+'</button></div>');
+  if(s.mode==="add")h.push(renderSettings());
+  return h.join("")+'</div></div>';
+}
+function renderSettings(){
+  var P=state.settings.pts,p=points();
+  return '<details class="setbox"><summary>日付とポイントの設定</summary><div class="settings">'
+   +'<span>漢字は提出の</span><select id="set-fb">'+[1,2,3].map(function(n){return '<option value="'+n+'"'+(state.settings.finishBefore===n?' selected':'')+'>'+n+'日前</option>'}).join("")+'</select><span>までに書き終える</span>'
+   +'<span class="setline">やることを登録していないテストは <select id="set-tp">'+[2,3,4,5,7].map(function(n){return '<option value="'+n+'"'+(state.settings.testPrep===n?' selected':'')+'>'+n+'日前</option>'}).join("")+'</select> から「テスト勉強」を出す</span>'
+   +'<span class="setline">漢字の練習 1字 <input id="set-p1" type="number" min="0" max="20" value="'+P.l1+'">pt ／ 文作り 1字 <input id="set-p2" type="number" min="0" max="20" value="'+P.l2+'">pt ／ 予定どおり完成ボーナス <input id="set-pb" type="number" min="0" max="50" value="'+P.bonus+'">pt</span>'
+   +'<span class="setline"><button class="btn small aqua" data-act="settle"'+(p.unsettled?'':' disabled')+'>ポイント制度に入れた（'+p.unsettled+'pt）</button><span class="muted" style="font-size:12px">押すと「まだ入れていない分」が0に戻ります</span></span>'
+   +'</div></details>';
+}
+function renderList(){
+  var past=ui.sheet.past,its=sorted().filter(function(it){return past?it.date<TODAY:it.date>=TODAY});if(past)its.reverse();
+  var groups=[],cur=null;its.forEach(function(it){if(!cur||cur.date!==it.date){cur={date:it.date,items:[]};groups.push(cur)}cur.items.push(it)});
+  var h='<div class="scrim" data-act="scrim"><div class="sheetp" role="dialog" aria-modal="true" aria-label="予定の編集"><div class="sec-h"><h3 style="margin:0">予定の編集</h3><div class="seg"><button class="'+(past?'':'on')+'" data-act="list-past" data-v="0">これから</button><button class="'+(past?'on':'')+'" data-act="list-past" data-v="1">もう過ぎた日</button></div></div><div class="tl">';
+  if(!groups.length)h+='<p class="muted">予定はありません</p>';
+  groups.forEach(function(g){h+='<div class="tl-day"><div class="tl-date num '+wdClass(g.date)+'">'+md(g.date)+'</div><div class="tl-items">'+g.items.map(function(it){return evLine(it,true)}).join("")+'</div></div>'});
+  return h+'</div><div class="fbtns"><button class="btn" data-act="sheet-close">とじる</button></div></div></div>';
+}
+function renderDay(){
+  var d=ui.sheet.date,its=sorted().filter(function(it){return it.date===d});
+  var h='<div class="scrim" data-act="scrim"><div class="sheetp" role="dialog" aria-modal="true" aria-label="'+md(d)+'の予定"><h3>'+md(d)+(HOL[d]?' '+HOL[d]:'')+'</h3>';
+  h+=its.length?'<div class="tl-items">'+its.map(function(it){return evLine(it,true)}).join("")+'</div>':'<p class="muted">この日の予定はありません</p>';
+  return h+'<div class="fbtns"><button class="btn" data-act="sheet-close">とじる</button><button class="btn aqua" data-act="add-on" data-date="'+d+'">この日に予定を追加</button></div></div></div>';
 }
 function submitSheet(){
   var f=document.getElementById("f");if(!f)return;
-  var fd=new FormData(f),kind=fd.get("kind"),date=fd.get("date");
+  var fd=new FormData(f),old=ui.sheet.mode==="edit"?ui.sheet.item:null;
+  var kind=old&&old.kind==="kanji"?"kanji":fd.get("kind"),date=fd.get("date");
   if(!date){ui.flash="日付を入れてください";render();return}
-  var old=ui.sheet.mode==="edit"?ui.sheet.item:null;
   var it={id:old?old.id:(kind[0]+Date.now().toString(36)),kind:kind,date:date};
   var note=(fd.get("note")||"").trim();if(note)it.note=note;
   if(kind==="kanji"){
-    it.title=(fd.get("title_k")||"").trim()||"漢字";it.range=(fd.get("range")||"").trim();
-    var ch=(fd.get("chars")||"").replace(/\s/g,"")||charsFor(it.range);
-    if(!ch){ui.flash="漢字を入れてください（2学期の範囲でない時は、字を並べて入力）";render();return}
-    it.chars=ch;
-    var keep=old&&old.chars===ch;
+    it.title=old.title;it.range=(fd.get("range")||"").trim()||old.range;
+    var ch=it.range===old.range?old.chars:(charsFor(it.range)||old.chars);
+    it.chars=ch;var keep=ch===old.chars;
     it.l1=keep?old.l1.slice():ch.split("").map(function(){return null});
     it.l2=keep?old.l2.slice():ch.split("").map(function(){return null});
+  } else {
+    var sj=fd.get("subject");if(kind!=="off"&&sj&&sj!=="未選択")it.subject=sj;
+    var tt=(fd.get("title")||"").trim();if(tt)it.title=tt;
+    if(kind==="off"&&!it.title)it.title="休校";
+    if(kind==="hw"){it.pts=Math.max(0,parseInt(fd.get("pts"),10)||0);if(old&&old.finished)it.finished=old.finished}
+    if(kind==="test"){
+      if(old&&old.studied)it.studied=old.studied;
+      it.tasks=[];
+      root.querySelectorAll("#task-rows .task-row").forEach(function(r,i){
+        var text=r.querySelector(".tr-text").value.trim();if(!text)return;
+        var d=r.querySelector(".tr-date").value||date;
+        it.tasks.push({id:r.getAttribute("data-tid")||("x"+Date.now().toString(36)+i),date:d,text:text,pts:Math.max(0,parseInt(r.querySelector(".tr-pts").value,10)||0),done:r.getAttribute("data-done")||null});
+      });
+      it.tasks.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0});
+    }
   }
-  else if(kind==="test"){
-    it.subject=fd.get("subject");it.range=(fd.get("range")||"").trim();
-    if(old&&old.studied)it.studied=old.studied;
-    it.tasks=[];
-    root.querySelectorAll("#task-rows .task-row").forEach(function(r,i){
-      var text=r.querySelector(".tr-text").value.trim();if(!text)return;
-      var d=r.querySelector(".tr-date").value||date;
-      it.tasks.push({id:r.getAttribute("data-tid")||("x"+Date.now().toString(36)+i),date:d,text:text,pts:Math.max(0,parseInt(r.querySelector(".tr-pts").value,10)||0),done:r.getAttribute("data-done")||null});
-    });
-    it.tasks.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0});
-  }
-  else if(kind==="hw"){it.subject=fd.get("subject");it.title=(fd.get("title")||"").trim();it.pts=Math.max(0,parseInt(fd.get("pts"),10)||0);if(old&&old.finished)it.finished=old.finished}
-  else it.title=(fd.get("title")||"").trim()||(kind==="off"?"休校":"行事");
   if(old){var i=state.items.indexOf(old);if(i>=0)state.items[i]=it}else state.items.push(it);
-  ui.sheet=null;ui.flash="";render();
+  ui.sheet=ui.sheet.back||null;ui.del=null;ui.flash="";render();
 }
 
 /* ごほうびキラキラ */
@@ -632,10 +658,14 @@ function popAt(sel){var el=root.querySelector(sel);if(!el)return;el.classList.ad
 root.addEventListener("click",function(ev){
   var b=ev.target.closest("[data-act]");if(!b||!root.contains(b))return;
   var a=b.getAttribute("data-act"),id=b.getAttribute("data-id");
-  if(a==="scrim"){if(ev.target===b){ui.sheet=null;render()}return}
-  if(a==="mama"){if(ui.mama){ui.mama=false;ui.del=null;render()}else{ui.sheet={mode:"pin"};render()}return}
+  if(a==="scrim"){if(ev.target===b){ui.sheet=null;ui.del=null;render()}return}
+  if(a==="add"){gate({mode:"add",item:newItem(TODAY)});return}
+  if(a==="cell"){gate({mode:"day",date:b.getAttribute("data-date")});return}
+  if(a==="edit"){var e2=find(id);if(e2){ui.del=null;var bk=ui.sheet&&(ui.sheet.mode==="list"||ui.sheet.mode==="day")?ui.sheet:null;gate({mode:"edit",item:e2,back:bk})}return}
+  if(a==="editlist"){gate({mode:"list",past:false});return}
+  if(a==="list-past"){ui.sheet.past=b.getAttribute("data-v")==="1";render();return}
   if(a==="pin-ok"){submitPin();return}
-  if(a==="sheet-close"){ui.sheet=null;render();return}
+  if(a==="sheet-close"){ui.sheet=ui.sheet&&ui.sheet.back||null;ui.del=null;render();return}
   if(a==="task-add"){var rows=document.getElementById("task-rows"),dt=(document.getElementById("f-date")||{}).value||"";rows.insertAdjacentHTML("beforeend",taskRow(null,dt));return}
   if(a==="task-del"){var row=b.closest(".task-row");if(row)row.remove();return}
   if(a==="cal"){var d=+b.getAttribute("data-d"),m=ui.cal[1]+d,y=ui.cal[0];if(m<0){m=11;y--}if(m>11){m=0;y++}ui.cal=[y,m];render();return}
@@ -656,25 +686,24 @@ root.addEventListener("click",function(ev){
     x.done=x.done?null:TODAY;render();if(x.done)toast("できた！",x.pts?"+"+x.pts+"pt":"えらい ☘");return}
   if(a==="study"){var s1=find(id);if(!s1)return;var st=(s1.studied||[]).slice(),p=st.indexOf(TODAY);if(p>=0)st.splice(p,1);else st.push(TODAY);s1.studied=st.slice(-30);render();if(p<0)toast("えらい！","テスト勉強やったね");return}
   if(a==="hwdone"){var w=find(id);if(!w)return;w.finished=w.finished?null:TODAY;render();if(w.finished)toast("おわった！",w.pts?"+"+w.pts+"pt":"すごい ♡");return}
-  /* ママだけ */
-  if(!ui.mama)return;
+  /* ここから下は暗証番号を入れたあとだけ */
+  if(a==="add-on"){ui.sheet={mode:"add",item:newItem(b.getAttribute("data-date"))};render();return}
   if(a==="settle"){state.settings.settled=points().total;render();return}
   if(a==="pin-change"){ui.sheet={mode:"pin",change:true};render();return}
-  if(a==="add"){ui.sheet={mode:"add",item:{kind:"test",date:TODAY,subject:"漢字",tasks:[]}};render();return}
-  if(a==="cell"){ui.sheet={mode:"add",item:{kind:"test",date:b.getAttribute("data-date"),subject:"漢字",tasks:[]}};render();return}
-  if(a==="edit"){var e2=find(id);if(e2){ui.sheet={mode:"edit",item:e2};render()}return}
   if(a==="del"){ui.del=id;render();return}
   if(a==="del-no"){ui.del=null;render();return}
-  if(a==="del-yes"){state.items=state.items.filter(function(x){return x.id!==id});ui.del=null;render();return}
+  if(a==="del-yes"){state.items=state.items.filter(function(x){return x.id!==id});ui.del=null;ui.sheet=ui.sheet&&ui.sheet.back||null;render();return}
   if(a==="sheet-ok"){submitSheet();return}
 });
 root.addEventListener("change",function(ev){
-  var t=ev.target;if(!ui.mama&&/^set-/.test(t.id))return;
-  if(t.id==="set-fb"){state.settings.finishBefore=+t.value;render();return}
-  if(t.id==="set-tp"){state.settings.testPrep=+t.value;render();return}
-  if(t.id==="set-p1"){state.settings.pts.l1=Math.max(0,+t.value||0);render();return}
-  if(t.id==="set-p2"){state.settings.pts.l2=Math.max(0,+t.value||0);render();return}
-  if(t.id==="set-pb"){state.settings.pts.bonus=Math.max(0,+t.value||0);render();return}
+  var t=ev.target;
+  if(/^set-/.test(t.id)){
+    if(t.id==="set-fb")state.settings.finishBefore=+t.value;
+    if(t.id==="set-tp")state.settings.testPrep=+t.value;
+    if(t.id==="set-p1")state.settings.pts.l1=Math.max(0,+t.value||0);
+    if(t.id==="set-p2")state.settings.pts.l2=Math.max(0,+t.value||0);
+    if(t.id==="set-pb")state.settings.pts.bonus=Math.max(0,+t.value||0);
+    persist();return}
   if(t.id==="f-kind"){var k=t.value;root.querySelectorAll("[data-for]").forEach(function(el){el.hidden=el.getAttribute("data-for").split(",").indexOf(k)<0})}
 });
 root.addEventListener("submit",function(ev){ev.preventDefault();if(ev.target.id==="f")submitSheet();if(ev.target.id==="pinf")submitPin()});
