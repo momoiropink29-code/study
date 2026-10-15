@@ -451,13 +451,14 @@ function startToday(){
   }
   let picked=dueItems().slice(0,10);
   if(picked.length<10){
-    const fill=unseen([...G2,...G1]).slice(0,10-picked.length); // 未習は教科書順
+    const fill=unseen([...G1,...G2,...G3]).slice(0,10-picked.length); // 未習は教科書順(1年→2年→3年)
     picked=picked.concat(fill);
   }
   if(picked.length<10){
-    const rest=shuffle(ALL.filter(i=>!picked.includes(i)&&!isGrad(i))).slice(0,10-picked.length);
-    picked=picked.concat(rest);
+    const rest=ALL.filter(i=>!picked.includes(i)&&!isGrad(i)&&!save.stats[i.id]).slice(0,10-picked.length);
+    picked=picked.concat(rest); // 予定日がまだ先の字は入れない
   }
+  if(!picked.length){ menuMsg="きょうのぶんは おわり! またあした♪"; screen="menu"; render(); return; }
   beginQuiz(shuffle(picked),"today");
 }
 function startRange(){
