@@ -145,6 +145,9 @@ table.t td:first-child{background:#f6fbfe;font-weight:600}
 .model{margin-top:14px;background:#fff1f6;border-radius:20px;padding:13px 15px;box-shadow:0 4px 0 #ffd3e2}
 .model b{display:block;font-size:12.5px;color:var(--pink-d)}
 .model .ans{font-size:18px;font-weight:600;line-height:1.7}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:4px 0 12px}
+.chl{font-size:13px;color:var(--sub);margin-top:10px}
+.rec{float:right;font-size:12px;color:var(--sub);font-weight:600}
 .keys{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
 .key{border:none;font:inherit;font-size:14px;background:#fff;color:var(--ink);border-radius:14px;padding:5px 11px;box-shadow:0 3px 0 #f2cddb;cursor:pointer}
 .key:active{transform:translateY(2px);box-shadow:0 1px 0 #f2cddb}
@@ -184,7 +187,7 @@ ruby rt{font-size:.5em}
   <div class="sub">ふわもこ理科ノート</div>
 </header>
 <main id="app"></main>
-<div class="foot">Swing, swing, you can do it!</div>
+<div class="foot">Flow, flow, you can do it!</div>
 </div></div>
 <input type="file" id="imgIn" accept="image/*" hidden>
 
@@ -193,8 +196,9 @@ ruby rt{font-size:.5em}
    0. 保存
    ========================================================= */
 const KEY="otoha_rika_v1";
-let S={stars:0,done:{},stat:{},wrong:[],gal:[],img:{},unlockAll:false,best:{}};
-function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(v)S=Object.assign(S,v);}catch(e){}}
+let S={stars:0,done:{},stat:{},wrong:[],gal:[],img:{},unlockAll:false,best:{},pick:{us:[],t:"all",cond:"all",n:20,ord:"weak"}};
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(v)S=Object.assign(S,v);}catch(e){}
+  S.pick=Object.assign({us:[],t:"all",cond:"all",n:20,ord:"weak"},S.pick||{});}
 function save(){
   for(let i=0;i<30;i++){
     try{localStorage.setItem(KEY,JSON.stringify(S));return;}
@@ -304,6 +308,113 @@ const minis=a=>`<div class="figrow">${a.map(mini).join("")}</div>`;
 const T=(h,rows)=>`<div class="tw"><table class="t"><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join("")}</tr>`).join("")}</table></div>`;
 
 /* =========================================================
+   1b. 図（第6章 流れる水のはたらき）
+   ========================================================= */
+const SOIL="#ecd9bd",SOILD="#c9ad87",WT="#bfe0f2",WTD="#7fb8d8",SAND="#f0dfbc";
+const flagAt=(x,y,c)=>`<line x1="${x}" y1="${y}" x2="${x}" y2="${y-22}" stroke="#8a7c6a" stroke-width="2"/><path d="M${x} ${y-22}l15 5.5-15 5.5z" fill="${c}"/>`;
+const HR="M158 46 C158 88 202 102 198 140 C194 182 130 190 106 234";
+/* 土の山に水を流す（A 急／B 内側／C 外側／D ゆるやか） */
+function figHill(flag){
+  let b=`<path d="M14 220 C38 126 114 40 160 36 C206 40 282 126 306 220 Z" fill="${SOIL}" stroke="${SOILD}" stroke-width="2"/>`
+   +`<path d="${HR}" fill="none" stroke="${WT}" stroke-width="18" stroke-linecap="round"/>`
+   +`<path d="${HR}" fill="none" stroke="${WTD}" stroke-width="18" stroke-linecap="round" opacity=".2"/>`
+   +`<path d="M164 8h24v16h-24z" fill="#e8f0f5" stroke="#9fb4c3" stroke-width="1.5"/>`
+   +`<path d="M188 12l20-6" stroke="#9fb4c3" stroke-width="2" stroke-linecap="round"/>`
+   +`<path d="M164 19l-10 11" stroke="#9fb4c3" stroke-width="2.5" stroke-linecap="round"/>`
+   +tx(6,62,"A かたむきが急",{s:11.5,w:600,a:"start"})+ln(12,68,150,64,{c:"#9fb4c3",w:1.2})
+   +tx(6,158,"B 内側",{s:11.5,w:600,a:"start"})+ln(54,154,170,146,{c:"#9fb4c3",w:1.2})
+   +tx(244,120,"C 外側",{s:11.5,w:600,a:"start"})+ln(242,125,216,138,{c:"#9fb4c3",w:1.2})
+   +tx(6,232,"D ゆるやか",{s:11.5,w:600,a:"start"})+ln(74,228,110,222,{c:"#9fb4c3",w:1.2});
+  if(flag)b+=flagAt(172,148,"#8fcdb0")+flagAt(218,140,"#e04a7a");
+  return svg(320,244,b);
+}
+/* 曲がって流れているところ（内側・外側） */
+function figCurve(){
+  let b=`<path d="M70 14 C212 42 212 162 70 190 L70 150 C158 132 158 72 70 54 Z" fill="${WT}"/>`
+   +`<path d="M70 54 C158 72 158 132 70 150 Z" fill="${SAND}"/>`
+   +`<path d="M70 14 C212 42 212 162 70 190" fill="none" stroke="#d56d93" stroke-width="2.5"/>`
+   +`<path d="M70 54 C158 72 158 132 70 150" fill="none" stroke="${WTD}" stroke-width="1.8"/>`
+   +tx(104,96,"内側",{s:13,w:600,c:"#4f9e80"})+tx(104,114,"流れがおそい",{s:10,c:"#4f9e80"})+tx(104,130,"土が積もる",{s:10,c:"#4f9e80"})
+   +tx(258,94,"外側",{s:13,w:600,c:"#d56d93"})+tx(258,112,"流れが速い",{s:10,c:"#d56d93"})+tx(258,128,"けずられる",{s:10,c:"#d56d93"})
+   +tx(8,22,"水の流れ",{s:10,a:"start",c:C.arw})+arw(14,36,64,36,C.arw,false)
+   +arw(64,172,14,172,C.arw,false);
+  return svg(320,200,b);
+}
+/* まっすぐ流れているところ（上から見た図＋横から見た図） */
+function figStraight(){
+  const bd=(x,y)=>`<rect x="${x-9}" y="${y-6}" width="18" height="12" rx="2" fill="#e7cfa6" stroke="#bb9a6a" stroke-width="1.5"/>`;
+  let b=`<rect x="74" y="8" width="152" height="112" fill="${WT}"/>`
+   +ln(74,8,74,120,{c:SOILD,w:3})+ln(226,8,226,120,{c:SOILD,w:3})
+   +bd(104,58)+bd(150,58)+bd(196,58)
+   +tx(104,88,"ア",{s:14,w:600})+tx(150,88,"イ",{s:14,w:600})+tx(196,88,"ウ",{s:14,w:600})
+   +tx(246,34,"川の流れる",{s:10,a:"start"})+tx(246,48,"向き",{s:10,a:"start"})+arw(252,58,252,100,C.arw,false)
+   +tx(150,136,"↑ 上から見た図（木の板をうかべる）",{s:10.5,c:"#8795a1"})
+   +`<path d="M74 158 C104 160 120 196 150 196 C180 196 196 160 226 158 L226 150 L74 150 Z" fill="${WT}"/>`
+   +`<path d="M74 158 C104 160 120 196 150 196 C180 196 196 160 226 158" fill="none" stroke="${SOILD}" stroke-width="2.5"/>`
+   +ln(74,150,226,150,{c:WTD,w:1.5,d:1})
+   +tx(150,216,"↑ 横から切った図（真ん中がいちばん深い）",{s:10.5,c:"#8795a1"});
+  return svg(300,226,b);
+}
+/* 水の量をふやしたとき */
+const figAmount=()=>T(["ばしょ","水の量がふつう","水の量を多くすると"],[
+ ["まっすぐで<br>流れが速いところ","土がけずられる","土が<b>さらに</b>けずられる"],
+ ["曲がって<br>流れているところ","外側がけずられ、<br>内側に土が積もる","外側が<b>さらに深く</b>けずられ、<br>曲がり方が<b>さらに大きく</b>なる"],
+ ["かたむきが<br>ゆるやかなところ","土が積もる","運ばれる土の量が<b>増え</b>、<br>土が<b>遠くまで</b>流される"]]);
+/* ブロック（曲がったところの外側） */
+function figBlock(){
+  let b=`<path d="M60 14 C196 42 196 150 60 178 L60 142 C146 124 146 68 60 50 Z" fill="${WT}"/>`
+   +`<path d="M60 50 C146 68 146 124 60 142 Z" fill="${SAND}"/>`;
+  for(let i=0;i<9;i++){const t=i/8,a=-50+t*100,x=152+56*Math.cos(a*Math.PI/180),y=96+76*Math.sin(a*Math.PI/180);
+    b+=`<path d="M${x-7} ${y-6}l14 0 4 12h-22z" fill="#cfd8de" stroke="#9fb0bb" stroke-width="1.2"/>`;}
+  b+=tx(272,86,"ブロック",{s:11,w:600,a:"middle"})+tx(272,102,"（外側）",{s:10,a:"middle"})
+   +tx(96,100,"内側",{s:12,w:600,c:"#4f9e80"});
+  return svg(320,192,b);
+}
+
+/* 三日月湖 P・Q（曲がったところの内側＝P、外側＝Q） */
+function figPQ(){
+  let b=`<path d="M70 14 C212 42 212 162 70 190 L70 150 C158 132 158 72 70 54 Z" fill="${WT}"/>`
+   +`<path d="M70 54 C158 72 158 132 70 150 Z" fill="${SAND}"/>`
+   +`<path d="M70 14 C212 42 212 162 70 190" fill="none" stroke="#d56d93" stroke-width="3"/>`
+   +`<path d="M70 54 C158 72 158 132 70 150" fill="none" stroke="#4f9e80" stroke-width="2.6"/>`
+   +tx(110,98,"P",{s:20,w:600,c:"#4f9e80"})+tx(110,118,"内側",{s:11,w:600,c:"#4f9e80"})
+   +tx(256,96,"Q",{s:20,w:600,c:"#d56d93"})+tx(256,116,"外側",{s:11,w:600,c:"#d56d93"})
+   +ln(234,90,208,96,{c:"#d56d93",w:1.4})
+   +tx(8,22,"川の流れ",{s:10,a:"start",c:C.arw})+arw(14,36,64,36,C.arw,false)+arw(64,172,14,172,C.arw,false)
+   +tx(6,214,"P（内側）流れがおそい → 土やすなが積もる（たい積）",{s:10,a:"start",c:"#4f9e80"})
+   +tx(6,230,"Q（外側）流れが速い → けずられる・運ばれる（しん食・運ぱん）",{s:10,a:"start",c:"#d56d93"});
+  return svg(330,240,b);
+}
+/* 三日月湖ができるまで（3だんかい） */
+function figOxbow(){
+  const mea=(cx,b)=>`M${cx} 10 C${cx+b} 36 ${cx+b} 58 ${cx} 82 C${cx-b} 106 ${cx-b} 128 ${cx} 152`;
+  const pane=(cx,b)=>`<path d="${mea(cx,b)}" fill="none" stroke="${WT}" stroke-width="13" stroke-linecap="round"/>`
+    +`<path d="${mea(cx,b)}" fill="none" stroke="${WTD}" stroke-width="13" stroke-linecap="round" opacity=".18"/>`;
+  let g=`<rect x="0" y="0" width="352" height="188" fill="#eef6ec" rx="12"/>`;
+  g+=pane(52,20)+pane(158,38);
+  g+=`<path d="M258 10 C264 48 264 114 258 152" fill="none" stroke="${WT}" stroke-width="13" stroke-linecap="round"/>`
+   +`<path d="M258 10 C264 48 264 114 258 152" fill="none" stroke="${WTD}" stroke-width="13" stroke-linecap="round" opacity=".18"/>`
+   +`<path d="M274 38 C306 56 306 80 276 96 C294 78 294 56 274 38 Z" fill="${WT}" stroke="${WTD}" stroke-width="1.8"/>`
+   +tx(306,120,"三日月湖",{s:11,w:600,c:"#58a3cc"})+ln(292,108,288,96,{c:"#7fb8d8",w:1.2});
+  g+=tx(52,176,"① 蛇行する",{s:11})+tx(158,176,"② 曲がり方が大きくなる",{s:11})+tx(282,176,"③ 切りはなされる",{s:11});
+  g+=arw(92,80,112,80,"#e98aab",false)+arw(206,80,226,80,"#e98aab",false);
+  return svg(352,190,g);
+}
+/* 図1 蛇行した川（A〜D）／Aに まっすぐな道すじ ができ始めている */
+function figMik(){
+  const R="M6 108 C40 108 44 44 78 44 C112 44 100 96 128 100 C142 102 150 52 176 48 C206 44 216 86 198 110 C186 126 168 126 158 120 C176 128 194 152 228 152 C264 152 262 108 292 110 C316 112 326 128 338 130";
+  let g=`<rect x="0" y="0" width="352" height="200" fill="#eaf3e6" rx="12"/>`
+   +`<path d="${R}" fill="none" stroke="${WT}" stroke-width="13" stroke-linecap="round"/>`
+   +`<path d="${R}" fill="none" stroke="${WTD}" stroke-width="13" stroke-linecap="round" opacity=".18"/>`
+   +`<path d="M128 100 L158 120" stroke="#e04a7a" stroke-width="2.6" stroke-dasharray="5 4" stroke-linecap="round"/>`
+   +ln(143,134,143,116,{c:"#e8a33c",w:1.4});
+  const sp=(x,y,t)=>`<circle cx="${x}" cy="${y}" r="16" fill="#fff" fill-opacity=".55" stroke="#e8a33c" stroke-width="2.2"/>`+tx(x,y+6,t,{s:15,w:600,c:"#c9821f"});
+  g+=sp(143,150,"A")+sp(206,78,"B")+sp(78,26,"C")+sp(292,88,"D");
+  g+=tx(176,190,"↑ 平野を蛇行して流れる川（上から見た図）",{s:10.5,c:"#8795a1"});
+  return svg(352,200,g);
+}
+
+/* =========================================================
    2. テスト・単元（テストがふえたらここに追加）
    ========================================================= */
 const TESTS=[
@@ -326,7 +437,28 @@ const TESTS=[
    {d:"2026-09-26",us:["f5","f6","f7"],src:"core",paper:"P.125 たしかめ問題4、P.127 練習しよう3、P.128・129 思考力のとびら、P.126 1(2)・P.127 4(4)の記述を答えを見ないでもう一度"},
    {d:"2026-09-27",us:["f1","f2","f3","f4","f5","f6","f7"],src:"wp",wp:"P.143 まとめノート、P.144 確かめよう、P.145 考えよう、P.147 まとめノート、P.148 確かめよう、P.149 考えよう"},
    {d:"2026-09-28",us:[],src:"final",wp:"P.150・151 ふりかえろう（時間をはかって100点をめざす）、P.160 6"}
+  ]},
+ {id:"r1027",name:"第6章 流れる水のはたらき",date:"2026-10-27",book:"学校の問題集 15 流れる水のはたらき（P.80〜85）・思考力のとびら2（P.92・93）／ウィンパス 14 流れる水のはたらき（P.84〜87・P.96 1・P.99 2）",
+  units:{
+   n1:{name:"水の3つのはたらき",ic:"🌊",col:"#bfe3f7"},
+   n2:{name:"かたむきと流れの速さ",ic:"⛰️",col:"#ffe3d1"},
+   n3:{name:"曲がって流れているところ",ic:"🌀",col:"#ffd9e6"},
+   n4:{name:"水の量をふやすと",ic:"🚿",col:"#d8f2e6"},
+   n5:{name:"書いて答える（記述）",ic:"✏️",col:"#e6e0fb"},
+   n6:{name:"思考力のとびら（三日月湖）",ic:"🌙",col:"#fff0c7"}
+  },
+  plan:[
+   {d:"2026-10-17",us:["n1"],src:"core",np:1,cap:12,camp:1},
+   {d:"2026-10-18",us:["n2"],src:"core",np:1,cap:12,camp:1},
+   {d:"2026-10-19",us:["n3"],src:"core",cap:26,paper:"P.80・81を読む、確認しよう まとめノート①〜⑪、練習しよう 1・2(1)④・2(2)・2(3)①②（17・18日のぶんもまとめて）"},
+   {d:"2026-10-20",us:["n4"],src:"core",paper:"確認しよう まとめノート⑫〜⑱"},
+   {d:"2026-10-21",us:["n5"],src:"core",paper:"練習しよう 1(1)〜(3)・2(1)①〜③ を答えを見ないでもう一度"},
+   {d:"2026-10-22",us:["n6"],src:"core",cap:24,paper:"思考力のとびら（P.92・93）の 2"},
+   {d:"2026-10-23",us:["n1","n2","n3"],src:"wp",cap:22,wp:"P.84を読む、P.85 まとめノート①〜⑯、P.86 確かめよう 1・2"},
+   {d:"2026-10-24",us:["n1","n2","n3","n4","n5","n6"],src:"wp",cap:26,wp:"P.87 考えよう 1、P.96 ふりかえろう 1、P.99 2"},
+   {d:"2026-10-25",us:[],src:"final",wp:"まちがえた問題を、答えを見ないでノートに書き直す"}
   ]}
+
 ];
 const ALLUNITS={};TESTS.forEach(t=>Object.entries(t.units).forEach(([k,v])=>ALLUNITS[k]=Object.assign({test:t.id},v)));
 
@@ -384,7 +516,50 @@ const POINTS={
   <li>ブランコも ふりこ。<b>立って乗る</b>と、体の中心が支点に近づき、ふりこが <b>短く</b>なる</li>
   <li>体重（おもりの重さ）や、後ろに大きく引く（ふれはば）では、10往復する時間は変わらない</li>
   <li>メトロノーム「160」＝1分間に160回 → 1往復で2回鳴るので、1分間に80往復</li>
-  <li>会話文の問題は、<b>「何を変えたか」</b>を表にして考える</li></ul>`
+  <li>会話文の問題は、<b>「何を変えたか」</b>を表にして考える</li></ul>`,
+ n1:()=>`<ul class="points">
+  <li><b>しん食</b>…流れる水が <b>地面をけずる</b> はたらき。流れが <b>速い</b> ほどさかん</li>
+  <li><b>運ぱん</b>…流れる水が <b>土や石を運ぶ</b> はたらき。流れが <b>速い</b> ほどさかん</li>
+  <li><b>たい積</b>…流されてきた <b>土や石を積もらせる</b> はたらき。流れが <b>おそい</b> ほどさかん</li>
+  <li>はたらく順番は <b>しん食 → 運ぱん → たい積</b>（けずる → 運ぶ → 積もらせる）</li>
+  <li>運ばれてきた土は、流れが <b>おそく</b> なったところに積もる</li>
+  <li>運ぶはたらきは、流れが速いところや、水の量が <b>多い</b> ときに大きくなる</li>
+  <li>大雨のあと川がにごるのは、<b>けずられた土が水に混ざる</b> から</li></ul>`
+  +T(["はたらき","すること","さかんになるのは"],[["しん食","地面をけずる","流れが速いとき"],["運ぱん","土や石を運ぶ","流れが速いとき"],["たい積","土や石を積もらせる","流れがおそいとき"]]),
+ n2:()=>figHill()+`<ul class="points">
+  <li><b>かたむきが急</b>なところ … 水の流れが <b>速い</b> → 地面が <b>けずられる</b>（しん食・運ぱんが大きい）</li>
+  <li><b>かたむきがゆるやか</b>なところ … 水の流れが <b>おそい</b> → 地面に土が <b>積もる</b>（たい積が大きい）</li>
+  <li>山の <b>上のほうほど速く</b>、<b>下のほうほどおそい</b></li>
+  <li>図のAとDでは、A＝しん食と運ぱん、D＝たい積 が大きい</li></ul>`,
+ n3:()=>figCurve()+`<ul class="points">
+  <li><b>外側</b> … 流れが <b>速い</b> → <b>しん食</b> が大きい → 岸が <b>けずられる</b>・みぞが <b>深い</b></li>
+  <li><b>内側</b> … 流れが <b>おそい</b> → <b>たい積</b> が大きい → 土が <b>積もる</b>・みぞが <b>浅い</b></li>
+  <li>旗（ぼう）がたおれるのは <b>外側</b>。土がけずられてたおれる</li>
+  <li>水を流し続けると、外側はけずられ内側は積もるので、<b>曲がり方がさらに大きくなる</b></li>
+  <li>まっすぐ流れているところは、<b>真ん中</b> がいちばん速く、いちばん <b>深い</b></li></ul>`+figStraight(),
+ n4:()=>figAmount()+`<ul class="points">
+  <li>水の量が多くなると、水の流れの速さは <b>速く</b> なる</li>
+  <li>そのため <b>しん食と運ぱん</b> のはたらきが <b>大きく</b> なり、けずられる土の量は <b>多く</b> なる</li>
+  <li>運ばれる土の量も増え、土が <b>遠くまで</b> 流される</li>
+  <li>流れる水のはたらきは、流れる水の <b>速さ</b> や <b>量</b> によって変化する</li>
+  <li>大雨 → 川の水の量が増える → はたらきが大きくなり、川岸がけずられる</li></ul>`,
+ n5:()=>`<ul class="points">
+  <li>「なぜですか」「理由を書きなさい」→ 最後は <b>「〜から。」</b></li>
+  <li>速さ・はたらき・結果を <b>つなげて</b> 書く（例：流れが速い → しん食が大きい → けずられる）</li>
+  <li>ことば（<b>しん食・運ぱん・たい積</b>）を省略しないで書く</li>
+  <li>「内側」「外側」「水の量」など、くらべているものを必ず書く</li>
+  <li>はたらきの説明 → どうなるかの説明、の順に書くと満点になりやすい</li></ul>`,
+ n6:()=>figOxbow()+`<ul class="points">
+  <li><b>三日月湖</b>…三日月の形をした湖。<b>平野部</b>で見られる</li>
+  <li><b>蛇行（だこう）</b>…川がヘビのように曲がりくねって流れること</li>
+  <li>平野部は川の流れが <b>ゆるやか</b> なので、蛇行して流れるようになる</li>
+  <li>曲がっている部分が 流れる水のはたらきを受け続ける → <b>曲がり方が大きくなる</b></li>
+  <li>大雨で川の水の量が増えると、<b>まっすぐに流れようとする道すじ</b> ができる</li>
+  <li>その道すじができると、曲がった部分が <b>とり残されて</b> 三日月湖になる</li>
+  <li>曲がったところの <b>内側＝たい積</b>（土やすなを積もらせる）／<b>外側＝しん食と運ぱん</b></li></ul>`+figPQ()+`<ul class="points">
+  <li>まっすぐに流れる川は、<b>中央</b> の水の流れがいちばん速い</li>
+  <li>流れが速いほどしん食が大きい → 川底は <b>中央ほど深い</b>。大きな石しかしずまないので、中央の石は大きい</li></ul>`
+
 };
 
 /* 問題データ
@@ -591,6 +766,125 @@ c("f3","ジェットコースターのスピードを出すには、レールを
 c("f3","ジェットコースターは、のぼり坂でどうなりますか。",["減速する","加速する"],0,"低い→高いは おそくなる。"+WP("155 2(2)"),"",true);
 c("f3","ジェットコースターは、下り坂でどうなりますか。",["加速する","減速する"],0,"高い→低いは 速くなる。"+WP("155 2(2)"),"",true);
 
+/* =========================================================
+   第6章 流れる水のはたらき（10/27のテスト）
+   ========================================================= */
+const WQ=(p)=>"（ウィンパスP."+p+"）";
+
+/* ---- n1 水の3つのはたらき（学校の問題集 1周目） ---- */
+c("n1","流れる水が、地面をけずるはたらきを何といいますか。",["しん食","運ぱん","たい積","じょう発"],0,"しん食。「地面をけずる」＝しん食。");
+c("n1","流れる水が、けずった土や石を運ぶはたらきを何といいますか。",["運ぱん","しん食","たい積","こう水"],0,"運ぱん（うんぱん）。「運ぶ」の字がそのまま入っている。");
+c("n1","流されてきた土や石を積もらせるはたらきを何といいますか。",["たい積","しん食","運ぱん","じょう発"],0,"たい積。「積もる」の「積」が入っている。");
+c("n1","しん食のはたらきがさかんになるのは、水の流れがどんなときですか。",["速いとき","おそいとき","止まっているとき","つめたいとき"],0,"流れが速いほど、地面をけずる力が強い。");
+c("n1","運ぱんのはたらきがさかんになるのは、水の流れがどんなときですか。",["速いとき","おそいとき","止まっているとき","少ないとき"],0,"しん食と同じで、流れが速いほどさかん。");
+c("n1","たい積のはたらきがさかんになるのは、水の流れがどんなときですか。",["おそいとき","速いとき","多いとき","にごっているとき"],0,"おそいほどさかん。しん食・運ぱんと反対なので気をつける。");
+c("n1","流れる水の3つのはたらきを、はたらく順にならべたものはどれですか。",["しん食 → 運ぱん → たい積","たい積 → しん食 → 運ぱん","運ぱん → しん食 → たい積","しん食 → たい積 → 運ぱん"],0,"けずる → 運ぶ → 積もらせる の順。");
+c("n1","流れる水のはたらきで運ばれてきた土は、水の流れがどうなったところに積もりますか。",["おそくなったところ","速くなったところ","深くなったところ","まっすぐなところ"],0,"流れがおそい＝たい積のはたらきが大きい。（練習しよう1(2)）");
+c("n1","流れる水が土や石を運ぶはたらきが大きくなるのは、流れが速いところと、水の量がどうなったときですか。",["多いとき","少ないとき","つめたいとき","にごったとき"],0,"水の量が多い → 流れが速い → 運ぱんが大きい。（練習しよう1(3)）");
+c("n1","ふだんの川の水はとう明なのに、大雨がふったあとの川が茶色くにごるのはなぜですか。",["けずられた土が水に混ざるから","水の温度が上がるから","水の量がへるから","石がとけるから"],0,"水の量が増える → しん食が大きくなる → けずられた土が水に混ざる。");
+w("n1","流れる水が、地面をけずるはたらきを何といいますか。","しん食",["しん食"],"「しん食」。漢字では「浸食」と書く。","「しん食」と書こう","",1);
+w("n1","流れる水が、けずった土や石を運ぶはたらきを何といいますか。","運ぱん",["運ぱん"],"「運」の漢字を書けるように。","漢字をまぜて書こう","",1);
+w("n1","流されてきた土や石を積もらせるはたらきを何といいますか。","たい積",["たい積"],"「積」の漢字を書けるように。","漢字をまぜて書こう","",1);
+
+/* ---- n2 かたむきと流れの速さ（学校の問題集 1周目） ---- */
+c("n2","かたむきが急なところでは、水の流れはどうなっていますか。",["速い","おそい","止まる","変わらない"],0,"かたむきが急 → 流れが速い。（確認しよう まとめノート①）",figHill());
+c("n2","かたむきが急なところでは、地面はどうなりますか。",["けずられる","土が積もる","変わらない","かたくなる"],0,"流れが速い → しん食 → けずられる。（まとめノート②）");
+c("n2","かたむきがゆるやかなところでは、水の流れはどうなっていますか。",["おそい","速い","止まる","変わらない"],0,"かたむきがゆるやか → 流れがおそい。（まとめノート⑦）");
+c("n2","かたむきがゆるやかなところでは、地面はどうなりますか。",["土が積もる","けずられる","変わらない","深くなる"],0,"流れがおそい → たい積 → 土が積もる。（まとめノート⑧）");
+c("n2","図で、水の流れが速いのはAとDのどちらですか。",["A","D"],0,"Aはかたむきが急なので流れが速い。Dはゆるやかなのでおそい。",figHill(),true);
+c("n2","図で、AよりもDのほうがはたらきが大きいのは、何というはたらきですか。",["たい積","しん食","運ぱん"],0,"Dはかたむきがゆるやか → 流れがおそい → たい積。（練習しよう2(1)④）",figHill(),true);
+c("n2","図のAとDをくらべると、Aのほうが大きいのは何のはたらきですか。",["しん食と運ぱん","たい積","たい積と運ぱん"],0,"Aは流れが速い → しん食と運ぱんが大きい。（練習しよう2(2)）",figHill(),true);
+c("n2","山の上のほうと下のほうでは、水の流れはどちらが速いですか。",["山の上のほう","山の下のほう","どちらも同じ"],0,"上のほうほどかたむきが急で、流れが速い。",figHill(),true);
+w("n2","かたむきが急なところで、地面がけずられるのはなぜですか。","水の流れが速く、しん食のはたらきが大きいから。",["水の流れが速い","しん食","〜から。"],"「流れが速い → しん食が大きい」の順に書く。","理由 →「〜から。」",figHill());
+
+/* ---- n3 曲がって流れているところ（学校の問題集 1周目） ---- */
+c("n3","曲がって流れているところで、外側の水の流れはどうなっていますか。",["速い","おそい","止まる","変わらない"],0,"外側は流れが速い。（まとめノート③）",figCurve());
+c("n3","曲がって流れているところで、内側の水の流れはどうなっていますか。",["おそい","速い","止まる","変わらない"],0,"内側は流れがおそい。（まとめノート④）",figCurve());
+c("n3","曲がって流れているところで、地面がけずられるのはどちら側の岸ですか。",["外側","内側"],0,"流れが速い外側がけずられる。（まとめノート⑤）",figCurve(),true);
+c("n3","曲がって流れているところで、地面に土が積もるのはどちら側の岸ですか。",["内側","外側"],0,"流れがおそい内側に土が積もる。（まとめノート⑥）",figCurve(),true);
+c("n3","曲がって流れているところの外側では、何のはたらきが大きいですか。",["しん食","たい積","じょう発"],0,"外側は流れが速い → しん食。",figCurve(),true);
+c("n3","曲がって流れているところの内側では、何のはたらきが大きいですか。",["たい積","しん食","運ぱん"],0,"内側は流れがおそい → たい積。",figCurve(),true);
+c("n3","図のBとCに旗を立てて水を流すと、どちら側の岸の旗がたおれますか。",["C","B"],0,"Cは外側。流れが速くて土がけずられるので、旗がたおれる。（練習しよう2(3)①）",figHill(1),true);
+c("n3","図のBはCに比べて、流れの速さはどうなっていますか。",["おそい","速い","同じ"],0,"Bは内側なので流れがおそい。（練習しよう2(3)②）",figHill(1),true);
+c("n3","図のBはCに比べて、みぞの深さはどうなっていますか。",["浅い","深い","同じ"],0,"Bは内側で土が積もるので浅い。Cは外側でけずられて深い。（練習しよう2(3)②）",figHill(1),true);
+c("n3","曲がって流れているところに水を流し続けると、曲がり方はどうなりますか。",["さらに大きくなる","まっすぐになる","変わらない"],0,"外側はけずられ、内側には土が積もるので、曲がり方は大きくなる。");
+c("n3","まっすぐ流れているところでは、水の流れがいちばん速いのはどこですか。",["真ん中","右の岸","左の岸","どこも同じ"],0,"まっすぐ流れるところは真ん中が速く、いちばん深い。",figStraight());
+w("n3","曲がって流れているところで、外側の岸がけずられるのはなぜですか。","外側は水の流れが速く、しん食のはたらきが大きいから。",["外側","流れが速い","しん食","〜から。"],"「外側は速い → しん食が大きい」の順。","理由 →「〜から。」",figCurve());
+w("n3","曲がって流れているところで、内側に土が積もるのはなぜですか。","内側は水の流れがおそく、たい積のはたらきが大きいから。",["内側","流れがおそい","たい積","〜から。"],"外側の理由の「反対」を書く。","理由 →「〜から。」",figCurve());
+
+/* ---- n4 水の量をふやすと（学校の問題集 1周目） ---- */
+c("n4","流れる水の量が増えると、水の流れの速さはどうなりますか。",["速くなる","おそくなる","変わらない","止まる"],0,"水の量が多くなる → 流れが速くなる。（まとめノート⑯）",figAmount());
+c("n4","流れる水の量が増えると、しん食と運ぱんのはたらきはどうなりますか。",["大きくなる","小さくなる","変わらない"],0,"流れが速くなる → しん食・運ぱんが大きくなる。（まとめノート⑰）",figAmount(),true);
+c("n4","水の量を多くすると、まっすぐで流れが速いところの地面はどうなりますか。",["さらにけずられる","土が積もる","変わらない"],0,"流れがさらに速くなるので、土がさらにけずられる。",figAmount(),true);
+c("n4","水の量を多くすると、曲がって流れているところの外側の岸はどうなりますか。",["さらに深くけずられる","土が積もる","変わらない"],0,"外側はもともと流れが速い → さらに深くけずられ、曲がり方も大きくなる。",figAmount(),true);
+c("n4","水の量を多くすると、かたむきがゆるやかなところの土はどうなりますか。",["より遠くまで流される","その場でかたまる","まったく動かない"],0,"運ぱんのはたらきが大きくなり、運ばれる土の量が増えて遠くまで流される。",figAmount(),true);
+c("n4","流れる水のはたらきは、流れる水の何によって変化しますか。",["速さや量","色や温度","深さや色","音や量"],0,"流れる水の速さや量によって変化する。（まとめノート⑱）");
+c("n4","大雨がふって川の水の量が増えると、川岸の土はどうなりますか。",["けずられやすくなる","積もりやすくなる","変わらない"],0,"量が増える → 流れが速い → しん食が大きい。",figAmount(),true);
+w("n4","流れる水の量が増えると、しん食や運ぱんのはたらきが大きくなるのはなぜですか。","水の量が増えると、水の流れが速くなるから。",["水の量が増える","流れが速くなる","〜から。"],"「量 → 速さ → はたらき」の順に考える。","理由 →「〜から。」");
+
+/* ---- n5 書いて答える（記述・1周目） ---- */
+w("n5","流れる水の3つのはたらきを、ぜんぶ書きなさい。","しん食・運ぱん・たい積",["しん食","運ぱん","たい積"],"3つとも書けて正解。","3つならべて書こう","",1);
+w("n5","かたむきが急なところと、かたむきがゆるやかなところでは、流れる水のはたらきはどうちがいますか。","かたむきが急なところはしん食と運ぱんのはたらきが大きく、かたむきがゆるやかなところはたい積のはたらきが大きい。",["急","しん食と運ぱん","ゆるやか","たい積"],"両方のばしょを書いてくらべる。","「〜は〜が大きく、〜は〜が大きい。」",figHill());
+w("n5","曲がって流れているところで、内側と外側のちがいを書きなさい。","外側は流れが速くて地面がけずられ、内側は流れがおそくて土が積もる。",["外側","速くてけずられ","内側","おそくて土が積もる"],"速さ → どうなるか を両方書く。","「外側は〜、内側は〜。」",figCurve());
+w("n5","流す水の量を多くすると、流れる水のはたらきはどうなりますか。","水の流れが速くなり、しん食と運ぱんのはたらきが大きくなる。",["流れが速くなり","しん食と運ぱん","大きくなる"],"「速くなる」だけだと△。はたらきの名前まで書く。","「〜なり、〜なる。」");
+w("n5","大雨がふったあとの川の水が茶色くにごるのはなぜですか。","水の量が増えて流れる水のはたらきが大きくなり、けずられた土が水に混ざるから。",["水の量が増え","けずられた土","混ざる","〜から。"],"「量が増える → けずられる → 混ざる」の順。","理由 →「〜から。」");
+w("n5","水を流し続けると、曲がって流れている部分の曲がり方はどうなりますか。流れる水のはたらきがわかるように書きなさい。","内側はたい積、外側はしん食のはたらきが大きいので、曲がり方は大きくなる。",["内側","たい積","外側","しん食","曲がり方は大きくなる"],"「はたらきの説明 → 曲がり方がどうなるか」の順に書く。","はたらき → 曲がり方 の順に",figCurve());
+
+/* ---- n6 思考力のとびら（三日月湖・P.92・93 の 2） ---- */
+const MK="（思考力のとびら 2）";
+c("n6","三日月の形をした湖を何といいますか。",["三日月湖","カルデラ湖","せん状地","三角州"],0,"三日月湖（みかづきこ）。"+MK);
+c("n6","三日月湖が見られることがあるのは、どんなところですか。",["平野部","山の上","海の中","川の上流"],0,"平野部では川の流れがゆるやかなので、蛇行して流れるようになる。"+MK);
+c("n6","川がヘビのように曲がりくねって流れることを何といいますか。",["蛇行","だ行列","しん食","運ぱん"],0,"蛇行（だこう）。"+MK);
+c("n6","平野部で川が蛇行して流れるようになるのは、川の流れがどうだからですか。",["ゆるやかだから","速いから","つめたいから","少ないから"],0,"平野部は流れがゆるやか。"+MK);
+c("n6","図2のP（曲がっているところの内側）は、流れる水のどのはたらきを受け続けましたか。",["たい積","しん食","運ぱん"],0,"Pは内側で流れがおそい → 土やすなを積もらせる（たい積）。"+MK,figPQ(),true);
+c("n6","図2のQ（曲がっているところの外側）は、流れる水のどのはたらきを受け続けましたか。",["しん食と運ぱん","たい積","たい積と運ぱん"],0,"Qは外側で流れが速い → 土をけずりとる（しん食）と、土やすなを運ぶ（運ぱん）。"+MK,figPQ(),true);
+c("n6","曲がっている部分の川岸が、流れる水のはたらきを受け続けるとどうなりますか。",["曲がり方が大きくなる","まっすぐになる","変わらない"],0,"外側はけずられ、内側に積もるので、曲がり方が大きくなる。"+MK,figOxbow(),true);
+c("n6","三日月湖ができるのは、大雨で川の水の量が増えたときに何ができるからですか。",["まっすぐに流れようとする道すじ","新しいダム","大きな川原","高いがけ"],0,"まっすぐな道すじができて、曲がった部分がとり残される。"+MK,figOxbow(),true);
+c("n6","図1で、新しく三日月湖ができそうな部分はどこですか。",["B","A","C","D"],0,"Aの部分にまっすぐな道すじができ始めているので、そのむこうのBがとり残される。"+MK,figMik(),true);
+c("n6","図3で、まっすぐに流れている部分のE・F・Gに旗を立てたら、まん中のFがもっとも早くたおれました。このことからわかるのはどれですか。",["中央部の水の流れがもっとも速い","岸に近いほど速い","どこも同じ速さ"],0,"旗がたおれる＝しん食が大きい＝流れが速い。"+MK,figStraight(),true);
+c("n6","まっすぐに流れる川の断面（切り口）は、どのようになっていると考えられますか。",["中央ほど深く、しずんでいる石は大きい","両はしが深く、中央は浅い","どこも同じ深さ"],0,"中央は流れが速くしん食が大きいので深い。大きな石しかしずまないので中央の石は大きい。"+MK,figStraight(),true);
+w("n6","図2のPの部分は、流れる水のどのようなはたらきを受け続けたと考えられますか。","土やすなを積もらせる（たい積の）はたらき。",["土やすなを積もらせる","たい積"],"Pは内側。"+MK,"「〜はたらき。」で終わろう",figPQ());
+w("n6","図2のQの部分は、流れる水のどのようなはたらきを受け続けたと考えられますか。","土をけずりとる（しん食の）はたらきと、土やすなを運ぶ（運ぱんの）はたらき。",["土をけずりとる","しん食","土やすなを運ぶ","運ぱん"],"Qは外側。はたらきを2つとも書く。"+MK,"2つ書こう",figPQ());
+w("n6","図1で、新しく三日月湖ができそうな部分をBとした理由を書きなさい。","Aの部分に川がまっすぐに流れようとする道すじができ始めているから。",["Aの部分","まっすぐに流れようとする道すじ","でき始めている","〜から。"],"「どこに」「何ができ始めているか」を書く。"+MK,"理由 →「〜から。」",figMik());
+w("n6","まっすぐに流れている川で、川底の中央が深くなっているのはなぜですか。","中央は水の流れが速く、しん食のはたらきが大きいから。",["中央","流れが速く","しん食","〜から。"],"速さ → はたらき の順に書く。"+MK,"理由 →「〜から。」",figStraight());
+
+/* ===== ここからウィンパス（2周目） ===== */
+/* n1 */
+c("n1","大雨がふると川の水の量が増え、流れる水のはたらきが大きくなります。このとき川の水がにごるのはなぜですか。",["けずられた土が水に混ざるから","水の温度が上がるから","石がとけるから"],0,"川岸などの土がけずられ、その土が水に混ざるため。"+WQ("84"),"",true);
+w("n1","「流れる水が地面などをけずることを しん（　）という。」（　）に入る漢字1字を書きなさい。","食",["食"],"しん食。"+WQ("99 ❶"),"漢字1字で","",1);
+w("n1","「流れる水が、けずったものをおし流すことを（　）ぱんという。」（　）に入る漢字1字を書きなさい。","運",["運"],"運ぱん。"+WQ("99 ❷"),"漢字1字で","",1);
+w("n1","流れる水には、土をけずるはたらき、土や石を運ぶはたらき、土を積もらせるはたらきの3つがあります。この3つを順に書きなさい。","しん食・運ぱん・たい積",["しん食","運ぱん","たい積"],"要点のまとめの⑫⑬⑭。"+WQ("85 ⑫⑬⑭"),"3つならべて書こう","",1);
+/* n2 */
+c("n2","かたむきが急でまっすぐ流れているところでは、水の流れはどうなっていますか。",["速い","おそい","変わらない"],0,"底が深くけずられる。"+WQ("85 ①"),"",true);
+c("n2","かたむきが急でまっすぐ流れているところで、大きいはたらきの組み合わせはどれですか。",["しん食と運ぱん","たい積と運ぱん","しん食とたい積"],0,"流れが速いので、しん食と運ぱんが大きい。"+WQ("85 ②③"),"",true);
+c("n2","かたむきがゆるやかなところでは、何のはたらきが大きいですか。",["たい積","しん食","運ぱん"],0,"流れがおそい → たい積。土が積もる。"+WQ("85 ⑩⑪"),"",true);
+c("n2","土の山の上のほうは、下のほうよりかたむきが大きくなっています。上のほうの土はどうなっていきますか。",["土がけずられていく","土が積もっていく","変わらない"],0,"かたむきが大きい → 流れが速い → けずられる。"+WQ("86 1(2)"),"",true);
+c("n2","土の山の下のほうは、上のほうと比べてどうなっていますか。",["上のほうより土が積もっている","上のほうより土がけずられている","上のほうと変わらない"],0,"山の下のほうは流れがおそくなる → たい積。"+WQ("86 1(5)"),"",true);
+c("n2","かたむきがしだいにゆるやかになる土の山に上から水を流しました。水の流れる速さが速いのは、山の上のほうと下のほうのどちらですか。",["山の上のほう","山の下のほう"],0,"水の流れは、山の上のほうほど速く、下のほうほどおそい。"+WQ("96 1(1)"),"",true);
+c("n2","同じ実験で、土が積もっているのは山の上のほうと下のほうのどちらですか。",["山の下のほう","山の上のほう"],0,"流れがおそい下のほうでたい積のはたらきが大きい。"+WQ("96 1(2)"),"",true);
+c("n2","同じ実験で、山の下のほうでは上のほうと比べてどのはたらきが大きいですか。",["たい積","しん食","運ぱん"],0,"山の上はしん食・運ぱん、下はたい積が大きい。"+WQ("96 1(5)"),"",true);
+/* n3 */
+c("n3","曲がって流れているところで、内側と外側の流れの速さはどうなっていますか。",["外側のほうが速い","内側のほうが速い","どちらも同じ"],0,"外側のほうが速い。"+WQ("86 1(3)・85 ④⑤"),"",true);
+c("n3","曲がって流れているところで、土が積もるのは内側と外側のどちらですか。",["内側","外側"],0,"内側に土が積もり、外側がけずられる。"+WQ("85 ⑥⑦"),"",true);
+c("n3","千春さんの考え「水が曲がって流れているところでは、外側のほうが流れる水の速さが（①）。そのため、水のはたらきのうちの（②）が大きく、旗がたおれます。」①②にあてはまるのはどれですか。",["①速い ②しん食","①おそい ②しん食","①速い ②たい積","①おそい ②たい積"],0,"外側は速い → しん食が大きい → 旗がたおれる。"+WQ("87 1(1)①②"),"",true);
+c("n3","同じ考えの続き「内側では流れる速さが（③）ので、土が（④）しやすくなります。」③④にあてはまるのはどれですか。",["③おそい ④たい積","③速い ④たい積","③おそい ④しん食","③速い ④しん食"],0,"内側はおそい → たい積しやすい。"+WQ("87 1(1)③④"),"",true);
+c("n3","土でつくった坂のみぞの曲がった部分に旗を立てて水を流しました。たおれた旗は、内側と外側のどちらに立てたものですか。",["外側","内側"],0,"外側は土がけずられるのでたおれる。"+WQ("86 2(1)"),"",true);
+c("n3","曲がった部分に立てた旗がたおれたのは、流れる水の何というはたらきによるものですか。",["しん食","たい積","運ぱん"],0,"土がけずられたためにたおれた。"+WQ("86 2(2)"),"",true);
+c("n3","川のまっすぐ流れているところに木の板をうかべました。板がいちばん速く流されるのは、左の岸より・真ん中・右の岸より のどこですか。",["真ん中","左の岸より","右の岸より"],0,"まっすぐ流れるところは真ん中で水の流れが速くなる。"+WQ("96 2(1)①"),figStraight(),true);
+c("n3","川の曲がって流れているところで、水の深さが深くなっているのは外側と内側のどちらですか。",["外側","内側"],0,"外側は流れが速く、しん食で深くけずられる。"+WQ("96 2(1)②"),"",true);
+c("n3","川の深さが深くなっているところがあるのは、水の流れが速いほど、水による何のはたらきが大きくなるからですか。",["しん食","たい積","運ぱん"],0,"しん食のはたらきで川底や川岸がけずられやすくなる。"+WQ("96 2(2)"),"",true);
+c("n3","川の曲がって流れているところで、ブロックが内側ではなく外側に置かれているのはなぜですか。「外側は内側と比べて川の流れが（①）ため、（②）のはたらきが大きくなる」の①②にあてはまるのはどれですか。",["①速い ②しん食","①おそい ②しん食","①速い ②たい積","①おそい ②たい積"],0,"曲がったところの外側は流れが速いため、土がけずられやすい。"+WQ("99 2(2)"),figBlock(),true);
+w("n3","「曲がって流れている川の流れは外側のほうが（　）い。」（　）に入る漢字1字を書きなさい。","速",["速"],"外側は流れが速い。"+WQ("99 ❹"),"漢字1字で","",1);
+/* n4 */
+c("n4","水の量が多くなると、けずられる土の量はどうなりますか。",["多くなる","少なくなる","変わらない"],0,"流れの速さが速くなり、けずられる土の量は多くなる。"+WQ("85 ⑮⑯"),"",true);
+c("n4","流す水の量を増やすと、流れる水が土をけずったりおし流したりするはたらきはどうなりますか。",["大きくなる","小さくなる","変わらない"],0,"水の量が増えるとしん食・運ぱんのはたらきが大きくなる。"+WQ("86 1(6)"),"",true);
+c("n4","ホースから流す水の量を多くすると、ぼうははじめのときより早くたおれました。これは、流れる水の速さがどうなったからですか。",["速くなったから","おそくなったから","変わらないから"],0,"水の量が多くなると、水の流れは速くなる。"+WQ("96 1(4)"),"",true);
+c("n4","千春さんは1本目を流したあとに2本目を流し、健太さんは2本のペットボトルの水を同時に流しました。健太さんのほうが多くの旗がたおれた原因として考えられるのはどれですか。",["水の流し方","水の温度","実験をした時刻","気温"],0,"どのように流すかで水の速さが変わる。"+WQ("87 1(2)①"),"",true);
+w("n4","健太さんの実験の結果が千春さんとちがうものになった理由を、「水の速さ」ということばを使って書きなさい。（健太さんは2本のペットボトルの水を同時に流した）","健太さんは、2本のペットボトルの水を同時に流したので、流れる水の量が多くなり、水の速さが速くなったため。",["同時に流した","水の量が多くなり","水の速さが速くなった"],"「同時に流した → 量が多い → 速さが速い」の順。"+WQ("87 1(2)②"),"「〜ので、〜なったため。」");
+/* n5 */
+w("n5","水を流し続けたあと、曲がって流れている部分の内側と外側の曲がり方はどうなりますか。流れる水のはたらきがわかるように書きなさい。","内側の部分はたい積のはたらき、外側の部分はしん食のはたらきが大きいので、曲がり方は大きくなる。",["内側","たい積","外側","しん食","曲がり方は大きくなる"],"「はたらきの説明 → 川の曲がり方がどうなるか」の順に書く。"+WQ("86 1(4)②"),"はたらき → 曲がり方 の順に",figCurve());
+w("n5","曲がって流れている部分の内側と外側では、それぞれ何というはたらきが大きいですか。","内側はたい積、外側はしん食",["内側","たい積","外側","しん食"],"内側＝たい積、外側＝しん食。"+WQ("86 1(4)①"),"両方書こう","",1);
+
 Q.forEach((q,i)=>q.id=q.u+"-"+i);
 /* ウィンパス P.152〜155（ひらめきトレーニング・中学へのステップ）は除外。idは上でつけたので記録はずれない */
 for(let i=Q.length-1;i>=0;i--){if(/ウィンパスP\.15[2-5]/.test(Q[i].e))Q.splice(i,1);}
@@ -613,6 +907,8 @@ function frontier(test){const t=todayStr();const nd=test.plan.find(x=>!allDone(x
   return !nd?"9999":(nd.d>t?nd.d:t);}
 const isWeekend=d=>{const [y,m,dd]=d.split("-").map(Number);const w=new Date(y,m-1,dd).getDay();return w===0||w===6;};
 const TASKS={core:["pt","app","paper"],wp:["app","wp"],final:["ever","test","wp"]};
+/* np:1 の日（キャンプなど）は 紙のタスクを出さない */
+const tasksOf=p=>TASKS[p.src].filter(k=>!(p.np&&(k==="paper"||k==="wp")));
 
 /* =========================================================
    4. 画面
@@ -621,7 +917,7 @@ const app=document.getElementById("app");
 let view="home",sess=null;
 function hd(){document.getElementById("hdStar").textContent="⭐ "+S.stars;}
 function go(v,arg){view=v;document.body.classList.toggle("home",v==="home");
-  ({home:vHome,day:vDay,unit:vUnit,quiz:vQuiz,result:vResult,wrong:vWrong,parent:vParent}[v])(arg);hd();window.scrollTo(0,0);}
+  ({home:vHome,day:vDay,unit:vUnit,quiz:vQuiz,result:vResult,wrong:vWrong,parent:vParent,pick:vPick}[v])(arg);hd();window.scrollTo(0,0);}
 
 const FALLBACK="data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#dff1fb"/><g fill="#fff"><circle cx="40" cy="62" r="22"/><circle cx="60" cy="50" r="26"/><circle cx="82" cy="62" r="22"/><circle cx="50" cy="78" r="20"/><circle cx="72" cy="78" r="20"/></g><circle cx="50" cy="64" r="3.4" fill="#4a5a66"/><circle cx="70" cy="64" r="3.4" fill="#4a5a66"/><ellipse cx="44" cy="72" rx="5" ry="3" fill="#ffc2d6"/><ellipse cx="76" cy="72" rx="5" ry="3" fill="#ffc2d6"/><path d="M56 71q4 4 8 0" stroke="#4a5a66" stroke-width="2" fill="none" stroke-linecap="round"/><text x="92" y="30" font-size="14" fill="#ffd27a">✦</text><text x="18" y="36" font-size="10" fill="#a9d4ee">✦</text></svg>`);
 function puff(slot,small){
@@ -641,7 +937,7 @@ function kira(){const k=document.getElementById("kira");if(k.childElementCount)r
   for(let i=0;i<46;i++){h+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;font-size:${8+Math.random()*16}px;animation-delay:${(Math.random()*2.6).toFixed(2)}s;animation-duration:${(2+Math.random()*2).toFixed(2)}s">${ch[i%5]}</i>`;}
   k.innerHTML=h;}
 
-function allDone(d){const p=planOf(d),x=S.done[d]||{};return !!p&&TASKS[p.src].every(k=>x[k]);}
+function allDone(d){const p=planOf(d),x=S.done[d]||{};return !!p&&tasksOf(p).every(k=>x[k]);}
 function taskLi(d,k,label,sub,tog){const dd=S.done[d]||{};
   return `<li class="${dd[k]?"done":""}"${tog?` onclick="togglePaper('${d}','${k}')" style="cursor:pointer"`:""}><span class="ck">${dd[k]?"✓":""}</span><span class="tx">${label}${sub?`<small>${sub}</small>`:""}</span></li>`;}
 function dayTitle(test,p){
@@ -649,24 +945,27 @@ function dayTitle(test,p){
   if(p.src==="wp")return "📗 ウィンパスで2周目のふくしゅう";
   return "📝 テスト前日のかくにん";}
 const dayPool=p=>Q.filter(q=>p.us.includes(q.u)&&(p.src==="wp"?q.wp:!q.wp));
-const dayCap=p=>Math.min(isWeekend(p.d)?30:20,dayPool(p).length);
+const dayCap=p=>Math.min(p.cap||(isWeekend(p.d)?30:20),dayPool(p).length);
 function menuCard(test,p,mode){ // mode: today / next / left
   const t=todayStr(),cap=dayCap(p);
   const ttl=mode==="left"?"🧺 やりのこし":mode==="ahead"?"🚀 さきどり（どんどんやってOK）":mode==="next"?"🌈 あしたのメニュー（きょうやってもOK）":"🌈 きょうのメニュー";
   let li="",btn="";
   if(p.src==="core"){
-    li=taskLi(p.d,"pt","おぼえるポイントを読む")+taskLi(p.d,"app",`アプリの問題（${cap}問）`,"書く問題は、ゆびかペンで書かないと答えが見られません")+taskLi(p.d,"paper","📘 学校の問題集を紙に書く",p.paper,true);
+    li=taskLi(p.d,"pt","おぼえるポイントを読む")+taskLi(p.d,"app",`アプリの問題（${cap}問）`,"書く問題は、ゆびかペンで書かないと答えが見られません")
+      +(p.np?"":taskLi(p.d,"paper","📘 学校の問題集を紙に書く",p.paper,true));
     btn=`<button class="btn" onclick="go('day','${p.d}')">${mode==="left"?md(p.d)+"の":""}問題をはじめる<span class="s">ポイント → 問題 の順だよ</span></button>`;
   }else if(p.src==="wp"){
-    li=taskLi(p.d,"app",`アプリ：ウィンパスの問題（${cap}問）`,"学校の問題集とはちがう問題で、もう一度たしかめるよ")+taskLi(p.d,"wp","📗 ウィンパスを紙に書く",p.wp,true);
+    li=taskLi(p.d,"app",`アプリ：ウィンパスの問題（${cap}問）`,"学校の問題集とはちがう問題で、もう一度たしかめるよ")
+      +(p.np?"":taskLi(p.d,"wp","📗 ウィンパスを紙に書く",p.wp,true));
     btn=`<button class="btn" onclick="startDay('${p.d}')">ウィンパスの問題をはじめる<span class="s">2周目のふくしゅう</span></button>`;
   }else{
-    li=taskLi(p.d,"ever","一度でもまちがえた問題をぜんぶやる",everNg().length+"問")+taskLi(p.d,"test","まとめテスト（20問・100点）")+taskLi(p.d,"wp","📗 ウィンパスを紙に書く",p.wp,true);
-    btn=`<button class="btn pink" onclick="startEver('${p.d}')" ${everNg().length?"":"disabled"}>① 一度でもまちがえた問題<span class="s">${everNg().length}問・いちばん大事！</span></button>
+    li=taskLi(p.d,"ever","🔁 ぜんぶ見直しをやる",everNg().length+"問（1回でもまちがえた問題）")+taskLi(p.d,"test","まとめテスト（20問・100点）")+taskLi(p.d,"wp","📗 ノートに書き直す",p.wp,true);
+    btn=`<button class="btn pink" onclick="startEver('${p.d}')" ${everNg().length?"":"disabled"}>① ぜんぶ見直し<span class="s">${everNg().length}問・いちばん大事！</span></button>
       <button class="btn rainbow" onclick="startAll('${p.d}')">② まとめテストをはじめる<span class="s">20問・100点まんてん</span></button>`;
   }
-  const note=p.src==="core"?"":`<p class="muted" style="margin:8px 0 0">📘の「やりのこし」があるときは、そっちを先にやろう。ウィンパスは時間が足りなければ へらしてOK。</p>`;
-  return `<div class="card"${mode==="left"?' style="border:2px dashed var(--pink-d)"':""}><h2>${ttl} <span class="muted" style="margin-left:auto">${md(p.d)}${isWeekend(p.d)?" 🌟多め":""}</span></h2>
+  const note=p.camp?`<p class="muted" style="margin:8px 0 0">🏕 キャンプの日なので、紙はおやすみ。アプリだけでOK！ この日の紙は 10/19（月）にまとめてやるよ。</p>`
+    :p.src==="core"?"":`<p class="muted" style="margin:8px 0 0">📘の「やりのこし」があるときは、そっちを先にやろう。ウィンパスは時間が足りなければ へらしてOK。</p>`;
+  return `<div class="card"${mode==="left"?' style="border:2px dashed var(--pink-d)"':""}><h2>${ttl} <span class="muted" style="margin-left:auto">${md(p.d)}${p.camp?" 🏕 かるめ":cap>=20?" 🌟多め":""}</span></h2>
    <div style="font-weight:600;font-size:17px;line-height:1.5">${dayTitle(test,p)}</div>
    <ul class="menu">${li}</ul>${btn}${note}
    ${allDone(p.d)?`<p class="center" style="margin:10px 0 0;color:var(--pink-d);font-weight:600">🎀 ${md(p.d)}のメニュー ぜんぶできた！ ⭐+10</p>`:""}</div>`;
@@ -687,15 +986,21 @@ function vHome(){
     const doneAhead=test.plan.filter(x=>x.d>p.d&&x.d<(nx?nx.d:"9999"));
     doneAhead.forEach(x=>{h+=`<p class="center" style="margin:6px 0;color:var(--pink-d);font-weight:600">🎀 ${md(x.d)}のぶんも さきどりでできた！</p>`;});
     if(nx)h+=menuCard(test,nx,"ahead");}
-  h+=`<div class="row2"><button class="btn pink" onclick="go('wrong')" ${wrongN||everN?"":"disabled"}>まちがいノート<span class="s">${wrongN}問</span></button>
+  h+=`<div class="row2"><button class="btn pink" onclick="go('wrong')" ${wrongN?"":"disabled"}>📒 まちがいノート<span class="s">${wrongN}問・なおしたら消える</span></button>
       <button class="btn mint" onclick="startAll(null)">まとめテスト<span class="s">いつでも</span></button></div>
-      <button class="btn" onclick="startEver(null)" ${everN?"":"disabled"}>🔁 一度でもまちがえた問題<span class="s">${everN}問・正解したら消えるよ（書く問題は◎だけ）</span></button>`;
+      <button class="btn" onclick="startEver(null)" ${everN?"":"disabled"}>🔁 ぜんぶ見直し<span class="s">${everN}問・1回でもまちがえた問題（正解しても消えない）</span></button>
+      <button class="btn honey" onclick="go('pick')">🎯 えらんで練習<span class="s">たんげん・しゅるい・にがて順 で えらべる</span></button>`;
   h+=`<div class="card"><h2>📚 たんげん</h2><p class="muted" style="margin:0">${test.book}</p>`;
   Object.entries(test.units).forEach(([k,u])=>{const cnt=Q.filter(q=>q.u===k).length,ok=unlocked(test,k),pl=test.plan.find(x=>x.src==="core"&&x.us.includes(k));
     h+=`<button class="unit" ${ok?`onclick="go('unit',{u:'${k}'})"`:"disabled"}><span class="ic" style="background:${u.col}">${ok?u.ic:"🔒"}</span>
      <span class="nm">${u.name}<span class="ct">${ok?cnt+"問":md(pl.d)+"にひらくよ"}${S.best[k]!=null?"　さいこう "+S.best[k]+"%":""}</span></span><span class="ar">›</span></button>`;});
   h+=`</div>`;
-  if(TESTS.length>1)h+=`<p class="muted center">前のテストの単元は、たんげんの下にふえていきます</p>`;
+  TESTS.filter(x=>x.id!==test.id).forEach(pt=>{
+    h+=`<div class="card"><h2>📘 おわったテスト<span class="muted" style="margin-left:auto;font-size:12px">${md(pt.date)}　${pt.name}</span></h2>`;
+    Object.entries(pt.units).forEach(([k,u])=>{const cnt=Q.filter(q=>q.u===k).length;
+      h+=`<button class="unit" onclick="go('unit',{u:'${k}'})"><span class="ic" style="background:${u.col}">${u.ic}</span>
+       <span class="nm">${u.name}<span class="ct">${cnt}問${S.best[k]!=null?"　さいこう "+S.best[k]+"%":""}</span></span><span class="ar">›</span></button>`;});
+    h+=`</div>`;});
   h+=`<button class="link" onclick="go('parent')">おうちの人へ（書いたノート・きろく）</button>`;
   app.innerHTML=h;
 }
@@ -709,8 +1014,10 @@ function vDay(d){ // その日のポイント（複数単元）→ 問題
    <button class="btn soft" onclick="go('home')">もどる</button>`;
 }
 function pickSet(pool,cap){const ok=q=>(S.stat[q.id]||{}).ok>0;
-  const ws=shuf(pool.filter(q=>q.t==="w")).sort((x,y)=>ok(x)-ok(y)).slice(0,Math.ceil(cap/3));
-  const os=shuf(pool.filter(q=>q.t!=="w")).sort((x,y)=>ok(x)-ok(y)).slice(0,cap-ws.length);
+  const byOk=a=>shuf(a).sort((x,y)=>ok(x)-ok(y));
+  const W=byOk(pool.filter(q=>q.t==="w")),O=byOk(pool.filter(q=>q.t!=="w"));
+  let ws=W.slice(0,Math.ceil(cap/3)),os=O.slice(0,cap-ws.length);
+  if(ws.length+os.length<cap)ws=W.slice(0,cap-os.length);
   return mix([...ws,...os]);}
 function startDay(d){const p=planOf(d);
   begin(pickSet(dayPool(p),dayCap(p)),{u:"day",d,kind:"day"});}
@@ -738,8 +1045,10 @@ function startUnit(u){ // 1回18問まで。書く問題は必ず入れ、まだ
   begin(mix([...ws,...os]),{u,d:sess&&sess.d,kind:"unit"});}
 function startAll(d){const test=curTest(),ids=Object.keys(test.units),pool=Q.filter(q=>ids.includes(q.u));
   const pick=(t,n)=>shuf(pool.filter(q=>q.t===t)).slice(0,n);
-  begin(mix([...pick("c",12),...pick("n",3),...pick("w",5)]),{u:"all",d,kind:"test"});}
-function everNg(){const ids=Object.keys(curTest().units);return Q.filter(q=>{const st=S.stat[q.id]||{};return ids.includes(q.u)&&st.ng>0&&!st.clr;});}
+  let list=[...pick("c",12),...pick("n",3),...pick("w",5)];
+  if(list.length<20){const rest=shuf(pool.filter(q=>list.indexOf(q)<0)).slice(0,20-list.length);list=list.concat(rest);}
+  begin(mix(list),{u:"all",d,kind:"test"});}
+function everNg(){const ids=Object.keys(curTest().units);return Q.filter(q=>ids.includes(q.u)&&(S.stat[q.id]||{}).ng>0);}
 function startEver(d){begin(mix(everNg()),{u:"wrong",kind:"ever",d:d||null});}
 function startWrong(){begin(mix(S.wrong.map(QBY).filter(Boolean)),{u:"wrong",kind:"wrong"});}
 function begin(list,meta){sess=Object.assign({list,i:0,pts:0,max:0,got:0,log:[]},meta);go("quiz");}
@@ -749,7 +1058,9 @@ function vQuiz(){
   const q=sess.list[sess.i],U=ALLUNITS[q.u],N=sess.list.length;
   const tag=q.t==="w"?(q.lines===1?"ことばを書く":"文で書く"):q.t==="n"?"けいさん":"えらぶ";
   const tcol=q.t==="w"?"#e886a8":q.t==="n"?"#e4ad45":"#58a3cc";
-  let h=`<div class="prog"><span>${U.ic} ${U.name}</span><span>${sess.i+1} / ${N}</span></div><div class="pbar"><i style="width:${sess.i/N*100}%"></i></div>
+  const rc=S.stat[q.id]||{ok:0,ng:0};
+  const rcs=(rc.ok||rc.ng)?`<span class="rec" style="float:none;margin-left:8px">○${rc.ok} ×${rc.ng}</span>`:"";
+  let h=`<div class="prog"><span>${U.ic} ${U.name}${rcs}</span><span>${sess.i+1} / ${N}</span></div><div class="pbar"><i style="width:${sess.i/N*100}%"></i></div>
    <div class="qcard" id="qc"><span class="tag" style="background:${tcol}">${tag}</span><p class="qt">${q.q}</p>${q.f||""}${q.h?`<div class="hint">✏️ ${q.h}</div>`:""}</div><div id="ar"></div>`;
   app.innerHTML=h;const ar=document.getElementById("ar");
   if(q.t==="c"){
@@ -799,7 +1110,7 @@ function nextBtn(){const last=sess.i>=sess.list.length-1;setTimeout(()=>{const b
 function finish(q,stars,maxStars,score,el){
   S.stars+=stars;sess.pts+=score;sess.max+=1;sess.log.push({id:q.id,score});
   const st=S.stat[q.id]=S.stat[q.id]||{ok:0,ng:0};
-  if(score>=1){st.ok++;if(sess.kind==="ever")st.clr=1;if(sess.kind==="wrong")S.wrong=S.wrong.filter(x=>x!==q.id);sparkle(el);mark();}
+  if(score>=1){st.ok++;if(sess.kind==="ever"||sess.kind==="wrong"||sess.kind==="pick")S.wrong=S.wrong.filter(x=>x!==q.id);sparkle(el);mark();}
   else{st.ng++;if(!S.wrong.includes(q.id))S.wrong.push(q.id);}
   save();hd();
 }
@@ -824,13 +1135,60 @@ function vResult(){
    ${wr.length?`<button class="btn pink" onclick="startWrong()">まちがいノートをやる</button>`:""}
    <button class="btn soft" onclick="go('home')">ホームへ</button>`;
 }
+/* ===== えらんで練習 ===== */
+const QST=q=>S.stat[q.id]||{ok:0,ng:0};
+const weakOf=q=>{const t=QST(q);return t.ng*2-t.ok;};
+function pickPool(){
+  const P=S.pick,test=curTest(),ids=Object.keys(test.units);
+  let a=Q.filter(q=>ids.includes(q.u));
+  if(P.us.length)a=a.filter(q=>P.us.includes(q.u));
+  if(P.t!=="all")a=a.filter(q=>q.t===P.t);
+  if(P.cond==="ng1")a=a.filter(q=>QST(q).ng>0);
+  if(P.cond==="ng2")a=a.filter(q=>QST(q).ng>=2);
+  if(P.cond==="noOk")a=a.filter(q=>QST(q).ok===0);
+  if(P.cond==="notYet")a=a.filter(q=>QST(q).ok===0&&QST(q).ng===0);
+  return a;
+}
+function pickTog(g,v){
+  const P=S.pick;
+  if(g==="u"){const i=P.us.indexOf(v);i<0?P.us.push(v):P.us.splice(i,1);}
+  else if(g==="uAll")P.us=[];
+  else if(g==="n")P.n=+v;
+  else P[g]=v;
+  save();go("pick");
+}
+function startPick(){
+  const P=S.pick;let a=pickPool();
+  a=P.ord==="weak"?a.slice().sort((x,y)=>weakOf(y)-weakOf(x)):shuf(a);
+  if(P.n)a=a.slice(0,P.n);
+  begin(P.ord==="weak"?a:mix(a),{u:"pick",kind:"pick",d:null});
+}
+function vPick(){
+  const test=curTest(),P=S.pick,pool=pickPool();
+  const ch=(g,v,lb,on)=>`<button class="key${on?" on":""}" onclick="pickTog('${g}','${v}')">${lb}</button>`;
+  let h=`<div class="card"><h2>🎯 えらんで練習</h2>
+   <p class="muted" style="margin:0">やりたい問題だけ えらんで練習できるよ。</p>
+   <div class="chl">たんげん</div><div class="chips">${ch("uAll","","ぜんぶ",!P.us.length)}
+    ${Object.entries(test.units).map(([k,u])=>ch("u",k,u.ic+" "+u.name,P.us.includes(k))).join("")}</div>
+   <div class="chl">しゅるい</div><div class="chips">${[["all","ぜんぶ"],["c","えらぶ"],["n","けいさん"],["w","書く"]].map(x=>ch("t",x[0],x[1],P.t===x[0])).join("")}</div>
+   <div class="chl">どれを出す</div><div class="chips">${[["all","ぜんぶ"],["ng1","1回でもまちがえた"],["ng2","2回いじょうまちがえた"],["noOk","まだ正解していない"],["notYet","まだ1回もやっていない"]].map(x=>ch("cond",x[0],x[1],P.cond===x[0])).join("")}</div>
+   <div class="chl">なん問</div><div class="chips">${[[10,"10問"],[20,"20問"],[30,"30問"],[0,"ぜんぶ"]].map(x=>ch("n",x[0],x[1],P.n===x[0])).join("")}</div>
+   <div class="chl">じゅんばん</div><div class="chips">${[["weak","にがて順"],["rand","ランダム"]].map(x=>ch("ord",x[0],x[1],P.ord===x[0])).join("")}</div>
+   <p class="center" style="margin:6px 0 0;font-weight:600;color:${pool.length?"var(--pink-d)":"var(--sub)"}">あてはまる問題：${pool.length}問${pool.length&&P.n?`（${Math.min(P.n,pool.length)}問 出すよ）`:""}</p></div>
+   <button class="btn pink" onclick="startPick()" ${pool.length?"":"disabled"}>${pool.length?"はじめる":"あてはまる問題がありません"}</button>`;
+  const top=pool.filter(q=>QST(q).ng>0).sort((a,b)=>weakOf(b)-weakOf(a)).slice(0,5);
+  if(top.length)h+=`<div class="card"><h2>⚠️ いま いちばん にがてな問題</h2>${top.map(q=>`<div class="wl"><span class="rec">○${QST(q).ok} ×${QST(q).ng}</span>${ALLUNITS[q.u].ic} ${q.q.replace(/<[^>]+>/g,"").slice(0,54)}…</div>`).join("")}</div>`;
+  h+=`<button class="btn soft" onclick="go('home')">もどる</button>`;
+  app.innerHTML=h;
+}
+
 function vWrong(){
   const list=S.wrong.map(QBY).filter(Boolean);
-  app.innerHTML=`<div class="card"><h2>📒 まちがいノート（${list.length}問）</h2><p class="muted" style="margin:0">正解すると ノートから消えるよ。</p>
+  app.innerHTML=`<div class="card"><h2>📒 まちがいノート（${list.length}問）</h2><p class="muted" style="margin:0">いま なおす問題だよ。正解すると ノートから消える。</p>
    ${list.map(q=>`<div class="wl">${ALLUNITS[q.u].ic} ${q.q.replace(/<[^>]+>/g,"").slice(0,60)}</div>`).join("")}</div>
    <button class="btn pink" onclick="startWrong()" ${list.length?"":"disabled"}>まちがいノートをはじめる</button>
-   <div class="card"><h2>🔁 一度でもまちがえた問題（${everNg().length}問）</h2><p class="muted" style="margin:0">正解したらこのリストから消えるよ。書く問題は「◎できた」でだけ消えて、△はのこるよ。</p></div>
-   <button class="btn" onclick="startEver(null)" ${everNg().length?"":"disabled"}>一度でもまちがえた問題をはじめる<span class="s">${everNg().length}問</span></button>
+   <div class="card"><h2>🔁 ぜんぶ見直し（${everNg().length}問）</h2><p class="muted" style="margin:0">これまでに <b>1回でもまちがえた問題ぜんぶ</b>。正解しても消えないので、テスト前の総ざらいに使ってね。</p></div>
+   <button class="btn" onclick="startEver(null)" ${everNg().length?"":"disabled"}>ぜんぶ見直しをはじめる<span class="s">${everNg().length}問</span></button>
    <button class="btn soft" onclick="go('home')">もどる</button>`;
 }
 
@@ -855,7 +1213,17 @@ function vParent(){
   app.innerHTML=`<div class="card"><h2>👪 おうちの人へ</h2>
    <p class="muted" style="margin:0">書く問題で、娘さんが手で書いた答え（新しい順・最大60件）と自己採点です。◎が本当に書けているか確認してあげてください。</p>
    <div class="gal">${g.length?g.map(x=>`<div><img src="${x.img}" alt=""><b style="color:${x.m===2?"#e886a8":x.m===1?"#c99a1c":"#58a3cc"}">${M[x.m]}</b> ${x.q}…<br><span class="muted" style="font-size:10.5px">${new Date(x.ts).toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span></div>`).join(""):`<p class="muted">まだ書いた答えはありません。</p>`}</div></div>
-   <div class="card"><h2>📅 がくしゅうプラン</h2>${test.plan.map(p=>{const d=S.done[p.d]||{},N={"pt": "ポイント", "app": "アプリ", "paper": "学校", "wp": "ウィンパス", "ever": "まちがい", "test": "まとめテスト"};return `<div class="wl">${md(p.d)} ${p.src==="core"?p.us.map(u=>test.units[u].name).join("・"):p.src==="wp"?"ウィンパス（2周目）":"テスト前日"}<br>${TASKS[p.src].map(k=>N[k]+(d[k]?"✓":"・")).join(" ")}</div>`;}).join("")}</div>
+   <div class="card"><h2>📊 たんげんべつの記録</h2>
+    <p class="muted" style="margin:0">出題＝これまでに答えた回数。書く問題は本人の自己採点（◎＝正解）です。</p>
+    ${T(["たんげん","出題","正解","正答率"],Object.entries(test.units).map(([k,u])=>{
+      let ok=0,ng=0;Q.filter(q=>q.u===k).forEach(q=>{const t=S.stat[q.id]||{ok:0,ng:0};ok+=t.ok;ng+=t.ng;});
+      const n=ok+ng;return [u.ic+" "+u.name,n+"回",ok+"回",n?Math.round(ok/n*100)+"%":"―"];}))}</div>
+   ${(()=>{const ids=Object.keys(test.units);
+     const top=Q.filter(q=>ids.includes(q.u)&&(S.stat[q.id]||{ng:0}).ng>0).sort((a,b)=>weakOf(b)-weakOf(a)).slice(0,10);
+     return top.length?`<div class="card"><h2>⚠️ にがてTOP10</h2>
+      <p class="muted" style="margin:0">まちがいが多く、正解が少ない順です。</p>
+      ${top.map(q=>{const t=S.stat[q.id];return `<div class="wl"><span class="rec">○${t.ok} ×${t.ng}</span>${test.units[q.u].ic} ${q.q.replace(/<[^>]+>/g,"").slice(0,54)}…</div>`;}).join("")}</div>`:"";})()}
+   <div class="card"><h2>📅 がくしゅうプラン</h2>${test.plan.map(p=>{const d=S.done[p.d]||{},N={"pt": "ポイント", "app": "アプリ", "paper": "学校", "wp": "ウィンパス", "ever": "ぜんぶ見直し", "test": "まとめテスト"};return `<div class="wl">${md(p.d)}${p.camp?" 🏕":""} ${p.src==="core"?p.us.map(u=>test.units[u].name).join("・"):p.src==="wp"?"ウィンパス（2周目）":"総ざらい"}<br>${tasksOf(p).map(k=>N[k]+(d[k]?"✓":"・")).join(" ")}</div>`;}).join("")}</div>
    <div class="card"><h2>⚙️ せってい</h2>
     <button class="btn soft" onclick="S.unlockAll=!S.unlockAll;save();go('parent')">先の単元を ${S.unlockAll?"日付どおりにもどす":"ぜんぶひらく"}</button>
     <button class="btn soft" onclick="pickImg('home')">ホームの画像をかえる</button>
