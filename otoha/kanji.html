@@ -512,6 +512,209 @@ const DRILL1 = [   // 10/9テスト範囲(教科書22〜34ページ / ドリル5
   {d:"手書き",k:"枝",s:"",w:"枝垂れ桜",y:"しだれざくら"}
 ];
 
+const DRILL2 = [   // 10/26テスト範囲(ドリル65〜74・冬休み前のたしかめ2・手書き/燃〜講 18字)
+  {d:"65",k:"燃",s:"かみが【もえる】。",w:"燃える",y:"もえる"},
+  {d:"65",k:"燃",s:"【ねんりょう】をつかう。",w:"燃料",y:"ねんりょう"},
+  {d:"65",k:"燃",s:"",w:"可燃",y:"かねん"},
+  {d:"65",k:"燃",s:"",w:"不燃",y:"ふねん"},
+  {d:"65",k:"燃",s:"",w:"内燃",y:"ないねん"},
+  {d:"65",k:"燃",s:"",w:"燃油",y:"ねんゆ"},
+  {d:"65",k:"粉",s:"【こなぐすり】をのむ。",w:"粉薬",y:"こなぐすり"},
+  {d:"65",k:"粉",s:"【ふんまつじょう】にする。",w:"粉末状",y:"ふんまつじょう"},
+  {d:"65",k:"粉",s:"",w:"米粉",y:"こめこ"},
+  {d:"65",k:"粉",s:"",w:"花粉",y:"かふん"},
+  {d:"65",k:"粉",s:"",w:"受粉",y:"じゅふん"},
+  {d:"65",k:"粉",s:"",w:"粉雪",y:"こなゆき"},
+  {d:"65",k:"断",s:"さそいを【ことわる】。",w:"断る",y:"ことわる"},
+  {d:"65",k:"断",s:"すぐれた【けつだん】。",w:"決断",y:"けつだん"},
+  {d:"65",k:"断",s:"",w:"断面",y:"だんめん"},
+  {d:"65",k:"断",s:"",w:"断定",y:"だんてい"},
+  {d:"65",k:"断",s:"",w:"断水",y:"だんすい"},
+  {d:"65",k:"断",s:"",w:"無断",y:"むだん"},
+  {d:"65",k:"寄",s:"ほんを【きふ】する。",w:"寄付",y:"きふ"},
+  {d:"65",k:"寄",s:"みせに【よる】。",w:"寄る",y:"よる"},
+  {d:"65",k:"寄",s:"",w:"寄宿",y:"きしゅく"},
+  {d:"65",k:"寄",s:"",w:"寄進",y:"きしん"},
+  {d:"65",k:"寄",s:"",w:"寄生",y:"きせい"},
+  {d:"65",k:"寄",s:"",w:"寄り道",y:"よりみち"},
+  {d:"65",k:"判",s:"【おおばん】のほん。",w:"大判",y:"おおばん"},
+  {d:"65",k:"判",s:"じじつが【はんめい】する。",w:"判明",y:"はんめい"},
+  {d:"65",k:"判",s:"",w:"判別",y:"はんべつ"},
+  {d:"65",k:"判",s:"",w:"判断",y:"はんだん"},
+  {d:"65",k:"判",s:"",w:"判決",y:"はんけつ"},
+  {d:"65",k:"判",s:"",w:"小判",y:"こばん"},
+  {d:"66",k:"往",s:"くるまの【おうらい】。",w:"往来",y:"おうらい"},
+  {d:"66",k:"往",s:"【おうねん】のにぎわい。",w:"往年",y:"おうねん"},
+  {d:"66",k:"往",s:"",w:"往路",y:"おうろ"},
+  {d:"66",k:"往",s:"",w:"往生",y:"おうじょう"},
+  {d:"66",k:"往",s:"",w:"往信",y:"おうしん"},
+  {d:"66",k:"往",s:"",w:"往時",y:"おうじ"},
+  {d:"66ミニ",k:"判",s:"りゆうが【はん】めいする。",w:"判",y:"はん"},
+  {d:"66ミニ",k:"",s:"【はん】にんがつかまる。",w:"犯",y:"はん"},
+  {d:"66ミニ",k:"往",s:"ひとが【おう】らいする。",w:"往",y:"おう"},
+  {d:"66ミニ",k:"",s:"へんかにたい【おう】する。",w:"応",y:"おう"},
+  {d:"69",k:"衛",s:"だいじんを【ごえい】する。",w:"護衛",y:"ごえい"},
+  {d:"69",k:"衛",s:"【えいせいほうそう】をみる。",w:"衛星放送",y:"えいせいほうそう"},
+  {d:"69",k:"衛",s:"",w:"前衛",y:"ぜんえい"},
+  {d:"69",k:"衛",s:"",w:"守衛",y:"しゅえい"},
+  {d:"69",k:"衛",s:"",w:"自衛",y:"じえい"},
+  {d:"69",k:"衛",s:"",w:"防衛",y:"ぼうえい"},
+  {d:"69",k:"過",s:"たのしく【すごす】。",w:"過ごす",y:"すごす"},
+  {d:"69",k:"過",s:"でんしゃが【つうか】する。",w:"通過",y:"つうか"},
+  {d:"69",k:"過",s:"",w:"過去",y:"かこ"},
+  {d:"69",k:"過",s:"",w:"過大",y:"かだい"},
+  {d:"69",k:"過",s:"",w:"過程",y:"かてい"},
+  {d:"69",k:"過",s:"",w:"経過",y:"けいか"},
+  {d:"69",k:"潔",s:"【せいけつ】にたもつ。",w:"清潔",y:"せいけつ"},
+  {d:"69",k:"潔",s:"【こうけつ】なひと。",w:"高潔",y:"こうけつ"},
+  {d:"69",k:"潔",s:"",w:"潔白",y:"けっぱく"},
+  {d:"69",k:"潔",s:"",w:"不潔",y:"ふけつ"},
+  {d:"69",k:"潔",s:"",w:"潔ぺき",y:"けっぺき"},
+  {d:"69",k:"潔",s:"",w:"清潔感",y:"せいけつかん"}
+,
+  {d:"67",k:"燃",s:"まきが【もえる】。",w:"燃える",y:"もえる"},
+  {d:"67",k:"粉",s:"【こな】をまぶす。",w:"粉",y:"こな"},
+  {d:"67",k:"断",s:"たのみを【ことわる】。",w:"断る",y:"ことわる"},
+  {d:"67",k:"寄",s:"ほんを【き】ぞうする。",w:"寄",y:"き"},
+  {d:"67",k:"判",s:"【ひょうばん】がよい。",w:"評判",y:"ひょうばん"},
+  {d:"67",k:"往",s:"【うおうさおう】する。",w:"右往左往",y:"うおうさおう"},
+  {d:"67",k:"燃",s:"【かねん】ごみをすてる。",w:"可燃",y:"かねん"},
+  {d:"67",k:"粉",s:"【かふん】がとぶ。",w:"花粉",y:"かふん"},
+  {d:"67",k:"断",s:"【ゆだん】をする。",w:"油断",y:"ゆだん"},
+  {d:"67",k:"寄",s:"そばに【よる】。",w:"寄る",y:"よる"},
+  {d:"67",k:"",s:"【ひょうげん】のしかた。",w:"表現",y:"ひょうげん"},
+  {d:"67",k:"",s:"むじつの【つみ】。",w:"罪",y:"つみ"},
+  {d:"67",k:"",s:"ごみが【へる】。",w:"減る",y:"へる"},
+  {d:"67",k:"",s:"せいこうを【よろこぶ】。",w:"喜ぶ",y:"よろこぶ"},
+  {d:"67",k:"",s:"【しか】がせいそくする。",w:"鹿",y:"しか"},
+  {d:"67",k:"",s:"けむりに【つつまれる】。",w:"包まれる",y:"つつまれる"},
+  {d:"67",k:"",s:"【しつれい】のないふるまい。",w:"失礼",y:"しつれい"},
+  {d:"67",k:"",s:"うつくしい【じょうけい】。",w:"情景",y:"じょうけい"},
+  {d:"67",k:"判",s:"【はんてい】をくだす。",w:"判定",y:"はんてい"},
+  {d:"67",k:"粉",s:"【こむぎこ】をかう。",w:"小麦粉",y:"こむぎこ"},
+  {d:"たしかめ2読",k:"",s:"【きげん】をまもる。",w:"期限",y:"きげん"},
+  {d:"たしかめ2読",k:"",s:"【こうがく】なかいもの。",w:"高額",y:"こうがく"},
+  {d:"たしかめ2読",k:"",s:"【ごがん】こうじをする。",w:"護岸",y:"ごがん"},
+  {d:"たしかめ2読",k:"",s:"【まずしい】ちしき。",w:"貧しい",y:"まずしい"},
+  {d:"たしかめ2読",k:"",s:"【えだまめ】をゆでる。",w:"枝豆",y:"えだまめ"},
+  {d:"たしかめ2読",k:"",s:"【しょとくぜい】がかかる。",w:"所得税",y:"しょとくぜい"},
+  {d:"たしかめ2読",k:"",s:"【せっちゃく】ざいをつかう。",w:"接着",y:"せっちゃく"},
+  {d:"たしかめ2読",k:"",s:"こえが【にる】。",w:"似る",y:"にる"},
+  {d:"たしかめ2読",k:"",s:"【ぶし】のくらし。",w:"武士",y:"ぶし"},
+  {d:"たしかめ2読",k:"判",s:"【はんけつ】をいいわたす。",w:"判決",y:"はんけつ"},
+  {d:"たしかめ2書",k:"粉",s:"【こなゆき】がふる。",w:"粉雪",y:"こなゆき"},
+  {d:"たしかめ2書",k:"",s:"【いんが】かんけい。",w:"因果",y:"いんが"},
+  {d:"たしかめ2書",k:"断",s:"あめで【ちゅうだん】する。",w:"中断",y:"ちゅうだん"},
+  {d:"たしかめ2書",k:"",s:"こおりが【はる】。",w:"張る",y:"はる"},
+  {d:"たしかめ2書",k:"往",s:"くるまの【おうらい】。",w:"往来",y:"おうらい"},
+  {d:"たしかめ2書",k:"燃",s:"きを【もやす】。",w:"燃やす",y:"もやす"},
+  {d:"たしかめ2書",k:"",s:"がっこうの【ふうき】。",w:"風紀",y:"ふうき"},
+  {d:"たしかめ2書",k:"",s:"うつくしい【ぎんが】。",w:"銀河",y:"ぎんが"},
+  {d:"たしかめ2書",k:"寄",s:"みぎに【よせる】。",w:"寄せる",y:"よせる"},
+  {d:"たしかめ2書",k:"",s:"いえを【けんちく】する。",w:"建築",y:"けんちく"},
+  {d:"70",k:"",s:"けいかくを【ていあん】する。",w:"提案",y:"ていあん"},
+  {d:"70",k:"",s:"だいじんに【しゅざい】する。",w:"取材",y:"しゅざい"},
+  {d:"70",k:"",s:"いいんかいの【こうせい】。",w:"構成",y:"こうせい"},
+  {d:"70",k:"衛",s:"【ふえいせい】なばしょ。",w:"不衛生",y:"ふえいせい"},
+  {d:"70",k:"",s:"【かならず】やくそくをまもる。",w:"必ず",y:"かならず"},
+  {d:"70",k:"",s:"【ねがい】がかなう。",w:"願い",y:"ねがい"},
+  {d:"70",k:"",s:"【いしき】をたかめる。",w:"意識",y:"いしき"},
+  {d:"70",k:"過",s:"いえで【すごす】。",w:"過ごす",y:"すごす"},
+  {d:"70",k:"潔",s:"かん【けつ】にせつめいする。",w:"潔",y:"けつ"},
+  {d:"70",k:"過",s:"【かこ】のできごと。",w:"過去",y:"かこ"},
+  {d:"70",k:"",s:"ぐたいてきな【ないよう】。",w:"内容",y:"ないよう"},
+  {d:"70",k:"",s:"としょかん【ししょ】になる。",w:"司書",y:"ししょ"},
+  {d:"70",k:"",s:"ほんを【ぶんるい】する。",w:"分類",y:"ぶんるい"},
+  {d:"70",k:"",s:"【しゅご】とじゅつご。",w:"主語",y:"しゅご"},
+  {d:"70",k:"",s:"しゅごと【じゅつご】。",w:"述語",y:"じゅつご"},
+  {d:"70",k:"",s:"【りかい】がふかまる。",w:"理解",y:"りかい"},
+  {d:"70",k:"",s:"【きゅうしょく】のじかん。",w:"給食",y:"きゅうしょく"},
+  {d:"70",k:"",s:"ひこうきで【いどう】する。",w:"移動",y:"いどう"},
+  {d:"70",k:"",s:"イベントに【さんか】する。",w:"参加",y:"さんか"},
+  {d:"70",k:"",s:"し【せい】がよい。",w:"勢",y:"せい"},
+  {d:"70",k:"",s:"【けいけん】があさい。",w:"経験",y:"けいけん"},
+  {d:"69ミニ",k:"衛",s:"じんこう【えい】せいのしゃしん。",w:"衛",y:"えい"},
+  {d:"69ミニ",k:"",s:"び【じゅつ】かんにはいる。",w:"術",y:"じゅつ"},
+  {d:"72",k:"境",s:"【しんきょう】のへんか。",w:"心境",y:"しんきょう"},
+  {d:"72",k:"境",s:"まちの【さかい】をきめる。",w:"境",y:"さかい"},
+  {d:"72",k:"境",s:"",w:"国境",y:"こっきょう"},
+  {d:"72",k:"境",s:"",w:"逆境",y:"ぎゃっきょう"},
+  {d:"72",k:"境",s:"",w:"苦境",y:"くきょう"},
+  {d:"72",k:"境",s:"",w:"境目",y:"さかいめ"},
+  {d:"72",k:"査",s:"とちを【さてい】する。",w:"査定",y:"さてい"},
+  {d:"72",k:"査",s:"きびしいしん【さ】。",w:"査",y:"さ"},
+  {d:"72",k:"査",s:"",w:"考査",y:"こうさ"},
+  {d:"72",k:"査",s:"",w:"査証",y:"さしょう"},
+  {d:"72",k:"査",s:"",w:"査察",y:"ささつ"},
+  {d:"72",k:"査",s:"",w:"査問",y:"さもん"},
+  {d:"72",k:"航",s:"【こうろ】をすすむ。",w:"航路",y:"こうろ"},
+  {d:"72",k:"航",s:"【こうくうき】にのる。",w:"航空機",y:"こうくうき"},
+  {d:"72",k:"航",s:"",w:"運航",y:"うんこう"},
+  {d:"72",k:"航",s:"",w:"欠航",y:"けっこう"},
+  {d:"72",k:"航",s:"",w:"出航",y:"しゅっこう"},
+  {d:"72",k:"航",s:"",w:"航行",y:"こうこう"},
+  {d:"72",k:"停",s:"バス【てい】でまつ。",w:"停",y:"てい"},
+  {d:"72",k:"停",s:"【ていでん】になる。",w:"停電",y:"ていでん"},
+  {d:"72",k:"停",s:"",w:"停車",y:"ていしゃ"},
+  {d:"72",k:"停",s:"",w:"停戦",y:"ていせん"},
+  {d:"72",k:"停",s:"",w:"停船",y:"ていせん"},
+  {d:"72",k:"停",s:"",w:"調停",y:"ちょうてい"},
+  {d:"72",k:"貿",s:"【ぼうえきがいしゃ】のふね。",w:"貿易会社",y:"ぼうえきがいしゃ"},
+  {d:"72",k:"貿",s:"おもな【ぼうえきこう】。",w:"貿易港",y:"ぼうえきこう"},
+  {d:"72",k:"貿",s:"",w:"貿易風",y:"ぼうえきふう"},
+  {d:"72",k:"貿",s:"",w:"貿易商",y:"ぼうえきしょう"},
+  {d:"72",k:"貿",s:"",w:"自由貿易",y:"じゆうぼうえき"},
+  {d:"73",k:"易",s:"【こうえき】をちゅうだんする。",w:"交易",y:"こうえき"},
+  {d:"73",k:"易",s:"【やさしい】ぶんしょう。",w:"易しい",y:"やさしい"},
+  {d:"73",k:"易",s:"",w:"易学",y:"えきがく"},
+  {d:"73",k:"易",s:"",w:"易者",y:"えきしゃ"},
+  {d:"73",k:"易",s:"",w:"容易",y:"ようい"},
+  {d:"73",k:"易",s:"",w:"安易",y:"あんい"},
+  {d:"73",k:"婦",s:"【ろうふじん】にあう。",w:"老婦人",y:"ろうふじん"},
+  {d:"73",k:"婦",s:"【しんぷ】のしゃしん。",w:"新婦",y:"しんぷ"},
+  {d:"73",k:"婦",s:"",w:"主婦",y:"しゅふ"},
+  {d:"73",k:"婦",s:"",w:"産婦",y:"さんぷ"},
+  {d:"73",k:"婦",s:"",w:"ふう婦",y:"ふうふ"},
+  {d:"73",k:"婦",s:"",w:"にん婦",y:"にんぷ"},
+  {d:"73",k:"酸",s:"【さんか】をふせぐ。",w:"酸化",y:"さんか"},
+  {d:"73",k:"酸",s:"【さんみ】がある。",w:"酸味",y:"さんみ"},
+  {d:"73",k:"酸",s:"",w:"酸性",y:"さんせい"},
+  {d:"73",k:"酸",s:"",w:"酸欠",y:"さんけつ"},
+  {d:"73",k:"酸",s:"",w:"塩酸",y:"えんさん"},
+  {d:"73",k:"酸",s:"",w:"炭酸",y:"たんさん"},
+  {d:"73",k:"講",s:"【こうし】をまねく。",w:"講師",y:"こうし"},
+  {d:"73",k:"講",s:"【こうしゅう】をうける。",w:"講習",y:"こうしゅう"},
+  {d:"73",k:"講",s:"",w:"開講",y:"かいこう"},
+  {d:"73",k:"講",s:"",w:"講評",y:"こうひょう"},
+  {d:"73",k:"講",s:"",w:"受講",y:"じゅこう"},
+  {d:"73",k:"講",s:"",w:"講和",y:"こうわ"},
+  {d:"74",k:"境",s:"しぜんかん【きょう】をまもる。",w:"境",y:"きょう"},
+  {d:"74",k:"査",s:"げんいんを【ちょうさ】する。",w:"調査",y:"ちょうさ"},
+  {d:"74",k:"航",s:"ながい【こうかい】にでる。",w:"航海",y:"こうかい"},
+  {d:"74",k:"停",s:"くるまが【ていし】する。",w:"停止",y:"ていし"},
+  {d:"74",k:"貿",s:"がいこくとの【ぼうえき】。",w:"貿易",y:"ぼうえき"},
+  {d:"74",k:"婦",s:"【ふじんふく】をえらぶ。",w:"婦人服",y:"ふじんふく"},
+  {d:"74",k:"酸",s:"【さんそ】をすう。",w:"酸素",y:"さんそ"},
+  {d:"74",k:"講",s:"さっかが【こうえん】する。",w:"講演",y:"こうえん"},
+  {d:"74",k:"境",s:"とちの【さかいめ】。",w:"境目",y:"さかいめ"},
+  {d:"74",k:"易",s:"【やさしい】もんだい。",w:"易しい",y:"やさしい"},
+  {d:"74",k:"",s:"おおきさを【くらべる】。",w:"比べる",y:"くらべる"},
+  {d:"74",k:"",s:"はなす【ないよう】をきめる。",w:"内容",y:"ないよう"},
+  {d:"74",k:"",s:"かんじの【くんよみ】。",w:"訓読み",y:"くんよみ"},
+  {d:"74",k:"",s:"としが【あらたまる】。",w:"改まる",y:"あらたまる"},
+  {d:"74",k:"",s:"【しんりんよく】をする。",w:"森林浴",y:"しんりんよく"},
+  {d:"74",k:"",s:"【こくごじてん】でしらべる。",w:"国語辞典",y:"こくごじてん"},
+  {d:"74",k:"",s:"ばしょを【とくてい】する。",w:"特定",y:"とくてい"},
+  {d:"74",k:"",s:"【ひつよう】なしょるい。",w:"必要",y:"ひつよう"},
+  {d:"74",k:"",s:"【くだもの】をかう。",w:"果物",y:"くだもの"},
+  {d:"74",k:"易",s:"【あんい】にかんがえる。",w:"安易",y:"あんい"},
+  {d:"手書き",k:"",s:"",w:"絶つ",y:"たつ"},
+  {d:"手書き",k:"過",s:"",w:"過つ",y:"あやまつ"},
+  {d:"手書き",k:"過",s:"",w:"過ち",y:"あやまち"},
+  {d:"手書き",k:"潔",s:"",w:"潔い",y:"いさぎよい"},
+  {d:"手書き",k:"境",s:"",w:"境内",y:"けいだい"}
+];
+
 // ===== 部首ヒント(10/1テスト範囲ぶん。部首名はひらがな固定・bushu.htmlで照合ずみ) =====
 // 字そのものが部首の字(支)は持たせない
 const RAD = { "提":"てへん","採":"てへん","接":"てへん","保":"にんべん","件":"にんべん",
@@ -520,11 +723,18 @@ const RAD = { "提":"てへん","採":"てへん","接":"てへん","保":"に�
   // 10/9テスト範囲
   "師":"はばへん","枝":"きへん","似":"にんべん","演":"さんずい","貧":"こがい",
   "築":"たけかんむり","政":"のぶん","税":"のぎへん","賞":"こがい","興":"うす",
-  "因":"くにがまえ","武":"とめる","眼":"めへん","財":"かいへん","額":"おおがい","紀":"いとへん" };
+  "因":"くにがまえ","武":"とめる","眼":"めへん","財":"かいへん","額":"おおがい","紀":"いとへん",
+  // 10/26テスト範囲(前半)
+  "燃":"れっか","粉":"こめへん","断":"おのづくり","寄":"うかんむり","判":"りっとう",
+  "往":"ぎょうにんべん","衛":"ぎょうがまえ","過":"しんにょう","潔":"さんずい",
+  "境":"つちへん","査":"き","航":"ふねへん","停":"にんべん","貿":"こがい",
+  "易":"ひ","婦":"おんなへん","酸":"とりへん","講":"ごんべん" };
 const RADG = { "てへん":"扌","にんべん":"亻","ごんべん":"言","さんずい":"氵","つち":"土",
   "みる":"見","りっとう":"刂","こざとへん":"阝","き":"木","ゆみへん":"弓",
   "はばへん":"巾","きへん":"木","こがい":"貝","かいへん":"貝","たけかんむり":"竹","のぶん":"攵",
-  "のぎへん":"禾","うす":"臼","くにがまえ":"囗","とめる":"止","めへん":"目","おおがい":"頁","いとへん":"糸" };
+  "のぎへん":"禾","うす":"臼","くにがまえ":"囗","とめる":"止","めへん":"目","おおがい":"頁","いとへん":"糸",
+  "れっか":"灬","こめへん":"米","おのづくり":"斤","うかんむり":"宀","ぎょうにんべん":"彳","ぎょうがまえ":"行","しんにょう":"辶",
+  "つちへん":"土","ふねへん":"舟","ひ":"日","おんなへん":"女","とりへん":"酉" };
 
 // ===== 言葉のいみ(出題画面に表示。答えの字は使わない) =====
 // 10/1テスト範囲(提〜張)ぶん。まだ無い言葉は読みだけ表示
@@ -593,6 +803,7 @@ const MEAN = {
 const ALL = [
   ...DRILL0.map((it,i)=>({...it, id:"d-"+i, term:2, drill:0})),
   ...DRILL1.map((it,i)=>({...it, id:"e-"+i, term:2, drill:1})),
+  ...DRILL2.map((it,i)=>({...it, id:"f-"+i, term:2, drill:2})),
   ...T1.map((it,i)=>({...it,id:"t1-"+i,term:1})),
   ...T2.map((it,i)=>({...it,id:"t2-"+i,term:2})),
 ];
@@ -635,7 +846,7 @@ const addDays=(n)=>{const d=new Date();d.setDate(d.getDate()+n);return `${d.getF
 const IV=[1,3,7,14,30];
 function schedule(st,ok){
   if(ok){ st.box=Math.min((st.box||0)+1,5); st.due=addDays(IV[Math.min(st.box-1,4)]); }
-  else { st.box=0; st.due=dayStr(); }
+  else { st.box=((st.box||0)>=4)?2:0; st.due=dayStr(); }  // 4回以上できていた字は0でなく2に戻す
 }
 function dueItems(){
   const t=dayStr();
@@ -713,10 +924,12 @@ function pool(v){
   if(v==="weak") return ALL.filter(i=>{const s=save.stats[i.id];return s&&s.w>0&&s.w>=s.c;});
   if(v==="today"){
     let p=dueItems();
-    if(p.length<10){ const rest=shuffle(ALL.filter(i=>!save.stats[i.id])); p=p.concat(rest.slice(0,10-p.length)); }
+    if(p.length<10){ const rest=ALL.filter(i=>!save.stats[i.id]); p=p.concat(rest.slice(0,10-p.length)); } // 未習はドリル順
     return p;
   }
   const u1=U1.find(u=>u.v===v); if(u1) return ALL.filter(i=>i.term===1).slice(u1.a,u1.b);
+  const mu=/^un-(\d+)$/.exec(v);     // その単元の未習だけ
+  if(mu){ const u=UNITS[+mu[1]]; return u ? u.items.filter(i=>!save.stats[i.id]) : []; }
   const mn=/^ts-(\d+)-n$/.exec(v);   // まだ一度も出していない問題
   if(mn) return pool("ts-"+mn[1]).filter(i=>!save.stats[i.id]);
   const mw=/^ts-(\d+)-w$/.exec(v);   // テスト範囲内の「まちがえたものだけ」
@@ -728,36 +941,70 @@ function pool(v){
     if(dr.length){                                   // ドリルがある範囲はドリルを出す
       if(m[2]===undefined) return dr;
       const p=t.parts[+m[2]], ks=new Set(T2.slice(p[0],p[1]).map(x=>x.k));
-      return dr.filter(i=>ks.has(i.k));              // 復習の問題(k なし)は「ぜんぶ」だけ
+      const half=dr.filter(i=>ks.has(i.k));          // 復習の問題(k なし)は「ぜんぶ」だけ
+      if(half.length) return half;
+      return ALL.filter(i=>i.term===2 && i.ws).slice(p[0],p[1]); // ドリル未登録の半分は1字4語で
     }
     const r=m[2]===undefined?testRange(t):t.parts[+m[2]];
     return ALL.filter(i=>i.term===2 && i.ws).slice(r[0],r[1]);
   }
   return [];
 }
+// ===== 単元(ドリル番号ごと)。ALL の並び順を保つ =====
+const UNITS = (()=>{
+  const out=[], seen={};
+  ALL.forEach(it=>{
+    if(it.drill===undefined) return;
+    const key=it.drill+"/"+it.d;
+    if(seen[key]===undefined){ seen[key]=out.length; out.push({ti:it.drill, d:it.d, items:[]}); }
+    out[seen[key]].items.push(it);
+  });
+  return out;
+})();
+const unitLbl=(d)=> /^\d/.test(d) ? ("ドリル"+d)
+  : d==="手書き" ? "手書きで足した分"
+  : d==="力3読" ? "力だめし3 読む" : d==="力3書" ? "力だめし3 書く"
+  : d==="たしかめ2読" ? "冬休み前のたしかめ 読む" : d==="たしかめ2書" ? "冬休み前のたしかめ 書く" : d;
+const unitStat=(u)=>{
+  const yet=u.items.filter(i=>!save.stats[i.id]).length;
+  const mst=u.items.filter(i=>{const st=save.stats[i.id];return st&&(st.box||0)>=4;}).length;
+  return {yet, mst, mid:u.items.length-yet-mst, all:u.items.length};
+};
+// その単元の漢字ごとの状態(その字の問題のうち一番弱いものに合わせる)
+function unitChars(u){
+  const ks=[], seen={};
+  u.items.forEach(i=>{ if(i.k && seen[i.k]===undefined){ seen[i.k]=ks.length; ks.push({k:i.k, items:[]}); } if(i.k) ks[seen[i.k]].items.push(i); });
+  return ks.map(x=>{
+    let st="done";
+    if(x.items.some(i=>!save.stats[i.id])) st="new";
+    else if(x.items.some(i=>(save.stats[i.id].box||0)<4)) st="mid";
+    return {k:x.k, st};
+  });
+}
 const pickWord=(it)=>{const x=it.ws[Math.floor(Math.random()*it.ws.length)];return {w:x[0],y:x[1]};};
 function start(){
-  rangeV = $("#rangeSel") ? $("#rangeSel").value : rangeV;
+  if(!/^un-/.test(rangeV||"") && $("#rangeSel")) rangeV = $("#rangeSel").value;
   let p = pool(rangeV);
   if(!p.length){ alert("このはんいには問題がありません。"); return; }
   const t=dayStr();
   if(rangeV!=="today"){
-    p = shuffle(p).sort((a,b)=>{
-      const sa=save.stats[a.id], sb=save.stats[b.id];
-      const pa=sa?(sa.due&&sa.due<=t?0:2):1, pb=sb?(sb.due&&sb.due<=t?0:2):1; // 復習期限→未出題→まだ先
-      return pa-pb;
-    });
+    // ①復習期限が来た(シャッフル) ②まだ一度も出していない(ドリル順のまま) ③予定日がまだ先(シャッフル)
+    const due =p.filter(i=>{const x=save.stats[i.id];return x&&x.due&&x.due<=t;});
+    const neu =p.filter(i=>!save.stats[i.id]);
+    const late=p.filter(i=>{const x=save.stats[i.id];return x&&x.due&&x.due>t;});
+    p = [...shuffle(due), ...neu, ...shuffle(late)];
   }
-  // p は「復習期限→未出題→まだ先」の順に並んでいる
+  let q;
   if(/^ts-/.test(rangeV)){
     // テスト範囲では、その回の新出漢字の問題を優先(10問中8問)。以前習った漢字の復習は最大2問
     const main=p.filter(i=>i.k), sub=p.filter(i=>!i.k);
-    let q=main.slice(0,8).concat(sub.slice(0,2));
+    q=main.slice(0,8).concat(sub.slice(0,2));
     if(q.length<10) q=q.concat(p.filter(x=>!q.includes(x)).slice(0,10-q.length));
-    queue = shuffle(q).slice(0,10).map(it=> it.ws ? {...it, ...pickWord(it)} : it);
+    q=q.slice(0,10);
   } else {
-    queue = shuffle(p.slice(0, Math.min(rangeV==="today"?10:20,p.length))).slice(0,10).map(it=> it.ws ? {...it, ...pickWord(it)} : it);
+    q=p.slice(0,10);                                  // 上位10問をそのまま使う
   }
+  queue = shuffle(q).map(it=> it.ws ? {...it, ...pickWord(it)} : it);  // 選び方は上の順、出す順だけシャッフル
   isRetry=false; retryRound=0;
   idx=0; phase="ask"; lastCorrect=null; hintUsed=false; session={c:0,w:0,wrongs:[],pt:0};
   screen="quiz"; render();
@@ -776,9 +1023,11 @@ function hintAvail(item){ const st=save.stats[item.id]; return !!RAD[item.k] && 
 function record(item, ok){
   const s = save.stats[item.id]||{c:0,w:0,box:0,due:dayStr()};
   const offered = hintAvail(item), prevBox = s.box||0;
+  const early = !!save.stats[item.id] && !!s.due && s.due > dayStr();  // 予定日がまだ先の問題
   s.c+=ok?1:0; s.w+=ok?0:1;
-  // なおしタイムの正解は「今おぼえただけ」なので間かくは進めず、明日また出す
-  if(isRetry){ s.box=0; s.due=addDays(1); }
+  // なおしタイムの正解は「今おぼえただけ」なので間かくは進めず、明日また出す(boxは下げたまま)
+  if(isRetry){ s.due=addDays(1); }
+  else if(ok && early){ /* 予定日前の正解は box も due も動かさない(通し練習で水増しさせない) */ }
   else if(ok && hintUsed && prevBox>=1){ s.due=addDays(1); } // ヒントを使った正解は box すえおきで明日また
   else { schedule(s,ok); }
   save.stats[item.id]=s;
@@ -881,7 +1130,7 @@ function renderMenu(){
     <div class="bar-bg"><div class="bar" style="width:${(mastered/193)*100}%;${mastered>0?"min-width:18px":""}"></div></div>
     <p style="font-weight:700;font-size:13px;margin-top:6px">おぼえた <b style="color:var(--red);font-size:18px">${mastered}</b> / 193字
       <span style="color:var(--gray);margin-left:8px">${dueCount>0?`復習まち ${dueCount}問`:"復習まちなし!"}</span></p>
-    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:2px">※1日→3日→1週間→2週間→1か月と間をあけて出題。4回連続で正解すると「おぼえた」!</p>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:2px">※1日→3日→1週間→2週間→1か月と間をあけて出題。4回連続で正解すると「おぼえた」!予定日より前にといた分は数えません。</p>
   </div>
   <div class="card">
     <p style="font-weight:900;font-size:14px;margin-bottom:6px">範囲</p>
@@ -893,6 +1142,8 @@ function renderMenu(){
     <button class="link" data-act="list">にがてリスト</button>
     <span style="color:var(--line)">|</span>
     <button class="link" data-act="backup">バックアップ・ふっかつ</button>
+    <span style="color:var(--line)">|</span>
+    <button class="link" data-act="prog">単元進ちょく</button>
   </div>`;
 }
 
@@ -1064,15 +1315,63 @@ function renderList(){
     <p style="font-size:12px;font-weight:700;color:var(--gray);margin-top:10px">おうちの方へ:ここの漢字をノート練習→「にがてだけ」で再テスト、が定着の近道です。</p>`;
 }
 
+function renderProg(){
+  const totalYet = ALL.filter(i=>i.drill!==undefined && !save.stats[i.id]).length;
+  const dot=(st)=>st==="done"?"#23b39b":st==="mid"?"#f5a623":"#c9c6d8";
+  let body="";
+  TESTS.forEach((t,ti)=>{
+    const us=UNITS.map((u,i)=>({u,i})).filter(x=>x.u.ti===ti);
+    if(!us.length) return;
+    const all=us.reduce((a,x)=>a+x.u.items.length,0);
+    const yet=us.reduce((a,x)=>a+unitStat(x.u).yet,0);
+    body += `<div class="card" style="margin-bottom:14px">
+      <p style="font-weight:900;font-size:15px;margin-bottom:2px">${t.lbl}テスト</p>
+      <p style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:8px">ぜんぶで ${all}問／まだ ${yet}問</p>
+      ${us.map(({u,i})=>{
+        const s=unitStat(u), cs=unitChars(u);
+        return `<div style="border-top:1px solid var(--line);padding:10px 0">
+          <p style="font-weight:900;font-size:13px">${unitLbl(u.d)}
+            <span style="font-weight:700;color:var(--gray);margin-left:6px">${s.all}問</span></p>
+          <p style="font-size:12px;font-weight:700;margin:4px 0">
+            <span style="color:#23b39b">おぼえた ${s.mst}</span>　
+            <span style="color:#d98a00">学習中 ${s.mid}</span>　
+            <span style="color:${s.yet?"var(--red)":"var(--gray)"}">未習 ${s.yet}</span></p>
+          ${cs.length?`<p style="margin:6px 0">${cs.map(c=>`<span class="kl" style="display:inline-block;font-size:26px;line-height:1.5;margin-right:8px;color:${dot(c.st)}">${c.k}</span>`).join("")}</p>`:
+            `<p style="font-size:11px;font-weight:700;color:var(--gray);margin:4px 0">※ここは前に習った漢字のふくしゅうです</p>`}
+          ${s.yet?`<button class="link" data-act="startUnit" data-i="${i}">この単元の未習だけ</button>`:
+            `<span style="font-size:11px;font-weight:900;color:#23b39b">ぜんぶ やった!</span>`}
+        </div>`;
+      }).join("")}
+    </div>`;
+  });
+  const t1=ALL.filter(i=>i.term===1), t2=ALL.filter(i=>i.term===2&&i.ws);
+  const sum=(arr)=>({yet:arr.filter(i=>!save.stats[i.id]).length, mst:arr.filter(i=>{const st=save.stats[i.id];return st&&(st.box||0)>=4;}).length});
+  const s1=sum(t1), s2=sum(t2);
+  return `<h2 style="font-weight:900;font-size:16px;margin-bottom:4px">単元進ちょく</h2>
+    <p style="font-size:12px;font-weight:700;color:var(--gray);margin-bottom:10px">
+      ドリルの未習 合計 <b style="color:var(--red);font-size:18px">${totalYet}</b> 問
+      <span style="margin-left:8px"><span class="kl" style="color:#23b39b">緑</span>=おぼえた
+      <span class="kl" style="color:#f5a623">黄</span>=学習中
+      <span class="kl" style="color:#c9c6d8">灰</span>=未習</span></p>
+    ${body}
+    <div class="card">
+      <p style="font-weight:900;font-size:14px;margin-bottom:6px">そのほかの範囲</p>
+      <p style="font-size:13px;font-weight:700">1学期(95字)　おぼえた ${s1.mst}／未習 ${s1.yet}</p>
+      <p style="font-size:13px;font-weight:700;margin-top:4px">2学期 1字4語(98字)　おぼえた ${s2.mst}／未習 ${s2.yet}</p>
+    </div>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:10px">おうちの方へ:灰色の字が一度も出していない字です。「この単元の未習だけ」で順番に消していけます。</p>`;
+}
+
 function render(){
   $("#toMenu").classList.toggle("hidden", screen==="menu");
   const v=$("#view");
-  if(screen==="menu"){ v.innerHTML=renderMenu(); const rs=$("#rangeSel"); if(rs){ if(rangeV===null){ const nt=nextTestIdx(); rangeV = nt>=0 ? "ts-"+nt : "today"; } rs.value=rangeV; if(rs.value!==rangeV){ rangeV="today"; rs.value="today"; } } }
+  if(screen==="menu"){ v.innerHTML=renderMenu(); const rs=$("#rangeSel"); if(rs){ if(rangeV===null){ const nt=nextTestIdx(); rangeV = nt>=0 ? "ts-"+nt : "today"; } rs.value=rangeV; if(rs.value!==rangeV){ const nt2=nextTestIdx(); rangeV = nt2>=0 ? "ts-"+nt2 : "today"; rs.value=rangeV; } } }
   else if(screen==="quiz") v.innerHTML=renderQuiz();
   else if(screen==="done") v.innerHTML=renderDone();
   else if(screen==="list") v.innerHTML=renderList();
   else if(screen==="backup") v.innerHTML=renderBackup();
   else if(screen==="zukan") v.innerHTML=renderZukan();
+  else if(screen==="prog") v.innerHTML=renderProg();
 }
 
 // ===== バックアップ =====
@@ -1099,6 +1398,8 @@ document.addEventListener("click",(e)=>{
     case "favPick": favIdx=Number(el.dataset.i); render(); break;
     case "favDel": { const i=Number(el.dataset.i); if(confirm("このしゃしんを けしますか?")){ favs.splice(i,1); saveFavs(); if(favIdx>=favs.length) favIdx=0; render(); startFavTimer(); } break; }
     case "backup": screen="backup"; render(); break;
+    case "prog": screen="prog"; render(); break;
+    case "startUnit": rangeV="un-"+el.dataset.i; start(); break;
     case "copyBackup": copyBackup(); break;
     case "restoreBackup": restoreBackup(); break;
   }
