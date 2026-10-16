@@ -470,7 +470,7 @@ function startRange(){
   const neu=p0.filter(i=>!save.stats[i.id]);          // 配列順(＝ドリルの単元順)を保つ
   const p=[...shuffle(due),...neu];                    // まだ先の字は出さない
   if(!p.length){ menuMsg="このはんいは きょうのぶんは おわり! またあした♪"; screen="menu"; render(); return; }
-  beginQuiz(p.slice(0,10),rangeV);
+  beginQuiz(shuffle(p.slice(0,10)),rangeV); // 選ぶ順はそのまま、出る順だけシャッフル
 }
 function beginQuiz(items,rv){
   items=items.slice();
