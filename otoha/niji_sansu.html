@@ -141,7 +141,7 @@ table.stb tr.v td{background:#FFF0F5}
 <script>
 (function(){
 "use strict";
-var VERSION="にじいろ v2 (2026-10-12)";
+var VERSION="にじいろ v2.1 (2026-10-19)";
 var KEY="niji_sansu_v1";
 var COST=30;
 var C_TAKE="#FFA65A", C_BASE="#FFF9EE", C_LINE="#B98A78";
@@ -149,7 +149,7 @@ var PCOL=["#FFA65A","#7FD49A","#B4A8F5"];
 
 /* ---------- save ---------- */
 var S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[]};
-function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);S.pt=o.pt||0;S.clear=o.clear||{};S.fos=o.fos||{};S.voice=(o.voice!==false);S.unit=o.unit||"b";S.weak=o.weak||[];}}catch(e){}}
+function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);S.pt=o.pt||0;S.clear=o.clear||{};S.fos=o.fos||{};S.voice=(o.voice!==false);S.unit=o.unit||"b";S.weak=o.weak||[];S.lastBk=o.lastBk||"";}}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}updHd();}
 function updHd(){var e=document.getElementById("hdpt");if(e)e.textContent=S.pt;}
 
@@ -310,7 +310,7 @@ function home(){
     if((st.u||"b")!==S.unit)continue; num++;
     h+='<button class="stg'+(lock?' lock':'')+'" data-s="'+s+'"><span class="no" style="background:'+NCOL[(num-1)%NCOL.length]+'">'+num+'</span><span><span class="tt">'+st.t+'</span><div class="ds">'+st.d+'</div></span><span class="mk">'+(S.clear[st.id]?'⭐':'')+'</span><span class="ar">›</span></button>';
   }
-  h+='<div class="center" style="margin-top:6px"><button class="btn" id="zk">📖 かせき ずかん</button><button class="btn" id="vo">'+(S.voice?'🔊 よみあげ ON':'🔇 よみあげ OFF')+'</button></div>';
+  h+='<div class="center" style="margin-top:6px"><button class="btn" id="zk">📖 かせき ずかん</button><button class="btn" id="vo">'+(S.voice?'🔊 よみあげ ON':'🔇 よみあげ OFF')+'</button><button class="btn" id="bkp">💾 バックアップ'+(S.lastBk?'（'+S.lastBk+'）':'')+'</button></div>';
   h+='<div class="ver">'+VERSION+'</div>';
   app.innerHTML=h;
   var bs=app.querySelectorAll(".stg");
@@ -320,6 +320,49 @@ function home(){
   if($("wkb"))$("wkb").onclick=playWeak;
   $("vo").onclick=function(){S.voice=!S.voice;save();if(!S.voice)stopSay();home();};
   if($("dig"))$("dig").onclick=dig;
+  $("bkp").onclick=backupScr;
+}
+/* ---------- バックアップ ---------- */
+function ymd(){var d=new Date();return d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)}
+function md(){var d=new Date();return (d.getMonth()+1)+'/'+d.getDate()}
+function bkText(){return JSON.stringify({app:KEY,ver:VERSION,date:new Date().toISOString(),data:S})}
+function backupScr(){
+  stopSay();
+  var h='<div class="bar"><button class="btn back" id="bk">← もどる</button><div style="margin-left:10px;font-size:19px;font-weight:bold">バックアップ（おうちの人）</div></div>';
+  h+='<div class="slab"><div style="font-size:18px;font-weight:bold">① ほぞんする</div><div class="small">ポイント・化石・クリア・にがてを まとめて ほぞんします。'+(S.lastBk?'さいごの バックアップ：'+S.lastBk:'まだ バックアップしていません')+'</div>';
+  h+='<button class="btn go" id="bdl">💾 ファイルに ほぞん</button><button class="btn" id="bcp">📋 文字で コピー</button><div class="small" id="bmsg" style="opacity:1"></div>';
+  h+='<textarea id="bout" readonly style="width:100%;height:70px;font-size:11px;display:none;margin-top:6px"></textarea></div>';
+  h+='<div class="slab"><div style="font-size:18px;font-weight:bold">② もどす</div><div class="small">ほぞんした ファイルを えらぶか、コピーした 文字を はりつけて「もどす」を おします。いまの データは 上書きされます。</div>';
+  h+='<input type="file" id="bf" accept=".json,.txt,application/json,text/plain" style="margin:8px 0;font-size:15px"><textarea id="bin" placeholder="ここに はりつけ" style="width:100%;height:90px;font-size:11px"></textarea>';
+  h+='<button class="btn dig" id="brs">↩️ もどす</button><div class="small" id="rmsg" style="opacity:1"></div></div>';
+  h+='<div class="ver">'+VERSION+'</div>';
+  app.innerHTML=h;
+  $("bk").onclick=home;
+  function done(msg){S.lastBk=md();save();$("bmsg").textContent=msg;}
+  $("bdl").onclick=function(){
+    var txt=bkText();
+    try{var blob=new Blob([txt],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=KEY+"_"+ymd()+".json";document.body.appendChild(a);a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);a.parentNode.removeChild(a);},1500);
+      done("ほぞんしました（"+KEY+"_"+ymd()+".json）。ファイルが 見つからない ときは「文字で コピー」を つかってください。");}
+    catch(e){$("bmsg").textContent="ファイルに ほぞん できませんでした。「文字で コピー」を つかってください。";}
+  };
+  $("bcp").onclick=function(){
+    var txt=bkText(),ta=$("bout");ta.style.display="block";ta.value=txt;
+    function fallback(){try{ta.focus();ta.select();ta.setSelectionRange(0,txt.length);var ok=document.execCommand("copy");done(ok?"コピーしました。メモアプリなどに はりつけて ほぞんしてください。":"下の 文字を ぜんぶ えらんで コピーしてください。");}catch(e){done("下の 文字を ぜんぶ えらんで コピーしてください。");}}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){done("コピーしました。メモアプリなどに はりつけて ほぞんしてください。");},fallback);}else fallback();
+  };
+  $("bf").onchange=function(){var f=this.files&&this.files[0];if(!f)return;var r=new FileReader();r.onload=function(){$("bin").value=r.result;$("rmsg").textContent="ファイルを よみこみました。「もどす」を おしてください。";};r.readAsText(f);};
+  $("brs").onclick=function(){
+    var t=($("bin").value||"").trim(),o;
+    if(!t){$("rmsg").textContent="ファイルを えらぶか、文字を はりつけてください。";return;}
+    try{o=JSON.parse(t);}catch(e){$("rmsg").textContent="よみこめませんでした（文字が とちゅうで 切れていないか 見てください）。";return;}
+    var d=o&&o.data?o.data:o;
+    if(!d||typeof d.pt!=="number"||typeof d.fos!=="object"){$("rmsg").textContent="このアプリの バックアップでは ないようです。";return;}
+    if(o.app&&o.app!==KEY&&!confirm("べつの アプリ（"+o.app+"）の バックアップです。それでも もどしますか？"))return;
+    if(!confirm("いまの データを 上書きして、"+(o.date?o.date.slice(0,10)+" の ":"")+"バックアップに もどしますか？"))return;
+    var bd=o.date?new Date(o.date):null;S={pt:d.pt,clear:d.clear||{},fos:d.fos||{},voice:d.voice!==false,unit:d.unit||"b",weak:d.weak||[],lastBk:bd&&!isNaN(bd)?(bd.getMonth()+1)+"/"+bd.getDate():(d.lastBk||"")};
+    save();alert("もどしました！ ポイント："+S.pt);home();
+  };
 }
 function dig(){
   var cc=curFos(); if(!cc||S.pt<COST)return;
