@@ -635,6 +635,18 @@ const BUN={
 };
 const hasBun=(id)=>!!BUN[id];
 const pickBun=(id)=>{const a=BUN[id];return a?a[Math.floor(Math.random()*a.length)]:null;};
+// 範囲外だが小学校で習う漢字を、ドリルと同じく 漢字＋（よみ）で見せる
+// [問題に出す読み, 答えに出す形]  書くのは ひらがなでない部分だけ
+const KANA={
+"右がわ":["みぎ側（がわ）","右側（がわ）"],
+"左がわ":["ひだり側（がわ）","左側（がわ）"],
+"友だち":["とも達（だち）","友達（だち）"],
+"服そう":["ふく装（そう）","服装（そう）"],
+"天気予ほう":["てんきよ報（ほう）","天気予報（ほう）"],
+"陽ざし":["ひ射し（ざし）","陽射し（ざし）"],
+};
+const yDisp=(w,y)=>KANA[w]?KANA[w][0]:y;   // 問題の読み
+const wDisp=(w)=>KANA[w]?KANA[w][1]:w;     // 答えの表示
 const hasOku=(w)=>/[\u4e00-\u9fff]/.test(w)&&/[\u3041-\u3093]/.test(w);
 
 const mk=(arr,g)=>arr.map((a,i)=>({k:a[0],ws:[[a[1],a[2]],[a[3],a[4]],[a[5],a[6]]],id:g+"-"+i,g}));
@@ -763,7 +775,8 @@ const OLD_G3="詩葉習着登物持旅始進動深様面意味湖漢館号調使
 let save={stats:{},pts:0,total:0,pets:[],chants:{},goi:{},autoSay:false,log:[],marks:{}};
 const LOGMAX=2000;
 let tShown=Date.now();
-let spokeKey=null;   // 同じ問題で何度も読まないための目じるし
+let spokeKey=null;
+let selUnits=new Set();   // 単元しんちょくで えらんだ単元   // 同じ問題で何度も読まないための目じるし
 function addLog(o){ try{ save.log=save.log||[]; save.log.push(o); if(save.log.length>LOGMAX)save.log=save.log.slice(-LOGMAX); }catch(e){} }
 function load(){
   let fresh=true;
@@ -1066,8 +1079,8 @@ function renderQuiz(){
   }else{
     // 書きとり。ラベルの「◯の練習」は box0 のときだけ(足場の1つ目)
     board=`${gLab}<p style="font-size:12px;font-weight:900;color:var(--gray);margin-bottom:10px">紙に書いてみよう${bx===0?`(「<span class="kj">${cur.k}</span>」の練習)`:""}</p>
-      <p style="font-size:38px;font-weight:900;letter-spacing:.1em">${cur.y}</p>
-      ${phase!=="ask"?`<p class="kj" style="font-size:56px;margin-top:12px;color:var(--red)">${cur.w}</p>`:""}`;
+      <p style="font-size:38px;font-weight:900;letter-spacing:.1em">${yDisp(cur.w,cur.y)}</p>
+      ${phase!=="ask"?`<p class="kj" style="font-size:56px;margin-top:12px;color:var(--red)">${wDisp(cur.w)}</p>`:""}`;
   }
 
   if(!isGoi)board+=meanBox;
@@ -1170,7 +1183,7 @@ function renderDone(){
   if(session.wrongs.length){
     wrongs=`<div style="background:#FBECE8;border:2px solid var(--red);border-radius:12px;padding:14px;margin-top:14px;text-align:left">
       <p style="font-weight:900;font-size:13px;color:var(--red);margin-bottom:8px">${mode==="goi"?"言えなかった もの(こえに だして おぼえよう)":"まちがえたもの(ノートに3回ずつ書いてから なおそう)"}</p>
-      ${session.wrongs.map(w0=>`<p class="kj" style="font-size:34px;line-height:1.45">${w0.w}<span style="font-family:inherit;font-size:15px;font-weight:700;color:var(--gray)">(${w0.y})</span></p>`).join("")}
+      ${session.wrongs.map(w0=>`<p class="kj" style="font-size:34px;line-height:1.45">${wDisp(w0.w)}<span style="font-family:inherit;font-size:15px;font-weight:700;color:var(--gray)">(${w0.y})</span></p>`).join("")}
     </div>`;
     retryBtn=`<button class="btn" style="width:100%;background:#B03A2E;padding:15px;font-size:17px;margin-top:14px" data-act="retryWrong">
       ✏️ なおしタイム(${session.wrongs.length}問)</button>
@@ -1180,7 +1193,7 @@ function renderDone(){
   if(session.okus.length){
     okuBox=`<div style="background:#FDF6E3;border:2px solid var(--gold);border-radius:12px;padding:14px;margin-top:14px;text-align:left">
       <p style="font-weight:900;font-size:13px;color:#8A6A14;margin-bottom:8px">送りがなだけ ちがったもの(ここだけ 3かいずつ 書こう)</p>
-      ${session.okus.map(o=>`<p class="kj" style="font-size:34px;line-height:1.45">${o.w}<span style="font-family:inherit;font-size:15px;font-weight:700;color:var(--gray)">(${o.y})</span></p>`).join("")}
+      ${session.okus.map(o=>`<p class="kj" style="font-size:34px;line-height:1.45">${wDisp(o.w)}<span style="font-family:inherit;font-size:15px;font-weight:700;color:var(--gray)">(${o.y})</span></p>`).join("")}
     </div>`;
   }
   const clearMsg=cleared?`<div style="background:#EBF5EE;border:2px solid var(--green);border-radius:12px;padding:14px;margin-top:14px">
@@ -1353,7 +1366,9 @@ function gradeRow(name,items,col){
     <p style="font-weight:900;font-size:12px;color:var(--gray)">おぼえた ${c[2]} ／ 学習中 ${c[1]} ／ 未習 <b style="color:var(--red)">${c[0]}</b></p>
   </div>`;
 }
+function selLabel(){return selUnits.size?`えらんだ ${selUnits.size}単元の未習だけ(10問)`:"えらんだ単元の未習だけ(10問)";}
 function renderProgress(){
+  // 画面を開くたびに えらんだ単元は そのまま
   const allNew=cnt(ALL)[0];
   let off=0, rows="", rowsB="";
   UNITS3.forEach((u,n)=>{
@@ -1363,7 +1378,11 @@ function renderProgress(){
       <p style="font-weight:900;font-size:14px;margin-bottom:4px">${u[0]}</p>
       <p style="margin-bottom:6px">${kchips(items)}</p>
       <p style="font-weight:900;font-size:12px;color:var(--gray)">おぼえた ${c[2]} ／ 学習中 ${c[1]} ／ 未習 <b style="color:var(--red)">${c[0]}</b></p>
-      ${c[0]?`<button class="btn" style="background:var(--blue);padding:8px 14px;font-size:12px;margin-top:8px" data-act="unitNew" data-u="${n}">この単元の未習だけ</button>`:""}
+      ${c[0]?`<div class="row" style="align-items:center;margin-top:8px;flex-wrap:nowrap">
+        <label style="font-weight:900;font-size:12px;display:flex;align-items:center;gap:5px;white-space:nowrap">
+          <input type="checkbox" data-act="unitChk" data-u="${n}" ${selUnits.has(n)?"checked":""} style="width:20px;height:20px">えらぶ</label>
+        <button class="btn" style="background:var(--blue);padding:8px 14px;font-size:12px" data-act="unitNew" data-u="${n}">この単元だけ</button>
+      </div>`:""}
     </div>`;
     if(n<U3A)rows+=html; else rowsB+=html;
   });
@@ -1373,6 +1392,10 @@ function renderProgress(){
   <div class="card" style="margin-bottom:14px;border-color:var(--red)">
     <p style="font-weight:900;font-size:15px">まだ一度もやっていない字 合計 <span style="color:var(--red)">${allNew}</span>字</p>
   </div>
+  <div class="card" style="margin-bottom:14px;border-color:var(--blue);position:sticky;top:0;z-index:5;background:#fff">
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-bottom:6px">単元の「えらぶ」に ✓ を入れてから押すと、まとめて 出せます</p>
+    <button id="selBtn" class="btn" style="width:100%;background:var(--blue);padding:12px;font-size:14px" data-act="selNew">${selLabel()}</button>
+  </div>
   ${gradeRow("1年生",G1,"#3E8E5F")}
   ${gradeRow("2年生",G2,"#3A6EA5")}
   <p style="font-weight:900;font-size:14px;margin:14px 0 8px;color:#C2452D">3年生 上巻(ドリルの単元ごと)</p>
@@ -1380,9 +1403,23 @@ function renderProgress(){
   <p style="font-weight:900;font-size:14px;margin:14px 0 8px;color:#C2452D">3年生 下巻(ドリルの単元ごと)</p>
   ${rowsB}`;
 }
-function startUnitNew(n){
+function toggleUnit(n,on){
+  if(on)selUnits.add(n); else selUnits.delete(n);
+  const b=$("#selBtn"); if(b)b.textContent=selLabel();   // 画面は描き直さない(✓が消えないように)
+}
+function unitItems(n){
   let off=0; for(let i=0;i<n;i++)off+=UNITS3[i][1];
-  const items=G3.slice(off,off+UNITS3[n][1]).filter(i=>!save.stats[i.id]); // 配列順のまま
+  return G3.slice(off,off+UNITS3[n][1]).filter(i=>!save.stats[i.id]);  // 配列順のまま
+}
+function startSelUnits(){
+  if(!selUnits.size){ menuMsg="さきに 単元の「えらぶ」に ✓ を 入れてね"; screen="menu"; render(); return; }
+  const ns=[...selUnits].sort((a,b)=>a-b);
+  let items=[]; ns.forEach(n=>{items=items.concat(unitItems(n));});
+  if(!items.length){ menuMsg="えらんだ ところは ぜんぶ やったことが あるよ!"; screen="menu"; render(); return; }
+  beginQuiz(items.slice(0,10),"u3"+ns[0]);
+}
+function startUnitNew(n){
+  const items=unitItems(n);
   if(!items.length){ menuMsg="ここは ぜんぶ やったことが あるよ!"; screen="menu"; render(); return; }
   beginQuiz(items.slice(0,10),"u3"+n);
 }
@@ -1497,6 +1534,8 @@ document.addEventListener("click",(e)=>{
     case "markAdd":addMark();break;
     case "markDel":delMark(el.dataset.d);break;
     case "unitNew":startUnitNew(Number(el.dataset.u));break;
+    case "unitChk":toggleUnit(Number(el.dataset.u),el.checked);break;
+    case "selNew":startSelUnits();break;
     case "chantF":chantFilter=el.dataset.f;render();break;
     case "chantSave":saveChants();break;
   }
