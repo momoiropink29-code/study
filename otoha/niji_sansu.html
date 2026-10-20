@@ -107,7 +107,11 @@ header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;
 /* zukan */
 .zk{display:flex;align-items:center;background:#FDF6FB;border-radius:18px;padding:8px 12px;margin-top:8px}
 .zk .e{width:56px;height:56px;line-height:56px;text-align:center;font-size:36px;border-radius:16px;background:#FFF3CF;margin-right:12px;flex-shrink:0}
-.zk .e.no{background:#F6D9E6;color:transparent}
+.zk .e.no{background:#F6D9E6}
+.zk .e.no svg{filter:brightness(0);opacity:.18}
+.fosimg .emo svg,.zk .e svg{display:block;width:100%;height:100%}
+.fosimg .emo{padding:8px}
+.zk .e{padding:3px}
 .ver{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:22px}
 .digfx{font-size:60px;text-align:center;animation:dg .6s 2}
 @keyframes dg{0%,100%{transform:rotate(0)}50%{transform:rotate(-35deg)}}
@@ -149,7 +153,7 @@ table.stb tr.v td{background:#FFF0F5}
 <script>
 (function(){
 "use strict";
-var VERSION="にじいろ v3 (2026-10-19)";
+var VERSION="にじいろ v3.1 (2026-10-20)";
 var KEY="niji_sansu_v1";
 var COST=30;
 var C_TAKE="#FFA65A", C_BASE="#FFF9EE", C_LINE="#B98A78";
@@ -162,29 +166,63 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}updHd
 function updHd(){var e=document.getElementById("hdpt");if(e)e.textContent=S.pt;}
 
 /* ---------- fossils ---------- */
+/* ---------- かわいい なかま（オリジナルキャラ） ---------- */
+function CHR(type,col,acc,face){
+  var OL="#C98AA8",s='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">',parts=[],inner='';
+  function el(t){parts.push(t)}
+  if(type==="usa"){el('<ellipse cx="37" cy="26" rx="8" ry="19"/>');el('<ellipse cx="63" cy="26" rx="8" ry="19"/>');inner+='<ellipse cx="37" cy="27" rx="3.5" ry="13" fill="#FFB8D0"/><ellipse cx="63" cy="27" rx="3.5" ry="13" fill="#FFB8D0"/>';el('<ellipse cx="50" cy="63" rx="33" ry="28"/>');}
+  else if(type==="neko"){el('<path d="M20 46 L28 16 L46 34 Z"/>');el('<path d="M80 46 L72 16 L54 34 Z"/>');inner+='<path d="M27 38 L30 24 L39 33 Z" fill="#FFB8D0"/><path d="M73 38 L70 24 L61 33 Z" fill="#FFB8D0"/>';el('<ellipse cx="50" cy="60" rx="35" ry="29"/>');}
+  else if(type==="kuma"){el('<circle cx="27" cy="33" r="11"/>');el('<circle cx="73" cy="33" r="11"/>');inner+='<circle cx="27" cy="33" r="5.5" fill="#FFB8D0"/><circle cx="73" cy="33" r="5.5" fill="#FFB8D0"/>';el('<circle cx="50" cy="60" r="32"/>');}
+  else if(type==="hiyo"){el('<path d="M46 26 Q48 14 54 22 Q58 14 58 28 Z"/>');el('<circle cx="50" cy="58" r="32"/>');}
+  else if(type==="obake"){el('<path d="M18 62 Q18 22 50 22 Q82 22 82 62 L82 84 Q75 76 68 84 Q61 92 54 84 Q47 76 40 84 Q33 92 26 84 Q20 78 18 84 Z"/>');}
+  else if(type==="hoshi"){el('<path d="M50 12 L61 38 L89 40 L67 58 L75 86 L50 70 L25 86 L33 58 L11 40 L39 38 Z" stroke-linejoin="round"/>');}
+  else if(type==="kumo"){el('<circle cx="30" cy="62" r="18"/>');el('<circle cx="50" cy="48" r="23"/>');el('<circle cx="70" cy="62" r="18"/>');el('<ellipse cx="50" cy="70" rx="30" ry="16"/>');}
+  else if(type==="drop"){el('<path d="M50 14 C66 38 80 52 80 66 A30 28 0 0 1 20 66 C20 52 34 38 50 14 Z"/>');}
+  else if(type==="hamu"){el('<circle cx="29" cy="36" r="9"/>');el('<circle cx="71" cy="36" r="9"/>');inner+='<circle cx="29" cy="36" r="4.5" fill="#FFB8D0"/><circle cx="71" cy="36" r="4.5" fill="#FFB8D0"/>';el('<ellipse cx="50" cy="62" rx="36" ry="29"/>');}
+  else {el('<ellipse cx="50" cy="62" rx="37" ry="29"/>');}
+  var outline='',fill='';
+  for(var i=0;i<parts.length;i++){outline+=parts[i].replace('/>',' fill="'+OL+'" stroke="'+OL+'" stroke-width="5"/>');fill+=parts[i].replace('/>',' fill="'+col+'"/>');}
+  s+=outline+fill+inner;
+  var fy=(type==="hoshi")?54:(type==="obake"?50:58);
+  // face
+  if(face===1){s+='<path d="M36 '+fy+' q4 -5 8 0" fill="none" stroke="#5B4A57" stroke-width="2.6" stroke-linecap="round"/><path d="M56 '+fy+' q4 -5 8 0" fill="none" stroke="#5B4A57" stroke-width="2.6" stroke-linecap="round"/>';}
+  else{var er=face===2?5.2:4.2;s+='<circle cx="40" cy="'+fy+'" r="'+er+'" fill="#5B4A57"/><circle cx="60" cy="'+fy+'" r="'+er+'" fill="#5B4A57"/><circle cx="41.6" cy="'+(fy-1.8)+'" r="1.6" fill="#fff"/><circle cx="61.6" cy="'+(fy-1.8)+'" r="1.6" fill="#fff"/>';
+    if(face===2)s+='<circle cx="38.6" cy="'+(fy+1.8)+'" r=".9" fill="#fff"/><circle cx="58.6" cy="'+(fy+1.8)+'" r=".9" fill="#fff"/>';}
+  s+='<ellipse cx="31" cy="'+(fy+8)+'" rx="5.5" ry="3.4" fill="#FF8FB1" opacity=".55"/><ellipse cx="69" cy="'+(fy+8)+'" rx="5.5" ry="3.4" fill="#FF8FB1" opacity=".55"/>';
+  if(type==="hiyo")s+='<path d="M46 '+(fy+5)+' L54 '+(fy+5)+' L50 '+(fy+10)+' Z" fill="#FFB067"/>';
+  else s+='<path d="M45 '+(fy+7)+' q2.5 3 5 0 q2.5 3 5 0" fill="none" stroke="#5B4A57" stroke-width="2" stroke-linecap="round"/>';
+  // accessory
+  if(acc==="ribbon")s+='<path d="M70 22 L60 15 L60 29 Z" fill="#FF6F9F"/><path d="M70 22 L80 15 L80 29 Z" fill="#FF6F9F"/><circle cx="70" cy="22" r="3.5" fill="#E8507F"/>';
+  else if(acc==="flower"){for(var k=0;k<5;k++){var a=k*72*Math.PI/180;s+='<circle cx="'+(30+6*Math.cos(a)).toFixed(1)+'" cy="'+(24+6*Math.sin(a)).toFixed(1)+'" r="4.5" fill="#FFD766"/>';}s+='<circle cx="30" cy="24" r="3.5" fill="#FF9F43"/>';}
+  else if(acc==="star")s+='<path d="M74 12 L77 20 L85 20 L79 25 L81 33 L74 28 L67 33 L69 25 L63 20 L71 20 Z" fill="#FFD766" stroke="#F2B53A" stroke-width="1"/>';
+  else if(acc==="crown")s+='<path d="M36 '+(type==="usa"?6:16)+' L40 '+(type==="usa"?16:26)+' L45 '+(type==="usa"?6:16)+' L50 '+(type==="usa"?16:26)+' L55 '+(type==="usa"?6:16)+' L60 '+(type==="usa"?16:26)+' L64 '+(type==="usa"?6:16)+' L64 '+(type==="usa"?20:30)+' L36 '+(type==="usa"?20:30)+' Z" fill="#FFD766" stroke="#F2B53A" stroke-width="1.2"/>';
+  else if(acc==="heart")s+='<path d="M75 30 C67 24 66 15 72 14 C75 13 76 16 76 17 C76 16 78 13 81 14 C87 16 84 25 75 30 Z" fill="#FF6F9F"/>';
+  else if(acc==="leaf")s+='<path d="M50 18 Q60 6 68 12 Q60 22 50 18 Z" fill="#8FDCA6"/>';
+  return s+'</svg>';
+}
 var FOS=[
- {n:"アンモナイト",e:"🐚",p:2},
- {n:"メガロドン",e:"🦈",p:3},
- {n:"トリケラトプス",e:"🦏",p:3},
- {n:"アーケロン",e:"🐢",p:3},
- {n:"ティラノサウルス",e:"🦖",p:4},
- {n:"デイノスクス",e:"🐊",p:4},
- {n:"プテラノドン",e:"🦅",p:4},
- {n:"ブラキオサウルス",e:"🦕",p:5},
- {n:"マンモス",e:"🦣",p:5},
- {n:"サーベルタイガー",e:"🐅",p:6},
- {n:"スピノサウルス",e:"🐉",p:6},
- {n:"フタバスズキリュウ",e:"🦕",p:8},
- {n:"アノマロカリス",e:"🦐",p:3},
- {n:"サンヨウチュウ",e:"🪲",p:3},
- {n:"ステゴサウルス",e:"🦕",p:4},
- {n:"ヴェロキラプトル",e:"🦖",p:4},
- {n:"モササウルス",e:"🐋",p:5},
- {n:"ドードー",e:"🦤",p:5},
- {n:"ケツァルコアトルス",e:"🦅",p:6},
- {n:"パラサウロロフス",e:"🦕",p:6}
+ {n:"もちぷに",e:CHR("mochi","#FFE3EE","ribbon",0),p:2},
+ {n:"ふわうさ",e:CHR("usa","#FFFFFF","flower",1),p:3},
+ {n:"にゃんぷ",e:CHR("neko","#FFE2C6","heart",0),p:3},
+ {n:"くまろん",e:CHR("kuma","#F5DCC4","star",2),p:3},
+ {n:"ぴよりん",e:CHR("hiyo","#FFF1A8","leaf",0),p:4},
+ {n:"おばけのモモ",e:CHR("obake","#FFF5FA","ribbon",1),p:4},
+ {n:"きらぼし",e:CHR("hoshi","#FFF0A0","none",2),p:4},
+ {n:"くもりん",e:CHR("kumo","#EAF6FF","star",1),p:5},
+ {n:"しずくん",e:CHR("drop","#CDEFFF","heart",0),p:5},
+ {n:"はむすけ",e:CHR("hamu","#FFE9CF","flower",2),p:6},
+ {n:"ゆめうさ",e:CHR("usa","#E9E2FF","crown",2),p:6},
+ {n:"にじねこ",e:CHR("neko","#D8F5E3","star",1),p:8},
+ {n:"ミルクま",e:CHR("kuma","#FFFFFF","ribbon",0),p:3},
+ {n:"ぷるるん",e:CHR("mochi","#DDF7E8","flower",1),p:3},
+ {n:"そらぴよ",e:CHR("hiyo","#DDF0FF","heart",2),p:4},
+ {n:"ほしおばけ",e:CHR("obake","#ECE6FF","star",0),p:4},
+ {n:"ももしずく",e:CHR("drop","#FFD9E8","ribbon",2),p:5},
+ {n:"わたぐも",e:CHR("kumo","#FFE6F1","heart",0),p:5},
+ {n:"ルナぼし",e:CHR("hoshi","#E6DCFF","crown",1),p:6},
+ {n:"ちゅるはむ",e:CHR("hamu","#FFDDE9","ribbon",1),p:6}
 ];
-var RANK=[{n:"",b:"#FFF3CF",m:""},{n:"ぎんの",b:"#e4e8ee",m:"✨"},{n:"きんの",b:"#ffe27a",m:"🌟"},{n:"にじの",b:"#f6d6ff",m:"🌈"}];
+var RANK=[{n:"",b:"#FFF3F8",m:""},{n:"きらきら",b:"#E8F4FF",m:"✨"},{n:"ティアラの",b:"#FFF4C8",m:"👑"},{n:"にじいろ",b:"#F6E2FF",m:"🌈"}];
 function rk(r){return RANK[Math.min(r,RANK.length-1)]}
 function rname(r){return r>=RANK.length?rk(r).n+"("+(r-RANK.length+2)+")":rk(r).n}
 function fkey(i,r){return r===0?String(i):r+"_"+i}
@@ -299,14 +337,14 @@ function home(){
   var ci=curFos(), h='';
   updHd();
   h+='<div class="slab">';
-  if(!ci){h+='<div class="center" style="font-size:22px;font-weight:bold;padding:10px">🎉 かせきが ぜんぶ そろった！ 🎉</div>';}
+  if(!ci){h+='<div class="center" style="font-size:22px;font-weight:bold;padding:10px">🎉 なかまが ぜんぶ そろった！ 🎉</div>';}
   else{
     var f=FOS[ci.i],g=got(ci.i,ci.r),nd=need(ci.i,ci.r),rocks='';
     for(var i=0;i<nd;i++)rocks+='<div class="rock'+(i<g?' open':'')+'"></div>';
     h+='<div class="fos"><div class="fosimg" id="fimg" style="background:'+rk(ci.r).b+'"><div class="emo">'+f.e+'</div><div class="rocks">'+rocks+'</div></div>';
     h+='<div class="fosinfo"><div class="fosname">'+rk(ci.r).m+(g>0||ci.r>0?rname(ci.r)+f.n:'？？？')+'</div>';
     h+='<div class="mid">'+F(g,nd)+'<span class="lab" style="font-size:16px">かんせい</span></div>';
-    h+='<button class="btn dig'+(S.pt<COST?' off':'')+'" id="dig">⛏️ ほる（'+COST+'ポイント）</button></div></div>';
+    h+='<button class="btn dig'+(S.pt<COST?' off':'')+'" id="dig">💖 よぶ（'+COST+'ポイント）</button></div></div>';
   }
   h+='</div>';
   h+='<div class="tabs"><button class="tab'+(S.unit==="b"?' on':'')+'" data-u="b">🍡 ぶんすう・わりあい</button><button class="tab'+(S.unit==="k"?' on':'')+'" data-u="k">🔢 きそく（'+RB('数列','すうれつ')+'）</button></div>';
@@ -324,7 +362,7 @@ function home(){
     if((st.u||"b")!==S.unit)continue; num++;
     h+='<button class="stg'+(lock?' lock':'')+'" data-s="'+s+'"><span class="no" style="background:'+NCOL[(num-1)%NCOL.length]+'">'+num+'</span><span><span class="tt">'+st.t+'</span><div class="ds">'+st.d+'</div></span><span class="mk">'+(S.clear[st.id]?'⭐':'<span class="x2">2ばい</span>')+'</span><span class="ar">›</span></button>';
   }
-  h+='<div class="center" style="margin-top:6px"><button class="btn" id="zk">📖 かせき ずかん</button><button class="btn" id="vo">'+(S.voice?'🔊 よみあげ ON':'🔇 よみあげ OFF')+'</button><button class="btn" id="bkp">💾 バックアップ'+(S.lastBk?'（'+S.lastBk+'）':'')+'</button></div>';
+  h+='<div class="center" style="margin-top:6px"><button class="btn" id="zk">📖 なかま ずかん</button><button class="btn" id="vo">'+(S.voice?'🔊 よみあげ ON':'🔇 よみあげ OFF')+'</button><button class="btn" id="bkp">💾 バックアップ'+(S.lastBk?'（'+S.lastBk+'）':'')+'</button></div>';
   h+='<div class="ver">'+VERSION+'</div>';
   app.innerHTML=h;
   var bs=app.querySelectorAll(".stg");
@@ -343,7 +381,7 @@ function bkText(){return JSON.stringify({app:KEY,ver:VERSION,date:new Date().toI
 function backupScr(){
   stopSay();
   var h='<div class="bar"><button class="btn back" id="bk">← もどる</button><div style="margin-left:10px;font-size:19px;font-weight:bold">バックアップ（おうちの人）</div></div>';
-  h+='<div class="slab"><div style="font-size:18px;font-weight:bold">① ほぞんする</div><div class="small">ポイント・化石・クリア・にがてを まとめて ほぞんします。'+(S.lastBk?'さいごの バックアップ：'+S.lastBk:'まだ バックアップしていません')+'</div>';
+  h+='<div class="slab"><div style="font-size:18px;font-weight:bold">① ほぞんする</div><div class="small">ポイント・なかま・クリア・にがてを まとめて ほぞんします。'+(S.lastBk?'さいごの バックアップ：'+S.lastBk:'まだ バックアップしていません')+'</div>';
   h+='<button class="btn go" id="bdl">💾 ファイルに ほぞん</button><button class="btn" id="bcp">📋 文字で コピー</button><div class="small" id="bmsg" style="opacity:1"></div>';
   h+='<textarea id="bout" readonly style="width:100%;height:70px;font-size:11px;display:none;margin-top:6px"></textarea></div>';
   h+='<div class="slab"><div style="font-size:18px;font-weight:bold">② もどす</div><div class="small">ほぞんした ファイルを えらぶか、コピーした 文字を はりつけて「もどす」を おします。いまの データは 上書きされます。</div>';
@@ -383,7 +421,7 @@ function dig(){
   var ci=cc.i, r=cc.r;
   S.pt-=COST; S.fos[fkey(ci,r)]=got(ci,r)+1; save();
   var nd=need(ci,r), f={e:FOS[ci].e,n:rk(r).m+rname(r)+FOS[ci].n,p:nd}, done=got(ci,r)>=nd;
-  app.innerHTML='<div class="slab center" style="margin-top:40px"><div class="digfx">⛏️</div><div style="font-size:20px;margin-top:8px">ほっています…</div></div>';
+  app.innerHTML='<div class="slab center" style="margin-top:40px"><div class="digfx">🪄</div><div style="font-size:20px;margin-top:8px">よんでいます…</div></div>';
   setTimeout(function(){
     var rocks='';for(var i=0;i<f.p;i++)rocks+='<div class="rock'+(i<got(ci,r)?' open':'')+'"></div>';
     var h='<div class="slab center" style="margin-top:30px"><div style="display:inline-block" class="'+(done?'wiggle':'')+'"><div class="fosimg" style="margin:0 auto;background:'+rk(r).b+'"><div class="emo">'+f.e+'</div><div class="rocks">'+rocks+'</div></div></div>';
@@ -391,19 +429,19 @@ function dig(){
     h+='<div class="big" style="margin:6px 0">'+F(got(ci,r),f.p)+'</div>';
     if(done)h+='<div style="font-size:22px;font-weight:bold;color:#4DBF7A">'+F(f.p,f.p)+' ＝ 1体 かんせい！</div><div class="small">とる数が 切る数に とどいたら「1」だね</div>';
     else h+='<div style="font-size:18px">あと '+(f.p-got(ci,r))+' こ で 1体！</div>';
-    var nx=curFos(); if(done&&nx&&nx.r>r)h+='<div style="font-size:18px;margin-top:8px;font-weight:bold">'+rk(nx.r).m+' つぎは「'+rname(nx.r)+'かせき」を ほろう！</div>';
+    var nx=curFos(); if(done&&nx&&nx.r>r)h+='<div style="font-size:18px;margin-top:8px;font-weight:bold">'+rk(nx.r).m+' つぎは「'+rname(nx.r)+'なかま」を よぼう！</div>';
     h+='<button class="btn go" id="ok" style="margin-top:14px">もどる</button></div>';
     app.innerHTML=h; $("ok").onclick=home;
   },1300);
 }
 function zukan(){
-  var h='<div class="bar"><button class="btn back" id="bk">← もどる</button><div style="margin-left:10px;font-size:20px;font-weight:bold">かせき ずかん</div></div><div class="slab">';
+  var h='<div class="bar"><button class="btn back" id="bk">← もどる</button><div style="margin-left:10px;font-size:20px;font-weight:bold">なかま ずかん</div></div><div class="slab">';
   for(var i=0;i<FOS.length;i++){var f=FOS[i],g=got(i,0),br=bestRank(i),badge='';
     for(var r=0;r<=br;r++)badge+=(r===0?'⭐':rk(r).m);
     h+='<div class="zk"><div class="e'+(g>0?'':' no')+'" style="'+(br>0?'background:'+rk(br).b:'')+'">'+f.e+'</div><div style="-webkit-box-flex:1;flex:1"><div style="font-size:18px;font-weight:bold">'+(g>0?f.n:'？？？')+'</div><div class="small" style="opacity:1">'+badge+'</div></div><div class="mid">'+(br>=0?'':F(g,f.p))+'</div></div>';}
   h+='</div><div class="center"><button class="btn small" id="rs" style="font-size:12px;opacity:.5">データを けす（おうちの人）</button></div><div class="ver">'+VERSION+'</div>';
   app.innerHTML=h; $("bk").onclick=home;
-  $("rs").onclick=function(){if(confirm("ポイント・かせき・クリアを ぜんぶ けしますか？")&&confirm("本当に けしますか？")){S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[],log:[]};save();home();}};
+  $("rs").onclick=function(){if(confirm("ポイント・なかま・クリアを ぜんぶ けしますか？")&&confirm("本当に けしますか？")){S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[],log:[]};save();home();}};
 }
 
 /* ---------- にがて ---------- */
@@ -470,10 +508,10 @@ function result(){
   S.pt+=P.gain+bonus; if(!P.weak)S.clear[st.id]=true; save();
   var h='<div class="slab center" style="margin-top:30px"><div style="font-size:26px;font-weight:bold">'+(P.weak?'にがて ふくしゅう おわり！':'クリア！')+'</div>';
   if(P.weak)h+='<div style="font-size:17px">のこり '+weakDue().length+'もん（あしたも やると 卒業できるよ）</div>';
-  h+='<div style="font-size:20px;margin:10px 0">🦴 +'+P.gain+' ポイント'+((P.mult||1)>1?'<span class="x2">2ばい</span>':'')+'</div>';
+  h+='<div style="font-size:20px;margin:10px 0">💖 +'+P.gain+' ポイント'+((P.mult||1)>1?'<span class="x2">2ばい</span>':'')+'</div>';
   if(perfect)h+='<div style="font-size:20px;color:#4DBF7A;font-weight:bold">ぜんぶ 1回で せいかい！ ボーナス +'+bonus+'</div>';
   h+='<div style="margin-top:6px">いま <b style="font-size:24px">'+S.pt+'</b> ポイント</div>';
-  h+='<div style="margin-top:14px"><button class="btn" id="again">もう1回</button><button class="btn go" id="hm">かせきを ほりに いく</button></div></div>';
+  h+='<div style="margin-top:14px"><button class="btn" id="again">もう1回</button><button class="btn go" id="hm">なかまを よびに いく</button></div></div>';
   app.innerHTML=h; $("hm").onclick=home; $("again").onclick=function(){if(P.weak)playWeak();else play(P.si);};
 }
 // multiple-choice helper
