@@ -121,6 +121,14 @@ ruby rt{font-size:.5em;font-weight:normal}
 .flab{display:block;font-size:14px;margin-top:2px}
 .fop{display:inline-block;vertical-align:top;font-size:26px;font-weight:800;line-height:52px;margin:0 6px}
 .cap{font-size:17px;font-weight:800;margin-top:4px}
+/* v6 */
+.chant{font-size:22px;font-weight:800;line-height:2;margin:12px 0;padding:12px 14px;border-radius:20px;background:#FFFBEB;box-shadow:0 4px 0 #FBEFC7}
+.chant b{color:#E86D93}
+.chb{display:inline-block;min-width:70px;border-bottom:4px solid #E86D93;color:#E86D93;text-align:center}
+.cnt{font-size:28px;letter-spacing:10px;margin:4px 0;color:#E86D93}
+.rec{background:#FFF7FB}
+.rec .ttl{font-size:16px;font-weight:800;margin-bottom:2px}
+.x2{display:inline-block;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(95deg,#FF8FB1,#FFB067);border-radius:10px;padding:1px 7px;margin-left:4px;vertical-align:middle}
 /* v5 */
 table.stb{margin:6px auto;border-collapse:separate;border-spacing:3px;font-size:18px;font-weight:800}
 table.stb th,table.stb td{padding:6px 8px;text-align:center;background:#FDF6FB;border-radius:10px}
@@ -141,15 +149,15 @@ table.stb tr.v td{background:#FFF0F5}
 <script>
 (function(){
 "use strict";
-var VERSION="にじいろ v2.1 (2026-10-19)";
+var VERSION="にじいろ v3 (2026-10-19)";
 var KEY="niji_sansu_v1";
 var COST=30;
 var C_TAKE="#FFA65A", C_BASE="#FFF9EE", C_LINE="#B98A78";
 var PCOL=["#FFA65A","#7FD49A","#B4A8F5"];
 
 /* ---------- save ---------- */
-var S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[]};
-function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);S.pt=o.pt||0;S.clear=o.clear||{};S.fos=o.fos||{};S.voice=(o.voice!==false);S.unit=o.unit||"b";S.weak=o.weak||[];S.lastBk=o.lastBk||"";}}catch(e){}}
+var S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[],log:[]};
+function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);S.pt=o.pt||0;S.clear=o.clear||{};S.fos=o.fos||{};S.voice=(o.voice!==false);S.unit=o.unit||"b";S.weak=o.weak||[];S.lastBk=o.lastBk||"";S.log=o.log||[];}}catch(e){}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}updHd();}
 function updHd(){var e=document.getElementById("hdpt");if(e)e.textContent=S.pt;}
 
@@ -223,7 +231,7 @@ function toSpeech(el){
   t=t.replace(/とる数\s*(\d+)\s*＝\s*切る数\s*(\d+)/g,"とるかず $1 と、きるかず $2 が おなじ");
   t=t.replace(/([^。]+?)\s*＞\s*([^。→]+)/g,"$1 は、$2 より 大きい");
   t=t.replace(/([^。]+?)\s*＜\s*([^。→]+)/g,"$1 は、$2 より 小さい");
-  t=t.replace(/★/g,"").replace(/→/g,"、").replace(/÷/g," わる ").replace(/×/g," かける ").replace(/[＋+]/g," たす ").replace(/[−－]/g," ひく ").replace(/[＝=]/g," は ");
+  t=t.replace(/[★🎵]/g,"").replace(/→/g,"、").replace(/÷/g," わる ").replace(/×/g," かける ").replace(/[＋+]/g," たす ").replace(/[−－]/g," ひく ").replace(/[＝=]/g," は ");
   t=t.replace(/切る数/g,"きるかず").replace(/とる数/g,"とるかず").replace(/1切れ/g,"ひときれ").replace(/目もり/g,"めもり");
   t=t.replace(/1人め/g,"ひとりめ").replace(/2人め/g,"ふたりめ").replace(/3人め/g,"さんにんめ");
   t=t.replace(/1人分/g,"ひとりぶん").replace(/1人/g,"ひとり").replace(/2人/g,"ふたり");
@@ -236,10 +244,10 @@ function toSpeech(el){
   t=t.replace(/[、。\s]*。[、。\s]*/g,"。").replace(/、[、\s]+/g,"、").replace(/([？！])[、。\s]+/g,"$1 ").replace(/^[\s、。]+/,"");
   return t;
 }
-function say(el){
+function say(el,rate){
   if(!TTS||!S.voice)return; var t=toSpeech(el); if(!t)return;
   stopSay();
-  var u=new SpeechSynthesisUtterance(t); u.lang="ja-JP"; if(JV)u.voice=JV; u.rate=0.95; u.pitch=1.05;
+  var u=new SpeechSynthesisUtterance(t); u.lang="ja-JP"; if(JV)u.voice=JV; u.rate=rate||0.95; u.pitch=1.05;
   try{TTS.speak(u);}catch(e){}
 }
 function sayBtn(target){return '<button class="btn" data-say="'+target+'" style="font-size:15px;padding:6px 12px;margin:2px">🔊 きく</button>'}
@@ -302,13 +310,19 @@ function home(){
   }
   h+='</div>';
   h+='<div class="tabs"><button class="tab'+(S.unit==="b"?' on':'')+'" data-u="b">🍡 ぶんすう・わりあい</button><button class="tab'+(S.unit==="k"?' on':'')+'" data-u="k">🔢 きそく（'+RB('数列','すうれつ')+'）</button></div>';
-  var wd=weakDue().length;
-  if(wd>0)h+='<button class="stg wk" id="wkb"><span class="no">🧠</span><span><span class="tt">にがて ふくしゅう</span><div class="ds">まちがえた もんだい '+wd+'もん（2日 れんぞくで せいかいしたら 卒業）</div></span></button>';
+  var wd=weakDue().length,rec=[];
+  for(var r0=0;r0<STAGES.length&&rec.length<2;r0++){if((STAGES[r0].u||"b")===S.unit&&!S.clear[STAGES[r0].id])rec.push(r0);}
+  if(wd>0||rec.length){
+    h+='<div class="slab rec"><div class="ttl">⭐ きょうの おすすめ</div>';
+    if(wd>0)h+='<button class="stg wk" id="wkb"><span class="no">🧠</span><span><span class="tt">にがて ふくしゅう<span class="x2">2ばい</span></span><div class="ds">'+wd+'もん：'+weakChips()+'</div></span></button>';
+    for(var r1=0;r1<rec.length;r1++){var rs=STAGES[rec[r1]];h+='<button class="stg" data-s="'+rec[r1]+'"><span class="no">✨</span><span><span class="tt">'+rs.t+'<span class="x2">2ばい</span></span><div class="ds">はじめての クリアで ポイント2ばい</div></span></button>';}
+    h+='</div>';
+  }
   var num=0;
   for(var s=0;s<STAGES.length;s++){
     var st=STAGES[s], lock=false;
     if((st.u||"b")!==S.unit)continue; num++;
-    h+='<button class="stg'+(lock?' lock':'')+'" data-s="'+s+'"><span class="no" style="background:'+NCOL[(num-1)%NCOL.length]+'">'+num+'</span><span><span class="tt">'+st.t+'</span><div class="ds">'+st.d+'</div></span><span class="mk">'+(S.clear[st.id]?'⭐':'')+'</span><span class="ar">›</span></button>';
+    h+='<button class="stg'+(lock?' lock':'')+'" data-s="'+s+'"><span class="no" style="background:'+NCOL[(num-1)%NCOL.length]+'">'+num+'</span><span><span class="tt">'+st.t+'</span><div class="ds">'+st.d+'</div></span><span class="mk">'+(S.clear[st.id]?'⭐':'<span class="x2">2ばい</span>')+'</span><span class="ar">›</span></button>';
   }
   h+='<div class="center" style="margin-top:6px"><button class="btn" id="zk">📖 かせき ずかん</button><button class="btn" id="vo">'+(S.voice?'🔊 よみあげ ON':'🔇 よみあげ OFF')+'</button><button class="btn" id="bkp">💾 バックアップ'+(S.lastBk?'（'+S.lastBk+'）':'')+'</button></div>';
   h+='<div class="ver">'+VERSION+'</div>';
@@ -360,7 +374,7 @@ function backupScr(){
     if(!d||typeof d.pt!=="number"||typeof d.fos!=="object"){$("rmsg").textContent="このアプリの バックアップでは ないようです。";return;}
     if(o.app&&o.app!==KEY&&!confirm("べつの アプリ（"+o.app+"）の バックアップです。それでも もどしますか？"))return;
     if(!confirm("いまの データを 上書きして、"+(o.date?o.date.slice(0,10)+" の ":"")+"バックアップに もどしますか？"))return;
-    var bd=o.date?new Date(o.date):null;S={pt:d.pt,clear:d.clear||{},fos:d.fos||{},voice:d.voice!==false,unit:d.unit||"b",weak:d.weak||[],lastBk:bd&&!isNaN(bd)?(bd.getMonth()+1)+"/"+bd.getDate():(d.lastBk||"")};
+    var bd=o.date?new Date(o.date):null;S={pt:d.pt,clear:d.clear||{},fos:d.fos||{},voice:d.voice!==false,unit:d.unit||"b",weak:d.weak||[],log:d.log||[],lastBk:bd&&!isNaN(bd)?(bd.getMonth()+1)+"/"+bd.getDate():(d.lastBk||"")};
     save();alert("もどしました！ ポイント："+S.pt);home();
   };
 }
@@ -389,7 +403,7 @@ function zukan(){
     h+='<div class="zk"><div class="e'+(g>0?'':' no')+'" style="'+(br>0?'background:'+rk(br).b:'')+'">'+f.e+'</div><div style="-webkit-box-flex:1;flex:1"><div style="font-size:18px;font-weight:bold">'+(g>0?f.n:'？？？')+'</div><div class="small" style="opacity:1">'+badge+'</div></div><div class="mid">'+(br>=0?'':F(g,f.p))+'</div></div>';}
   h+='</div><div class="center"><button class="btn small" id="rs" style="font-size:12px;opacity:.5">データを けす（おうちの人）</button></div><div class="ver">'+VERSION+'</div>';
   app.innerHTML=h; $("bk").onclick=home;
-  $("rs").onclick=function(){if(confirm("ポイント・かせき・クリアを ぜんぶ けしますか？")&&confirm("本当に けしますか？")){S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[]};save();home();}};
+  $("rs").onclick=function(){if(confirm("ポイント・かせき・クリアを ぜんぶ けしますか？")&&confirm("本当に けしますか？")){S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[],log:[]};save();home();}};
 }
 
 /* ---------- にがて ---------- */
@@ -399,17 +413,20 @@ function addWeak(q){var k=wkey(q);if(!k)return;for(var i=0;i<S.weak.length;i++)i
 function weakDue(){var t=today(),r=[];for(var i=0;i<S.weak.length;i++)if(S.weak[i].day!==t)r.push(S.weak[i]);return r}
 function weakOk(q){var k=wkey(q),t=today();for(var i=0;i<S.weak.length;i++)if(S.weak[i].k===k){var w=S.weak[i];if(w.day!==t){w.ok++;w.day=t;}if(w.ok>=2)S.weak.splice(i,1);save();return;}}
 function playWeak(){var due=weakDue().slice(0,10),qs=[];for(var i=0;i<due.length;i++){try{var k=JSON.parse(due[i].k);if(REG[k[0]])qs.push(REG[k[0]].apply(null,k[1]));}catch(e){}}
-  if(!qs.length)return home();P={si:-1,st:{id:"weak"},qs:shuf(qs),i:0,gain:0,miss:0,requeued:0,weak:true};nextQ();}
+  if(!qs.length)return home();P={si:-1,st:{id:"weak"},qs:shuf(qs),i:0,gain:0,miss:0,requeued:0,weak:true,mult:2};nextQ();}
 /* ---------- play engine ---------- */
 var P=null;
 function play(si){
   var st=STAGES[si];
-  P={si:si,st:st,qs:st.gen(),i:0,gain:0,miss:0,requeued:0};
+  if(CHANT[st.id]&&!P0skip){return chantScr(si);}
+  P0skip=false;
+  var qs=st.gen();if(CHANT[st.id])qs.push(CHQ(st.id,ri(0,CHANT[st.id].k.length-1)));
+  P={si:si,st:st,qs:qs,i:0,gain:0,miss:0,requeued:0,mult:S.clear[st.id]?1:2};
   nextQ();
 }
 function nextQ(){
   if(P.i>=P.qs.length)return result();
-  var q=P.qs[P.i];P.tries=0;P.done=false;
+  var q=P.qs[P.i];P.tries=0;P.done=false;P.t0=Date.now();P.t1=0;
   var pct=Math.round(P.i/P.qs.length*100);
   app.innerHTML='<div class="bar"><button class="btn back" id="bk">← やめる</button><div class="prog"><i style="width:'+pct+'%"></i></div><div class="pt" style="font-size:15px">+'+P.gain+'</div></div><div class="slab" id="qa"></div>';
   $("bk").onclick=function(){if(confirm("やめて もどる？"))home();};
@@ -421,10 +438,10 @@ function ctl(q){
   return {
     judge:function(ok,el){
       if(P.done)return;
-      var fb=$("fb");
+      var fb=$("fb");if(!P.t1)P.t1=Date.now()-P.t0;
       if(ok){
-        P.done=true; var g=P.tries===0?10:3; P.gain+=g;
-        fb.className="feed ok"; fb.innerHTML='<div class="hd">⭕ せいかい！ +'+g+'</div><div class="say">'+(q.explain?q.explain():'')+'</div><div>'+sayBtn("fb")+'<button class="btn go" id="nx">つぎへ</button></div>';
+        P.done=true; var g=(P.tries===0?10:3)*(P.mult||1); P.gain+=g; logQ(q,P.tries,true);
+        fb.className="feed ok"; fb.innerHTML='<div class="hd">⭕ せいかい！ +'+g+'</div><div class="say">'+(q.explain?q.explain():'')+'</div>'+chLine(q)+'<div>'+sayBtn("fb")+'<button class="btn go" id="nx">つぎへ</button></div>';
         $("nx").onclick=function(){P.i++;nextQ();};
         if(P.tries>0)addWeak(q);else if(P.weak)weakOk(q);
         if(q.onOk)q.onOk();
@@ -433,13 +450,13 @@ function ctl(q){
         P.tries++;
         if(el){el.classList.remove("shake");void el.offsetWidth;el.classList.add("shake");}
         if(P.tries===1){
-          fb.className="feed ng"; fb.innerHTML='<div class="hd">🤔 もう1回！</div><div class="say">'+(q.hint?q.hint():'')+'</div><div>'+sayBtn("fb")+'</div>';
+          fb.className="feed ng"; fb.innerHTML='<div class="hd">🤔 もう1回！</div><div class="say">'+(q.hint?q.hint():'')+chSay(q)+'</div><div>'+sayBtn("fb")+'</div>';
           if(q.onHint)q.onHint();
           say(fb.querySelector(".say"));
         }else{
-          P.done=true; P.miss++; addWeak(q);
+          P.done=true; P.miss++; addWeak(q); logQ(q,P.tries,false);
           if(P.requeued<3&&!q.re){var c=q.clone();c.re=true;P.qs.push(c);P.requeued++;}
-          fb.className="feed ng"; fb.innerHTML='<div class="hd">こたえは こうだよ</div><div class="say">'+(q.explain?q.explain():'')+'</div><div class="small">あとで もう1回 出るよ</div><div>'+sayBtn("fb")+'<button class="btn go" id="nx">つぎへ</button></div>';
+          fb.className="feed ng"; fb.innerHTML='<div class="hd">こたえは こうだよ</div><div class="say">'+(q.explain?q.explain():'')+'</div>'+chLine(q)+'<div class="small">あとで もう1回 出るよ</div><div>'+sayBtn("fb")+'<button class="btn go" id="nx">つぎへ</button></div>';
           $("nx").onclick=function(){P.i++;nextQ();};
           if(q.onReveal)q.onReveal();
           say(fb.querySelector(".say"));
@@ -449,12 +466,12 @@ function ctl(q){
   };
 }
 function result(){
-  var st=P.st, perfect=(P.miss===0), bonus=perfect?30:0;
+  var st=P.st, perfect=(P.miss===0), bonus=perfect?30*(P.mult||1):0;
   S.pt+=P.gain+bonus; if(!P.weak)S.clear[st.id]=true; save();
   var h='<div class="slab center" style="margin-top:30px"><div style="font-size:26px;font-weight:bold">'+(P.weak?'にがて ふくしゅう おわり！':'クリア！')+'</div>';
   if(P.weak)h+='<div style="font-size:17px">のこり '+weakDue().length+'もん（あしたも やると 卒業できるよ）</div>';
-  h+='<div style="font-size:20px;margin:10px 0">🦴 +'+P.gain+' ポイント</div>';
-  if(perfect)h+='<div style="font-size:20px;color:#4DBF7A;font-weight:bold">ぜんぶ 1回で せいかい！ ボーナス +30</div>';
+  h+='<div style="font-size:20px;margin:10px 0">🦴 +'+P.gain+' ポイント'+((P.mult||1)>1?'<span class="x2">2ばい</span>':'')+'</div>';
+  if(perfect)h+='<div style="font-size:20px;color:#4DBF7A;font-weight:bold">ぜんぶ 1回で せいかい！ ボーナス +'+bonus+'</div>';
   h+='<div style="margin-top:6px">いま <b style="font-size:24px">'+S.pt+'</b> ポイント</div>';
   h+='<div style="margin-top:14px"><button class="btn" id="again">もう1回</button><button class="btn go" id="hm">かせきを ほりに いく</button></div></div>';
   app.innerHTML=h; $("hm").onclick=home; $("again").onclick=function(){if(P.weak)playWeak();else play(P.si);};
@@ -1143,6 +1160,73 @@ function rad(){var d=ri(2,9),a;do{a=ri(1,9);}while(a===d);return [a,d]}
 function rk10(){var x=rad();return K10(x[0],x[1],pick([10,12,15,20,25,30,50,100]))}
 function rk11(m){var x=rad();return K11(x[0],x[1],ri(8,60),m)}
 function rB15(rule){var di=ri(0,DT.length-1),fd=pick(rule?[2,4,5,8,10]:[2,3,4,5,6,8,9,10,12]),fn=cop(fd),op=pick(["＋","−","×","÷"]);return rule?B15R(di,fn,fd,op,ri(0,1)):B15C(di,fn,fd,op,ri(0,1))}
+
+/* ---------- となえ ---------- */
+var P0skip=false;
+var CHANT={
+ s1:{t:"切っても あつめりゃ {0}",k:[["もとの 1こ","半分こ","2こ"]]},
+ s2:{t:"下は {0}、上は {1}",k:[["切る数","とる数","あつめる数"],["とる数","切る数","のこる数"]]},
+ s3:{t:"とる数が 切る数より {0}と、1こに とどかない",k:[["小さい","大きい","同じ"]]},
+ s4:{t:"0から1を 切る数で わけて、{0}ぶん すすむ",k:[["とる数","切る数","1"]]},
+ s5:{t:"上と下に {0}を かけても、りょうは かわらない",k:[["同じ数","ちがう数","0"]]},
+ s6:{t:"せいすうで わったら、{0}に かける",k:[["切る数","とる数","こたえ"]]},
+ s7:{t:"わるの あとを {0} かける",k:[["ひっくりかえして","そのまま","2ばいして"]]},
+ s8:{t:"せいすう {0}、たす とる数",k:[["かける 切る数","たす 切る数","かける とる数"]]},
+ s9:{t:"せいすうは 切る数 {0}の ぶんすう",k:[["1","0","2"]]},
+ s10:{t:TM("moto")+" かける "+TM("bai")+"は {0}",k:[[TM("kura"),TM("moto"),TM("bai")]]},
+ s11:{t:"1切れを 出して、{0}ぶん あつめる",k:[["とる数","切る数","元の数"]]},
+ s12:{t:TM("kura")+" わる "+TM("bai")+"は {0}",k:[[TM("moto"),TM("kura"),TM("bai")]]},
+ s13:{t:TM("moto")+" かける {0}は "+TM("kura"),k:[[TM("bai"),TM("moto"),TM("kura")]]},
+ s14:{t:"小数点の 下が 2けた、{0}",k:[["100分の","10分の","1000分の"]]},
+ s15:{t:"かけ算 わり算 あったら {0}",k:[["分数","小数","どちらでも"]]},
+ s16:{t:"かけ算 わり算 あったら {0}",k:[["分数","小数","どちらでも"]]},
+ k1:{t:"となりの {0}なら "+T_TOUSA,k:[["差が 同じ","倍が 同じ","数が 同じ"]]},
+ k2:{t:"同じ数を {0}いくのが "+RB("等比","とうひ")+RB("数列","すうれつ"),k:[["かけて","たして","ひいて"]]},
+ k3:{t:"差が ふえたら "+RB("階差","かいさ")+"、{0}を 見る",k:[["差の 差","倍の 倍","となりの 和"]]},
+ k4:{t:"同じ数を {0} "+RB("平方","へいほう")+RB("数列","すうれつ"),k:[["2回 かける","2回 たす","2ばいする"]]},
+ k5:{t:"{0}を たして つぎの 数",k:[["前の 2つ","前の 1つ","うしろの 2つ"]]},
+ k6:{t:"わって あまりが 何番目、あまり 0なら {0}",k:[["さいごの 数","はじめの 数","0"]]},
+ k7:{t:"{0}で 2本の 列",k:[["1つ とばし","2つ とばし","となり どうし"]]},
+ k8:{t:"差を 見る、だめなら {0}、それでも だめなら 区切る",k:[["倍","和","番目"]]},
+ k9:{t:"はじめが "+T_SHO+"、さいごが "+T_MAK+"、となりの 差が {0}",k:[[T_KOU,T_SHO,T_MAK]]},
+ k10:{t:"{0}、差を たして できあがり",k:[[T_KOU+" かける 番目",T_SHO+" かける 番目",T_KOU+" たす 番目"]]},
+ k11:{t:"差を もどして {0}",k:[[T_KOU+"で わる",T_SHO+"で わる",T_KOU+"を かける"]]},
+ k12:{t:T_SHO+" たす "+T_MAK+"、かける "+T_KSU+"、{0}",k:[["わる 2","かける 2","わる "+T_KSU]]}
+};
+var CHMAP={S1W:"s1",S1C:"s1",S2M:"s2",S2R:"s2",S3:"s3",S4:"s4",S5:"s5",S6:"s6",S7:"s7",S8:"s8",S9A:"s9",S9B:"s9",S9C:"s9",S10:"s10",S11:"s11",S12:"s12",S13F:"s13",B14:"s14",B15R:"s15",B15C:"s15",B16Q:"s16",K1:"k1",K2:"k2",K3:"k3",K4:"k4",K4N:"k4",K5:"k5",K6R:"k6",K6G:"k6",K6N:"k6",K7:"k7",K9:"k9",K10:"k10",K11:"k11",K12:"k12"};
+var WLBL={k1:"等差",k2:"等比",k3:"階差",k4:"平方",k5:"フィボナッチ",k6:"区切る",k7:"飛び石",k9:"ことば",k10:"□番目",k11:"何番目",k12:"和",s1:"1こ",s2:"切ってとる",s3:"1こと くらべる",s4:"すう直線",s5:"同じりょう",s6:"わけっこ",s7:"いくつ入る",s8:"かぶんすう",s9:"3＝3/1",s10:"何倍",s11:"比べる量",s12:"元",s13:"まぜこぜ",s14:"小数⇄分数",s15:"まじった計算",s16:"テスト"};
+function chFull(c){return c.t.replace(/\{(\d)\}/g,function(m,i){return '<b>'+c.k[+i][0]+'</b>'})}
+function chOf(q){var n=q&&q._k?q._k[0]:null;if(n==="CHQ")return null;var id=n&&CHMAP[n]?CHMAP[n]:(P&&P.st?P.st.id:null);return id&&CHANT[id]?CHANT[id]:null}
+function chLine(q){var c=chOf(q);return c?'<div class="small" style="margin-top:6px">🎵 '+chFull(c)+'</div>':''}
+function chSay(q){var c=chOf(q);return c?'<div>🎵 となえ：'+chFull(c)+'</div>':''}
+function weakChips(){var cnt={},o=[];var d=weakDue();for(var i=0;i<d.length;i++){try{var n=JSON.parse(d[i].k)[0],id=CHMAP[n]||(n==="CHQ"?"となえ":n),l=WLBL[id]||id;cnt[l]=(cnt[l]||0)+1;}catch(e){}}for(var k in cnt)o.push(k+' '+cnt[k]);return o.join('・')}
+function chantScr(si){
+  var st=STAGES[si],c=CHANT[st.id],n=0;
+  stopSay();
+  app.innerHTML='<div class="bar"><button class="btn back" id="bk">← もどる</button></div><div class="slab center"><div style="font-size:17px;font-weight:bold">🎵 まず 2回 となえよう</div><div class="tt" style="font-size:15px;margin-top:4px">'+st.t+'</div>'+
+   '<div class="chant" id="cht">'+chFull(c)+'</div><div class="cnt" id="cnt">○○</div>'+
+   '<button class="btn" id="chl">🔊 きく</button><button class="btn go" id="chd">となえた！</button>'+
+   '<div><button class="btn" id="chs" style="font-size:13px;padding:6px 12px;opacity:.7">とばす</button></div></div>';
+  $("bk").onclick=home;
+  function start(){P0skip=true;play(si);}
+  $("chl").onclick=function(){say($("cht"),0.8);};
+  $("chd").onclick=function(){n++;$("cnt").textContent=n>=2?'●●':'●○';if(n>=2){setTimeout(start,350);}else say($("cht"),0.8);};
+  $("chs").onclick=start;
+  say($("cht"),0.8);
+}
+function chq(id,ki){
+  var q={},c=CHANT[id],key=c.k[ki];
+  q.mount=function(qa,ctl){
+    var html=c.t.replace(/\{(\d)\}/g,function(m,i){return +i===ki?'<span class="chb">？</span>':'<b>'+c.k[+i][0]+'</b>'});
+    frame(qa,'🎵 となえの ？に 入るのは？','<div class="chant">'+html+'</div>');
+    var opts=shuf(key.slice());choices(qa,opts,opts.indexOf(key[0]),ctl);
+  };
+  q.hint=function(){return 'さいしょの となえを 思い出そう'};
+  q.explain=function(){return '<div class="chant">'+chFull(c)+'</div>声に 出して もう1回 となえよう'};
+  return q;
+}
+var CHQ=rebuild(chq,"CHQ");
+function logQ(q,tries,ok){try{S.log.push([today(),q._k?q._k[0]:'',P.t1||0,tries,ok?1:0]);if(S.log.length>600)S.log.splice(0,S.log.length-600);}catch(e){}}
 
 var STAGES=[
  {id:"s1",t:"1こって どれ？",d:"まんじゅう 1こ が「1」",gen:function(){
