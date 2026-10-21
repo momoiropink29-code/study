@@ -280,30 +280,53 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
   #scr-quiz .sum-q{font-size:36px;}
 }
 
-/* ===== ステップ式・単位 ===== */
+/* ===== ノート式・単位 ===== */
 .m-unit{background:#D9EFE4;}
 .unit-q{font-size:46px; font-weight:900; letter-spacing:1px;}
-.step-orig{font-size:22px; font-weight:900; color:#9a92ab; letter-spacing:0; margin-bottom:10px;}
-.step-done{font-size:19px; font-weight:900; color:#6fae85; letter-spacing:0; margin-bottom:4px;}
-.step-lead{
-  display:inline-block; font-size:17px; font-weight:900; letter-spacing:0;
-  background:var(--lemon); border-radius:14px; padding:8px 16px; margin:6px 0 10px;
-  line-height:1.6;
-}
-.step-q{font-size:50px; font-weight:900; letter-spacing:1px;}
 .q-waza{
   display:block; font-size:15px; font-weight:900; color:#b06a80; letter-spacing:0;
   margin-top:8px;
 }
+.ws-head{font-size:46px; font-weight:900; letter-spacing:1px; margin-bottom:18px;}
+.ws{
+  display:inline-block; background:#fff; border-radius:20px; padding:16px 22px;
+  box-shadow:0 3px 12px rgba(74,68,88,.09); letter-spacing:0;
+}
+.ws-row{
+  display:grid; grid-template-columns:1fr 112px; align-items:center;
+  gap:10px; padding:5px 0; font-size:26px; font-weight:900; color:#b8b1c6;
+}
+.ws-row.rule{border-top:4px solid #E4DEEE; margin-top:6px; padding-top:10px;}
+.ws-l{text-align:right; white-space:nowrap;}
+.ws-v{
+  text-align:center; border-radius:12px; padding:3px 6px; min-height:40px;
+  border:3px solid transparent;
+}
+.ws-row.given{color:var(--ink);}
+.ws-row.done{color:#43a566;}
+.ws-row.done .ws-v{background:#EAF6EE;}
+.ws-row.active{color:var(--ink);}
+.ws-row.active .ws-v{
+  border-color:#6ECFA0; background:#F2FBF6; min-width:90px;
+  animation:wsblink 1.6s ease-in-out infinite;
+}
+@keyframes wsblink{ 0%,100%{border-color:#6ECFA0;} 50%{border-color:#C6EEDA;} }
+@media (prefers-reduced-motion:reduce){ .ws-row.active .ws-v{animation:none;} }
 @media (orientation:landscape) and (min-width:820px){
-  #scr-quiz .step-q{font-size:38px;}
-  #scr-quiz .step-orig{font-size:18px;}
-  #scr-quiz .step-lead{font-size:15px; padding:6px 12px; margin:4px 0 8px;}
+  #scr-quiz .ws-head{font-size:34px; margin-bottom:12px;}
+  #scr-quiz .ws{padding:12px 18px;}
+  #scr-quiz .ws-row{font-size:21px; grid-template-columns:1fr 92px; padding:3px 0;}
+  #scr-quiz .ws-v{min-height:32px;}
   #scr-quiz .unit-q{font-size:34px;}
 }
 @media (max-height:700px){
-  .step-q{font-size:38px;} .step-orig{font-size:18px;} .unit-q{font-size:34px;}
+  .ws-head{font-size:34px; margin-bottom:12px;}
+  .ws-row{font-size:21px;}
+  .unit-q{font-size:34px;}
 }
+
+.ver{display:inline-block; margin-left:10px; font-size:12px; font-weight:900;
+  color:#c6bfd4; letter-spacing:.5px;}
 .m-pet{background:linear-gradient(120deg,#CFF0DC,#BFE3F5); padding:18px;}
 .m-mast{background:#E7F2E2;}
 .m-backup{background:#E4EEF8; grid-column:1/-1; padding:14px;}
@@ -317,7 +340,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 <!-- ===== ホーム ===== -->
 <div class="screen active" id="scr-home">
   <h1>そうまの 19×19 マスター</h1>
-  <div class="subtitle">10のかけ算 ＋ 九九 でとく！</div>
+  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.3  2026-10-21</span></div>
   <div class="streak-box">
     <span>🔥 れんぞく <b id="home-streak">0</b> 日</span>
     <span>⭐ <b class="pt-view">0</b> pt</span>
@@ -699,38 +722,85 @@ function hasSteps(q){
   if(q.t==="pi")  return true;
   return false;
 }
-function stepsOf(q){
+/* ノート式（ワザで解かせる）
+   head : ずっと大きく出しつづける もとの問題
+   rows : l=左の式 / a=その行の数 / ask=子どもが入れる行か
+          rule=この行の上に よこ線 / l0+dep=まだ決まっていない数は ⬜ で出す
+   sp   : その行が「いま入れるところ」になった瞬間の よみあげ
+   done : 完走したときの よみあげ                                        */
+function worksheet(q){
   if(q.t==="sum"){
-    return [{lead:"まず たしてみよう", q:q.b+" ＋ "+q.c+" = ", a:String(q.b+q.c),
-             sp:"まず "+q.b+"たす"+q.c+"は？"},
-            {lead:q.a+"が "+(q.b+q.c)+"こ ぶん", q:q.a+" × "+(q.b+q.c)+" = ", a:String(q.a*10),
-             sp:q.a+"が "+(q.b+q.c)+"こ。"+q.a+"かける"+(q.b+q.c)+"は？"}];
+    const s=q.b+q.c, tot=q.a*10;
+    return {head:q.a+"×"+q.b+" ＋ "+q.a+"×"+q.c+" = ?",
+      rows:[
+        {l:q.a+"が なんこ？　"+q.b+" ＋ "+q.c+" =", a:String(s), ask:true,
+         sp:q.a+"かける"+q.b+" たす "+q.a+"かける"+q.c+"を とくよ。まず "+q.b+"たす"+q.c+"わ？"},
+        {l:q.a+" × "+s+" =", l0:q.a+" × ⬜ =", dep:0, a:String(tot), ask:true,
+         sp:q.a+"が "+s+"こ。"+q.a+"かける"+s+"わ？"}
+      ],
+      done:q.a+"かける"+s+"で "+tot};
   }
   if(isSquare(q)){
-    const x=q.x, o=x%10, t1=(x+o)*10;
-    return [{lead:"その数 ＋ 一の位 を 10ばい", q:"("+x+" ＋ "+o+") × 10 = ", a:String(t1),
-             sp:x+"たす"+o+"を 10ばいすると？"},
-            {lead:"一の位どうしを かけて たす（"+o+"×"+o+"＝"+(o*o)+"）",
-             q:t1+" ＋ "+(o*o)+" = ", a:String(x*x),
-             sp:t1+"たす"+(o*o)+"は？"}];
+    const x=q.x, o=x%10, t1=(x+o)*10, tot=x*x;
+    return {head:x+" × "+x+" = ?",
+      rows:[
+        {l:"("+x+" ＋ "+o+") × 10 =", a:String(t1), ask:true,
+         sp:x+"かける"+x+"を とくよ。まず "+x+"たす"+o+"を 10ばいすると？"},
+        {l:"＋　"+o+" × "+o+" =", a:String(o*o), ask:false},
+        {l:"あわせて =", a:String(tot), ask:true, rule:true,
+         sp:t1+"たす"+(o*o)+"わ？"}
+      ],
+      done:x+"かける"+x+"わ "+tot};
   }
   if(q.t==="k"){
-    const o=q.x-10, t1=10*q.y;
-    return [{lead:"まず 10のかけ算", q:"10 × "+q.y+" = ", a:String(t1),
-             sp:"まず 10かける"+q.y+"は？"},
-            {lead:"のこりを たす（"+o+"×"+q.y+"＝"+(o*q.y)+"）",
-             q:t1+" ＋ "+(o*q.y)+" = ", a:String(q.x*q.y),
-             sp:t1+"たす"+(o*q.y)+"は？"}];
+    const o=q.x-10, t1=10*q.y, t2=o*q.y, tot=q.x*q.y;
+    return {head:q.x+" × "+q.y+" = ?",
+      rows:[
+        {l:"10 × "+q.y+" =", a:String(t1), ask:true,
+         sp:q.x+"かける"+q.y+"を とくよ。まず 10かける"+q.y+"わ？"},
+        {l:"＋　"+o+" × "+q.y+" =", a:String(t2), ask:false},
+        {l:"あわせて =", a:String(tot), ask:true, rule:true,
+         sp:t1+"たす"+t2+"わ？"}
+      ],
+      done:q.x+"かける"+q.y+"わ "+tot};
   }
   if(q.t==="pi"){
     const n=q.n, t1=3*n, d=(Math.round(0.14*n*100)/100).toFixed(2);
-    return [{lead:"3.14 を 3 と 0.14 に わける", q:"3 × "+n+" = ", a:String(t1),
-             sp:"まず 3かける"+n+"は？"},
-            {lead:"0.14×"+n+"＝"+d+" を たす", q:t1+" ＋ "+d+" = ", a:q.v,
-             sp:t1+"たす"+d+"は？"}];
+    return {head:n+"π = ?",
+      rows:[
+        {l:"3 × "+n+" =", a:String(t1), ask:true,
+         sp:n+"パイを とくよ。まず 3かける"+n+"わ？"},
+        {l:"＋　0.14 × "+n+" =", a:d, ask:false},
+        {l:"あわせて =", a:q.v, ask:true, rule:true,
+         sp:t1+"たす"+d+"わ？"}
+      ],
+      done:n+"パイわ "+q.v};
   }
-  return [];
+  return null;
 }
+function nextAsk(ws,from){
+  for(let i=from;i<ws.rows.length;i++) if(ws.rows[i].ask) return i;
+  return -1;
+}
+function rowLabel(r){
+  return (r.l0 && quiz.wsPos<=r.dep) ? r.l0 : r.l;
+}
+function paintWS(){
+  const w=quiz.ws;
+  let h='<div class="ws-head">'+w.head+'</div><div class="ws">';
+  for(let i=0;i<w.rows.length;i++){
+    const r=w.rows[i];
+    let v="", cls="ws-row";
+    if(r.rule) cls+=" rule";
+    if(!r.ask){ v=r.a; cls+=" given"; }
+    else if(quiz.wsPos<0 || i<quiz.wsPos){ v=r.a; cls+=" done"; }
+    else if(i===quiz.wsPos){ v=quiz.input||""; cls+=" active"; }
+    h+='<div class="'+cls+'"><span class="ws-l">'+rowLabel(r)+'</span>'
+     + '<span class="ws-v">'+v+'</span></div>';
+  }
+  document.getElementById("q-formula").innerHTML=h+'</div>';
+}
+
 function useSteps(q){
   if(!hasSteps(q)) return false;
   const e=mast[qid(q)];
@@ -811,41 +881,36 @@ function nextQ(first){
   if(!first) quiz.idx++;
   if(quiz.idx>=quiz.total){ finishQuiz(); return; }
   quiz.input=""; quiz.hintUsed=false;
-  quiz.steps = useSteps(currentQ()) ? stepsOf(currentQ()) : null;
-  quiz.step = 0; quiz.stepMs = 0;
+  quiz.ws = useSteps(currentQ()) ? worksheet(currentQ()) : null;
+  quiz.wsPos = quiz.ws ? nextAsk(quiz.ws,0) : -1;
+  quiz.stepMs = 0;
   drawQ();
 }
 function drawQ(){
   const q=currentQ();
-  if(quiz.steps){
-    const st=quiz.steps[quiz.step];
-    let done="";
-    for(let i=0;i<quiz.step;i++) done+='<div class="step-done">'+(i+1)+'. '+quiz.steps[i].q+quiz.steps[i].a+'</div>';
-    document.getElementById("q-formula").innerHTML=
-      '<div class="step-orig">'+qText(q)+'?</div>'
-     + done
-     + '<div class="step-lead">'+(quiz.step+1)+'. '+st.lead+'</div>'
-     + '<div class="step-q">'+st.q+'<span class="ans">?</span></div>';
+  if(quiz.ws){
+    paintWS();
   }else{
     document.getElementById("q-formula").innerHTML=
       qText(q)+(isUnit(q)?"":'<span class="ans">?</span>')+qNote(q)
       + (needsWaza(q)?'<span class="q-waza">ワザで とこう</span>':'');
   }
-  document.getElementById("answer-display").innerHTML="&nbsp;";
+  const ad=document.getElementById("answer-display");
+  ad.style.display = quiz.ws ? "none" : "";
+  ad.innerHTML="&nbsp;";
   const fb=document.getElementById("feedback"); fb.innerHTML=""; fb.className="feedback";
   document.getElementById("bunkai-visual").style.visibility="hidden";
   const hb=document.getElementById("hint-btn");
   hb.style.visibility="visible";
   hb.textContent=(q.t==="k" && !isSquare(q)) ? "💡 ヒント（分解）" : "💡 ヒント";
-  const needDot = quiz.steps
-    ? (quiz.steps[quiz.step].a.indexOf(".")>=0)
+  const needDot = quiz.ws
+    ? (quiz.ws.rows[quiz.wsPos].a.indexOf(".")>=0)
     : (q.t==="pi"||q.t==="fd"||q.t==="go");
   document.getElementById("np-dot").style.visibility = needDot ? "visible" : "hidden";
-  renderPad(quiz.steps ? {t:"_step"} : q);
-  document.getElementById("quiz-progress").textContent=
-    (quiz.idx+1)+"/"+quiz.total+(quiz.steps?("  ステップ"+(quiz.step+1)+"/"+quiz.steps.length):"");
+  renderPad(quiz.ws ? {t:"_ws"} : q);
+  document.getElementById("quiz-progress").textContent=(quiz.idx+1)+"/"+quiz.total;
   quiz.qStart=Date.now();
-  if(quiz.steps) say(quiz.steps[quiz.step].sp);
+  if(quiz.ws) say(quiz.ws.rows[quiz.wsPos].sp);
 }
 
 function renderPad(q){
@@ -886,12 +951,14 @@ function pad(c){
   if(c==="."&&quiz.input.indexOf(".")>=0) return;
   if(quiz.input.length>=6) return;
   quiz.input+=c;
-  document.getElementById("answer-display").textContent=quiz.input;
+  if(quiz.ws) paintWS();
+  else document.getElementById("answer-display").textContent=quiz.input;
 }
 function padClear(){
   if(quiz.locked) return;
   quiz.input="";
-  document.getElementById("answer-display").innerHTML="&nbsp;";
+  if(quiz.ws) paintWS();
+  else document.getElementById("answer-display").innerHTML="&nbsp;";
 }
 
 /* ===================== ヒント ===================== */
@@ -900,24 +967,24 @@ function hintData(q){
     const a=q.x, o=a%10;
     return {h:'<span class="block10">('+a+'＋'+o+')×10 ＝ '+((a+o)*10)+'</span> ＋ '
              +'<span class="block1">'+o+'×'+o+'＝'+(o*o)+'</span>',
-            s:a+"たす"+o+"は"+(a+o)+"。"+((a+o)*10)+"。"+o+"かける"+o+"は"+(o*o)};
+            s:a+"たす"+o+"わ"+(a+o)+"。"+((a+o)*10)+"。"+o+"かける"+o+"わ"+(o*o)};
   }
   if(q.t==="k"){
     const tens=Math.floor(q.x/10)*10, ones=q.x%10;
     return {h:'<span class="block10">'+tens+'×'+q.y+'＝'+(tens*q.y)+'</span> ＋ '
              +'<span class="block1">'+ones+'×'+q.y+'＝'+(ones*q.y)+'</span>',
-            s:tens+"かける"+q.y+"は"+(tens*q.y)+"。"+ones+"かける"+q.y+"は"+(ones*q.y)};
+            s:tens+"かける"+q.y+"わ"+(tens*q.y)+"。"+ones+"かける"+q.y+"わ"+(ones*q.y)};
   }
   if(q.t==="sum"){
     return {h:'<span class="block10">'+q.b+'＋'+q.c+'＝10</span> → '
              +'<span class="block1">'+q.a+'×10＝'+(q.a*10)+'</span>',
-            s:q.b+"たす"+q.c+"は10。"+q.a+"かける10は"+(q.a*10)};
+            s:q.b+"たす"+q.c+"わ10。"+q.a+"かける10わ"+(q.a*10)};
   }
   if(q.t==="pi"){
     const n=q.n, d=(Math.round(0.14*n*100)/100).toFixed(2);
     return {h:'<span class="block10">3×'+n+'＝'+(3*n)+'</span> ＋ '
              +'<span class="block1">0.14×'+n+'＝'+d+'</span>',
-            s:"3かける"+n+"は"+(3*n)+"。0.14かける"+n+"は"+d};
+            s:"3かける"+n+"わ"+(3*n)+"。0.14かける"+n+"わ"+d};
   }
   if(q.t==="pirev"){
     return {h:'<span class="block10">3.14 で わると もどせる</span> <span class="block1">1π＝3.14</span>',
@@ -927,7 +994,7 @@ function hintData(q){
     const u=UNITS[q.i];
     return {h:'<span class="block10">1'+u.b+' ＝ '+u.k+u.s+'</span> '
              +'<span class="block1">'+(q.t==="u"?"×":"÷")+u.k+'</span>',
-            s:"1"+u.bk+"は "+u.k+u.sk};
+            s:"1"+u.bk+"わ "+u.k+u.sk};
   }
   if(!isFrac(q)) return {h:"",s:""};
   const f=FRAC[q.i];
@@ -942,8 +1009,8 @@ function hintData(q){
                       s:"0.125ずつ ふえる"+(f.goro?"。"+f.goro:"")};
   if(f.d===2||f.d===4) return {h:'<span class="block10">0.25 ずつ ふえる</span>', s:"0.25ずつ ふえる"};
   if(f.d===5)  return {h:'<span class="block10">0.2 ずつ ふえる</span>', s:"0.2ずつ ふえる"};
-  if(f.d===20) return {h:'<span class="block10">1/20 ＝ 0.05</span>', s:"20ぶんの1は 0.05"};
-  if(f.d===25) return {h:'<span class="block10">1/25 ＝ 0.04</span>', s:"25ぶんの1は 0.04"};
+  if(f.d===20) return {h:'<span class="block10">1/20 ＝ 0.05</span>', s:"20ぶんの1わ 0.05"};
+  if(f.d===25) return {h:'<span class="block10">1/25 ＝ 0.04</span>', s:"25ぶんの1わ 0.04"};
   return {h:"",s:""};
 }
 function showHint(speakIt){
@@ -958,7 +1025,7 @@ function showHint(speakIt){
 /* ===================== 採点 ===================== */
 function submitAnswer(){
   if(quiz.locked || !quiz.input) return;
-  if(quiz.steps){ submitStep(); return; }
+  if(quiz.ws){ submitStep(); return; }
   const q=currentQ();
   const ms=quiz.qStart ? (Date.now()-quiz.qStart) : 0;
   const ok=checkAns(q,quiz.input);
@@ -983,37 +1050,40 @@ function submitAnswer(){
     fb.className="feedback bad";
     showHint(false);
     const d=hintData(q);
-    say("こたえは "+qAnswerSpeech(q)+"。"+d.s);
+    say("こたえわ "+qAnswerSpeech(q)+"。"+d.s);
     quiz.locked=true;
     setTimeout(function(){ quiz.locked=false; nextQ(); }, isFrac(q)?2800:2400);
   }
   refreshMastBadge();
 }
 
-/* ステップ式の採点：1ステップずつ。どこかで間違えたら その問題は不正解 */
+/* ノート式の採点：1行ずつ。どこかで間違えたら その問題は不正解 */
 function submitStep(){
-  const q=currentQ(), st=quiz.steps[quiz.step];
+  const q=currentQ(), w=quiz.ws, r=w.rows[quiz.wsPos];
   quiz.stepMs += (quiz.qStart ? (Date.now()-quiz.qStart) : 0);
-  const ok = parseFloat(quiz.input)===parseFloat(st.a);
+  const ok = parseFloat(quiz.input)===parseFloat(r.a);
   const fb=document.getElementById("feedback");
   quiz.locked=true;
   if(!ok){
     recordResult(q,false,quiz.hintUsed,0);
     quiz.miss.push(q);
-    fb.innerHTML="❌ "+st.q+"<b>"+st.a+"</b>　こたえは "+qAnswerHtml(q);
+    quiz.input=r.a; quiz.wsPos=-1; paintWS();   /* 正しい形を見せる */
+    fb.innerHTML="❌ "+rowLabel(r)+" <b>"+r.a+"</b>　こたえは "+qAnswerHtml(q);
     fb.className="feedback bad";
-    say(st.q.replace("=","は")+st.a+"。こたえは "+qAnswerSpeech(q));
+    say("こたえわ "+qAnswerSpeech(q)+"。"+hintData(q).s);
     setTimeout(function(){ quiz.locked=false; nextQ(); }, 2800);
     refreshMastBadge();
     return;
   }
-  if(quiz.step < quiz.steps.length-1){
-    quiz.step++; quiz.input="";
+  const nx=nextAsk(w,quiz.wsPos+1);
+  if(nx>=0){
+    quiz.wsPos=nx; quiz.input="";
     fb.innerHTML="⭕"; fb.className="feedback good";
     setTimeout(function(){ quiz.locked=false; drawQ(); }, 450);
     return;
   }
-  /* 最後のステップまで正解 */
+  /* 最後まで正解 */
+  quiz.wsPos=-1; paintWS();
   const noHint=!quiz.hintUsed, wasM=isMastered(q);
   recordResult(q,true,quiz.hintUsed,quiz.stepMs);
   quiz.correct++; bumpToday(1); addPt(PT_Q);
@@ -1023,8 +1093,8 @@ function submitStep(){
   const just=(!wasM && isMastered(q));
   if(just) msg+=" <b>しゅうとく！</b>";
   fb.innerHTML=msg; fb.className="feedback good";
-  say(just ? "しゅうとく！" : "そのやりかた！");
-  setTimeout(function(){ quiz.locked=false; nextQ(); }, just?1100:800);
+  say(just ? w.done+"。しゅうとく！" : w.done);
+  setTimeout(function(){ quiz.locked=false; nextQ(); }, just?1600:1300);
   refreshMastBadge();
 }
 
