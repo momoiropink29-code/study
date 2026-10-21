@@ -279,6 +279,31 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 @media (orientation:landscape) and (min-width:820px){
   #scr-quiz .sum-q{font-size:36px;}
 }
+
+/* ===== ステップ式・単位 ===== */
+.m-unit{background:#D9EFE4;}
+.unit-q{font-size:46px; font-weight:900; letter-spacing:1px;}
+.step-orig{font-size:22px; font-weight:900; color:#9a92ab; letter-spacing:0; margin-bottom:10px;}
+.step-done{font-size:19px; font-weight:900; color:#6fae85; letter-spacing:0; margin-bottom:4px;}
+.step-lead{
+  display:inline-block; font-size:17px; font-weight:900; letter-spacing:0;
+  background:var(--lemon); border-radius:14px; padding:8px 16px; margin:6px 0 10px;
+  line-height:1.6;
+}
+.step-q{font-size:50px; font-weight:900; letter-spacing:1px;}
+.q-waza{
+  display:block; font-size:15px; font-weight:900; color:#b06a80; letter-spacing:0;
+  margin-top:8px;
+}
+@media (orientation:landscape) and (min-width:820px){
+  #scr-quiz .step-q{font-size:38px;}
+  #scr-quiz .step-orig{font-size:18px;}
+  #scr-quiz .step-lead{font-size:15px; padding:6px 12px; margin:4px 0 8px;}
+  #scr-quiz .unit-q{font-size:34px;}
+}
+@media (max-height:700px){
+  .step-q{font-size:38px;} .step-orig{font-size:18px;} .unit-q{font-size:34px;}
+}
 .m-pet{background:linear-gradient(120deg,#F3DCFF,#FFD9EC,#DCE8FF); padding:18px;}
 .m-mast{background:#E7F2E2;}
 .m-backup{background:#E4EEF8; grid-column:1/-1; padding:14px;}
@@ -308,6 +333,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
     <button class="m-review" onclick="startReview()">❌ まちがい直し<small>にがて＋ふくしゅう</small></button>
     <button class="m-pi" onclick="startPi()">🥧 πのばいすう<small>1π〜9π ぎゃく問題も</small></button>
     <button class="m-sq" onclick="startSq()">🔲 平方数<small>11×11〜19×19 ワザで作れる</small></button>
+    <button class="m-unit" onclick="startUnit()">📏 単位<small>1m＝100cm ／ 1ha＝100a</small></button>
     <button class="m-backup" onclick="showBackup()">💾 バックアップ</button>
   </div>
 </div>
@@ -443,6 +469,25 @@ const PI_TABLE = [[1,"3.14"],[2,"6.28"],[3,"9.42"],[4,"12.56"],[5,"15.70"],
 const SUMS=[[33,8,2],[25,7,3],[48,6,4],[17,9,1],[64,3,7],[12,6,4],
             [29,2,8],[56,9,1],[83,4,6],[45,5,5],[72,7,3],[19,8,2]];
 
+/* 単位：1 b ＝ k s。f=大きい単位の出題値 / r=小さい単位の出題値 */
+const UNITS=[
+ {b:"m", s:"cm", k:100,   bk:"メートル",      sk:"センチメートル",   f:1, r:300,   g:"長さ"},
+ {b:"km",s:"m",  k:1000,  bk:"キロメートル",  sk:"メートル",         f:1, r:5000,  g:"長さ"},
+ {b:"cm",s:"mm", k:10,    bk:"センチメートル",sk:"ミリメートル",     f:1, r:70,    g:"長さ"},
+ {b:"m", s:"mm", k:1000,  bk:"メートル",      sk:"ミリメートル",     f:1, r:4000,  g:"長さ"},
+ {b:"L", s:"mL", k:1000,  bk:"リットル",      sk:"ミリリットル",     f:1, r:3000,  g:"かさ"},
+ {b:"L", s:"dL", k:10,    bk:"リットル",      sk:"デシリットル",     f:1, r:50,    g:"かさ"},
+ {b:"kg",s:"g",  k:1000,  bk:"キログラム",    sk:"グラム",           f:1, r:6000,  g:"重さ"},
+ {b:"t", s:"kg", k:1000,  bk:"トン",          sk:"キログラム",       f:1, r:2000,  g:"重さ"},
+ {b:"時間",s:"分",k:60,   bk:"じかん",        sk:"ふん",             f:1, r:180,   g:"時間"},
+ {b:"分",s:"秒", k:60,    bk:"ふん",          sk:"びょう",           f:1, r:300,   g:"時間"},
+ {b:"日",s:"時間",k:24,   bk:"にち",          sk:"じかん",           f:1, r:72,    g:"時間"},
+ {b:"a", s:"㎡", k:100,   bk:"アール",        sk:"へいほうメートル", f:1, r:500,   g:"面積"},
+ {b:"ha",s:"a",  k:100,   bk:"ヘクタール",    sk:"アール",           f:1, r:300,   g:"面積"},
+ {b:"ha",s:"㎡", k:10000, bk:"ヘクタール",    sk:"へいほうメートル", f:1, r:50000, g:"面積"}
+];
+const UNIT_GROUPS=["長さ","かさ","重さ","時間","面積"];
+
 /* n:分子 d:分母 v:小数 g:グループ goro:語呂 cyc:循環 */
 const FRAC=[
  {n:1,d:8, v:"0.125", g:"8分",     goro:"イチニコ"},
@@ -483,8 +528,14 @@ function poolFrac(){
   }
   return a;
 }
-function poolAll(){ return poolK19().concat(poolSum(),poolSq(),poolPi(),poolFrac()); }
+function poolUnit(){
+  const a=[];
+  for(let i=0;i<UNITS.length;i++){ a.push({t:"u",i:i}); a.push({t:"ur",i:i}); }
+  return a;
+}
+function poolAll(){ return poolK19().concat(poolSum(),poolSq(),poolPi(),poolFrac(),poolUnit()); }
 function isFrac(q){ return q.t==="fd"||q.t==="df"||q.t==="go"; }
+function isUnit(q){ return q.t==="u"||q.t==="ur"; }
 function isSquare(q){ return q.t==="k" && q.x===q.y; }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;} return a; }
 
@@ -496,6 +547,8 @@ function qText(q){
   if(q.t==="sum") return '<span class="sum-q">'+q.a+"×"+q.b+" ＋ "+q.a+"×"+q.c+" = </span>";
   if(q.t==="pi")  return q.n+"π = ";
   if(q.t==="pirev") return q.v+" は 何π？ ";
+  if(q.t==="u"){  const u=UNITS[q.i]; return '<span class="unit-q">'+u.f+u.b+' ＝ <span class="ans">?</span> '+u.s+'</span>'; }
+  if(q.t==="ur"){ const u=UNITS[q.i]; return '<span class="unit-q">'+u.r+u.s+' ＝ <span class="ans">?</span> '+u.b+'</span>'; }
   const f=FRAC[q.i];
   if(q.t==="fd") return fracHtml(f.n,f.d)+" = ";
   if(q.t==="df") return f.v+(f.cyc?"…":"")+" = ";
@@ -506,6 +559,8 @@ function qAnswer(q){
   if(q.t==="sum") return String(q.a*10);
   if(q.t==="pi")  return q.v;
   if(q.t==="pirev") return String(q.n);
+  if(q.t==="u")   { const u=UNITS[q.i]; return String(u.f*u.k); }
+  if(q.t==="ur")  { const u=UNITS[q.i]; return String(u.r/u.k); }
   const f=FRAC[q.i];
   if(q.t==="df") return f.n+"/"+f.d;
   return f.v;
@@ -517,6 +572,8 @@ function qAnswerHtml(q){
 function qAnswerSpeech(q){
   if(q.t==="df"){ const f=FRAC[q.i]; return f.d+"ぶんの"+f.n; }
   if(q.t==="pirev") return q.n+"パイ";
+  if(q.t==="u")  { const u=UNITS[q.i]; return qAnswer(q)+u.sk; }
+  if(q.t==="ur") { const u=UNITS[q.i]; return qAnswer(q)+u.bk; }
   return qAnswer(q);
 }
 function qShort(q){
@@ -524,6 +581,8 @@ function qShort(q){
   if(q.t==="sum") return q.a+"×"+q.b+"+"+q.a+"×"+q.c;
   if(q.t==="pi")  return q.n+"π";
   if(q.t==="pirev") return q.v+"→π";
+  if(q.t==="u")   { const u=UNITS[q.i]; return u.f+u.b+"→"+u.s; }
+  if(q.t==="ur")  { const u=UNITS[q.i]; return u.r+u.s+"→"+u.b; }
   const f=FRAC[q.i];
   if(q.t==="fd") return f.n+"/"+f.d;
   if(q.t==="df") return f.v;
@@ -533,6 +592,7 @@ function qNote(q){
   if(q.t==="fd" && FRAC[q.i].cyc) return '<span class="q-note">小数第3位まで</span>';
   if(q.t==="go") return '<span class="q-note">小数で こたえてね</span>';
   if(q.t==="sum") return '<span class="q-note">まとめると はやい</span>';
+  if(isUnit(q)) return '<span class="q-note">'+UNITS[q.i].g+'</span>';
   return "";
 }
 function checkAns(q,input){
@@ -580,6 +640,7 @@ function qid(q){
   if(q.t==="sum") return "s_"+q.a+"_"+q.b;
   if(q.t==="pi")  return "pi_"+q.n;
   if(q.t==="pirev") return "pr_"+q.n;
+  if(isUnit(q)) { const u=UNITS[q.i]; return q.t+"_"+u.b+"_"+u.s; }
   const f=FRAC[q.i];
   return q.t+"_"+f.n+"_"+f.d;
 }
@@ -626,6 +687,59 @@ function isDue(q){
   if(!e || e.s<MASTER_REQ) return false;
   if(!e.nx) return true;              /* 予定日がない＝古いデータ。一度出して予定を付ける */
   return todayStr()>=e.nx;
+}
+
+/* ===================== ステップ式（ワザで解かせる） ===================== */
+/* s=0 … ステップ式で出す（ワザ以外では答えられない）
+   s=1 … 1問形式＋「ワザでとこう」
+   s>=2… 1問形式のみ（定着かくにん）                                      */
+function hasSteps(q){
+  if(q.t==="sum") return true;
+  if(q.t==="k")   return isSquare(q) || (q.x>10 && q.y<10);
+  if(q.t==="pi")  return true;
+  return false;
+}
+function stepsOf(q){
+  if(q.t==="sum"){
+    return [{lead:"まず たしてみよう", q:q.b+" ＋ "+q.c+" = ", a:String(q.b+q.c),
+             sp:"まず "+q.b+"たす"+q.c+"は？"},
+            {lead:q.a+"が "+(q.b+q.c)+"こ ぶん", q:q.a+" × "+(q.b+q.c)+" = ", a:String(q.a*10),
+             sp:q.a+"が "+(q.b+q.c)+"こ。"+q.a+"かける"+(q.b+q.c)+"は？"}];
+  }
+  if(isSquare(q)){
+    const x=q.x, o=x%10, t1=(x+o)*10;
+    return [{lead:"その数 ＋ 一の位 を 10ばい", q:"("+x+" ＋ "+o+") × 10 = ", a:String(t1),
+             sp:x+"たす"+o+"を 10ばいすると？"},
+            {lead:"一の位どうしを かけて たす（"+o+"×"+o+"＝"+(o*o)+"）",
+             q:t1+" ＋ "+(o*o)+" = ", a:String(x*x),
+             sp:t1+"たす"+(o*o)+"は？"}];
+  }
+  if(q.t==="k"){
+    const o=q.x-10, t1=10*q.y;
+    return [{lead:"まず 10のかけ算", q:"10 × "+q.y+" = ", a:String(t1),
+             sp:"まず 10かける"+q.y+"は？"},
+            {lead:"のこりを たす（"+o+"×"+q.y+"＝"+(o*q.y)+"）",
+             q:t1+" ＋ "+(o*q.y)+" = ", a:String(q.x*q.y),
+             sp:t1+"たす"+(o*q.y)+"は？"}];
+  }
+  if(q.t==="pi"){
+    const n=q.n, t1=3*n, d=(Math.round(0.14*n*100)/100).toFixed(2);
+    return [{lead:"3.14 を 3 と 0.14 に わける", q:"3 × "+n+" = ", a:String(t1),
+             sp:"まず 3かける"+n+"は？"},
+            {lead:"0.14×"+n+"＝"+d+" を たす", q:t1+" ＋ "+d+" = ", a:q.v,
+             sp:t1+"たす"+d+"は？"}];
+  }
+  return [];
+}
+function useSteps(q){
+  if(!hasSteps(q)) return false;
+  const e=mast[qid(q)];
+  return !e || !e.s;        /* s=0（はじめて／間違えた直後）だけ */
+}
+function needsWaza(q){
+  if(!hasSteps(q)) return false;
+  const e=mast[qid(q)];
+  return !!(e && e.s===1);  /* あと1回で しゅうとく */
 }
 
 function weakIn(pool){ return pool.filter(isWeak); }
@@ -697,19 +811,41 @@ function nextQ(first){
   if(!first) quiz.idx++;
   if(quiz.idx>=quiz.total){ finishQuiz(); return; }
   quiz.input=""; quiz.hintUsed=false;
+  quiz.steps = useSteps(currentQ()) ? stepsOf(currentQ()) : null;
+  quiz.step = 0; quiz.stepMs = 0;
+  drawQ();
+}
+function drawQ(){
   const q=currentQ();
-  document.getElementById("q-formula").innerHTML=qText(q)+'<span class="ans">?</span>'+qNote(q);
+  if(quiz.steps){
+    const st=quiz.steps[quiz.step];
+    let done="";
+    for(let i=0;i<quiz.step;i++) done+='<div class="step-done">'+(i+1)+'. '+quiz.steps[i].q+quiz.steps[i].a+'</div>';
+    document.getElementById("q-formula").innerHTML=
+      '<div class="step-orig">'+qText(q)+'?</div>'
+     + done
+     + '<div class="step-lead">'+(quiz.step+1)+'. '+st.lead+'</div>'
+     + '<div class="step-q">'+st.q+'<span class="ans">?</span></div>';
+  }else{
+    document.getElementById("q-formula").innerHTML=
+      qText(q)+(isUnit(q)?"":'<span class="ans">?</span>')+qNote(q)
+      + (needsWaza(q)?'<span class="q-waza">ワザで とこう</span>':'');
+  }
   document.getElementById("answer-display").innerHTML="&nbsp;";
   const fb=document.getElementById("feedback"); fb.innerHTML=""; fb.className="feedback";
   document.getElementById("bunkai-visual").style.visibility="hidden";
   const hb=document.getElementById("hint-btn");
   hb.style.visibility="visible";
   hb.textContent=(q.t==="k" && !isSquare(q)) ? "💡 ヒント（分解）" : "💡 ヒント";
-  document.getElementById("np-dot").style.visibility=
-    (q.t==="pi"||q.t==="fd"||q.t==="go") ? "visible" : "hidden";
-  renderPad(q);
-  document.getElementById("quiz-progress").textContent=(quiz.idx+1)+"/"+quiz.total;
+  const needDot = quiz.steps
+    ? (quiz.steps[quiz.step].a.indexOf(".")>=0)
+    : (q.t==="pi"||q.t==="fd"||q.t==="go");
+  document.getElementById("np-dot").style.visibility = needDot ? "visible" : "hidden";
+  renderPad(quiz.steps ? {t:"_step"} : q);
+  document.getElementById("quiz-progress").textContent=
+    (quiz.idx+1)+"/"+quiz.total+(quiz.steps?("  ステップ"+(quiz.step+1)+"/"+quiz.steps.length):"");
   quiz.qStart=Date.now();
+  if(quiz.steps) say(quiz.steps[quiz.step].sp);
 }
 
 function renderPad(q){
@@ -787,6 +923,12 @@ function hintData(q){
     return {h:'<span class="block10">3.14 で わると もどせる</span> <span class="block1">1π＝3.14</span>',
             s:"3.14でわるともどせる"};
   }
+  if(isUnit(q)){
+    const u=UNITS[q.i];
+    return {h:'<span class="block10">1'+u.b+' ＝ '+u.k+u.s+'</span> '
+             +'<span class="block1">'+(q.t==="u"?"×":"÷")+u.k+'</span>',
+            s:"1"+u.bk+"は "+u.k+u.sk};
+  }
   if(!isFrac(q)) return {h:"",s:""};
   const f=FRAC[q.i];
   if(f.d===7){
@@ -816,6 +958,7 @@ function showHint(speakIt){
 /* ===================== 採点 ===================== */
 function submitAnswer(){
   if(quiz.locked || !quiz.input) return;
+  if(quiz.steps){ submitStep(); return; }
   const q=currentQ();
   const ms=quiz.qStart ? (Date.now()-quiz.qStart) : 0;
   const ok=checkAns(q,quiz.input);
@@ -847,11 +990,51 @@ function submitAnswer(){
   refreshMastBadge();
 }
 
+/* ステップ式の採点：1ステップずつ。どこかで間違えたら その問題は不正解 */
+function submitStep(){
+  const q=currentQ(), st=quiz.steps[quiz.step];
+  quiz.stepMs += (quiz.qStart ? (Date.now()-quiz.qStart) : 0);
+  const ok = parseFloat(quiz.input)===parseFloat(st.a);
+  const fb=document.getElementById("feedback");
+  quiz.locked=true;
+  if(!ok){
+    recordResult(q,false,quiz.hintUsed,0);
+    quiz.miss.push(q);
+    fb.innerHTML="❌ "+st.q+"<b>"+st.a+"</b>　こたえは "+qAnswerHtml(q);
+    fb.className="feedback bad";
+    say(st.q.replace("=","は")+st.a+"。こたえは "+qAnswerSpeech(q));
+    setTimeout(function(){ quiz.locked=false; nextQ(); }, 2800);
+    refreshMastBadge();
+    return;
+  }
+  if(quiz.step < quiz.steps.length-1){
+    quiz.step++; quiz.input="";
+    fb.innerHTML="⭕"; fb.className="feedback good";
+    setTimeout(function(){ quiz.locked=false; drawQ(); }, 450);
+    return;
+  }
+  /* 最後のステップまで正解 */
+  const noHint=!quiz.hintUsed, wasM=isMastered(q);
+  recordResult(q,true,quiz.hintUsed,quiz.stepMs);
+  quiz.correct++; bumpToday(1); addPt(PT_Q);
+  let msg="⭕ せいかい！";
+  if(noHint){ addPt(PT_NOHINT); msg+=' <span class="nh">ヒントなし +'+PT_NOHINT+'pt</span>'; }
+  msg+=' <span class="rt">'+(quiz.stepMs/1000).toFixed(1)+'秒</span>';
+  const just=(!wasM && isMastered(q));
+  if(just) msg+=" <b>しゅうとく！</b>";
+  fb.innerHTML=msg; fb.className="feedback good";
+  say(just ? "しゅうとく！" : "そのやりかた！");
+  setTimeout(function(){ quiz.locked=false; nextQ(); }, just?1100:800);
+  refreshMastBadge();
+}
+
 /* ===================== 各モード ===================== */
 function startBunkai(){
   const pool=poolK19().concat(poolSum());
   startQuiz({kind:"b", title:"🧩 分解・まとめ", queue:buildSession(pool,10), total:10});
-  showHint(false);
+}
+function startUnit(){
+  startQuiz({kind:"b", title:"📏 単位", queue:buildSession(poolUnit(),10), total:10});
 }
 function startFrac(){
   startQuiz({kind:"b", title:"🍰 分数⇔小数", queue:buildSession(poolFrac(),10), total:10});
@@ -878,7 +1061,6 @@ function startReview(){
 function retry(){
   if(!lastMode){ goHome(); return; }
   startQuiz(Object.assign({},lastMode,{queue:shuffle(lastMode.queue.slice())}));
-  if(lastMode.title.indexOf("分解")>=0) showHint(false);
 }
 
 function finishQuiz(){
@@ -904,7 +1086,8 @@ function catalog(){
     {name:"まとめるワザ",   pool:poolSum()},
     {name:"平方数",         pool:poolSq()},
     {name:"πのばいすう",    pool:poolPi()},
-    {name:"分数⇔小数",      pool:poolFrac()}
+    {name:"分数⇔小数",      pool:poolFrac()},
+    {name:"単位",           pool:poolUnit()}
   ];
 }
 function countMastered(pool){ let c=0; for(let i=0;i<pool.length;i++) if(isMastered(pool[i])) c++; return c; }
@@ -946,6 +1129,13 @@ function showMastery(){
     if(c.name==="分数⇔小数"){
       FRAC_GROUPS.forEach(function(g){
         const sub=poolFrac().filter(function(q){ return FRAC[q.i].g===g; });
+        h+='<div class="mh mast-sub" style="margin:8px 0 0"><span>'+g+'</span><em>'
+         + countMastered(sub)+'/'+sub.length+'</em></div>';
+      });
+    }
+    if(c.name==="単位"){
+      UNIT_GROUPS.forEach(function(g){
+        const sub=poolUnit().filter(function(q){ return UNITS[q.i].g===g; });
         h+='<div class="mh mast-sub" style="margin:8px 0 0"><span>'+g+'</span><em>'
          + countMastered(sub)+'/'+sub.length+'</em></div>';
       });
