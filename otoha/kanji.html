@@ -25,7 +25,7 @@
   main { max-width: 660px; margin: 0 auto; padding: 18px 16px 60px; }
   .card { background: rgba(255,255,255,.92); border: 2px solid var(--line); border-radius: 18px; box-shadow: 0 4px 14px rgba(120,170,220,.18); padding: 14px; }
   .menuBtn { border: 2px solid #b9a8ff; color: var(--ink); background: #fff; border-radius: 999px; padding: 5px 14px; font-weight: 900; font-size: 12px; }
-  .masu { background: linear-gradient(#cfe8f7 1px, transparent 1px) padding-box, linear-gradient(90deg, #cfe8f7 1px, transparent 1px) padding-box, linear-gradient(#fff,#fff) padding-box, var(--rainbow) border-box; background-size: 28px 28px, 28px 28px, auto, auto; border: 4px solid transparent; border-radius: 22px; padding: 28px 18px; text-align: center; box-shadow: 0 6px 18px rgba(120,170,220,.25); }
+  .masu { background: linear-gradient(#cfe8f7 1px, transparent 1px) padding-box, linear-gradient(90deg, #cfe8f7 1px, transparent 1px) padding-box, linear-gradient(#fff,#fff) padding-box, var(--rainbow) border-box; background-size: 28px 28px, 28px 28px, auto, auto; border: 4px solid transparent; border-radius: 22px; padding: 28px 18px; text-align: center; box-shadow: 0 6px 18px rgba(120,170,220,.25); position: relative; }
   .btn { border: none; border-radius: 16px; font-weight: 900; color: #fff; box-shadow: 0 3px 0 rgba(60,60,120,.18); }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
   .bar-bg { background: #e6f0fa; border-radius: 999px; height: 18px; overflow: hidden; }
@@ -42,6 +42,13 @@
   select { border: 2px solid #b9a8ff; color: var(--ink); border-radius: 10px; padding: 9px 10px; font-weight: 900; font-size: 14px; background: #fff; width: 100%; }
   .sent { font-size: 20px; font-weight: 700; line-height: 1.9; text-align: left; }
   .sent b { color: var(--red); background: #ffe8f2; border-radius: 6px; padding: 0 4px; }
+  .sbadge { display: flex; align-items: center; justify-content: flex-end; gap: 9px; line-height: 1; margin: -17px -4px 9px 0; }
+  .sbadge .n { font-size: 13px; font-weight: 900; white-space: nowrap; }
+  .sbadge .n .o { color: var(--green); }
+  .sbadge .n .x { color: var(--red); margin-left: 6px; }
+  .sbadge .m { display: flex; gap: 2px; }
+  .sbadge .m i { width: 9px; height: 12px; border-radius: 2px; background: #eaf4fc; border: 1px solid #cfe8f7; display: block; }
+  .sbadge .m i.on { background: linear-gradient(180deg,#6fe3c8,#23b39b); border-color: #23b39b; }
   .link { color: var(--ink); font-weight: 900; font-size: 13px; background: rgba(255,255,255,.9); border: 2px solid #b9a8ff; border-radius: 999px; padding: 6px 14px; }
   .errBox { margin-top:10px; }
   .errQ { font-weight:900; font-size:17px; text-align:center; margin-bottom:8px; color:var(--ink); }
@@ -1062,7 +1069,7 @@ function record(item, ok, info){
   const s = save.stats[item.id]||{c:0,w:0,box:0,due:dayStr()};
   const offered = hintAvail(item), prevBox = s.box||0;
   const early = !!save.stats[item.id] && !!s.due && s.due > dayStr();  // 予定日がまだ先の問題
-  s.c+=ok?1:0; s.w+=ok?0:1;
+  if(!isRetry){ s.c+=ok?1:0; s.w+=ok?0:1; }   // なおしタイムは ○× に数えない
   // なおしタイムの正解は「今おぼえただけ」なので間かくは進めず、明日また出す(boxは下げたまま)
   if(isRetry){ s.due=addDays(1); }
   else if(ok && early){ /* 予定日前の正解は box も due も動かさない(通し練習で水増しさせない) */ }
@@ -1185,7 +1192,7 @@ function renderMenu(){
     <div class="bar-bg"><div class="bar" style="width:${(mastered/193)*100}%;${mastered>0?"min-width:18px":""}"></div></div>
     <p style="font-weight:700;font-size:13px;margin-top:6px">おぼえた <b style="color:var(--red);font-size:18px">${mastered}</b> / 193字
       <span style="color:var(--gray);margin-left:8px">${dueCount>0?`復習まち ${dueCount}問`:"復習まちなし!"}</span></p>
-    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:2px">※1日→3日→1週間→2週間→1か月と間をあけて出題。4回連続で正解すると「おぼえた」!予定日より前にといた分は数えません。</p>
+    <p style="font-size:11px;font-weight:700;color:var(--gray);margin-top:2px">※1日→3日→1週間→2週間→1か月と間をあけて出題。4回連続で正解すると「おぼえた」!</p>
   </div>
   <div class="card">
     <p style="font-weight:900;font-size:14px;margin-bottom:6px">範囲</p>
@@ -1227,6 +1234,14 @@ function renderQuiz(){
         <p style="font-size:12px;font-weight:900;color:var(--gray)">「<span class="kl">${cur.k}</span>」の練習</p>
         ${radHtml?`<div>${radHtml}</div>`:""}`:""}`;
   return quizFrame(board);
+}
+function statBadge(item){
+  const st = save.stats[item.id] || {c:0,w:0,box:0};
+  const box = Math.min(st.box||0,5);
+  let m=""; for(let i=0;i<5;i++) m += `<i class="${i<box?"on":""}"></i>`;
+  return `<div class="sbadge">
+    <span class="n"><span class="o">○${st.c||0}</span><span class="x">×${st.w||0}</span></span>
+    <span class="m">${m}</span></div>`;
 }
 function quizFrame(board){
   const cur=queue[idx];
@@ -1278,7 +1293,7 @@ function quizShell(board, bottom){
     <span style="font-weight:900;font-size:13px;color:${isRetry?"var(--red)":"var(--gray)"}">${isRetry?`なおしタイム${retryRound>1?"("+retryRound+"かい目)":""} `:""}だい ${idx+1} 問 / ${queue.length} 問</span>
     <span style="font-weight:900;font-size:13px"><span style="color:var(--green)">○ ${session.c}</span>　<span style="color:var(--red)">× ${session.w}</span>　<span style="color:var(--gold)">⭐${session.pt}pt</span></span>
   </div>
-  <div class="masu">${board}</div>
+  <div class="masu">${statBadge(queue[idx])}${board}</div>
   ${bottom}`;
 }
 
