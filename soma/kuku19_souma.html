@@ -327,6 +327,16 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 
 .ver{display:inline-block; margin-left:10px; font-size:12px; font-weight:900;
   color:#c6bfd4; letter-spacing:.5px;}
+
+/* ===== やり直し・つぎへ ===== */
+.np-ok.np-next{background:linear-gradient(120deg,#BFE3F5,#D4B8F0);}
+.feedback.shake{animation:fbshake .4s;}
+@keyframes fbshake{
+  0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);}
+  40%{transform:translateX(8px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);}
+}
+@media (prefers-reduced-motion:reduce){ .feedback.shake{animation:none;} }
+.feedback .again{font-size:16px; color:#9a92ab;}
 .m-pet{background:linear-gradient(120deg,#CFF0DC,#BFE3F5); padding:18px;}
 .m-mast{background:#E7F2E2;}
 .m-backup{background:#E4EEF8; grid-column:1/-1; padding:14px;}
@@ -340,7 +350,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 <!-- ===== ホーム ===== -->
 <div class="screen active" id="scr-home">
   <h1>そうまの 19×19 マスター</h1>
-  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.3  2026-10-21</span></div>
+  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.4  2026-10-25</span></div>
   <div class="streak-box">
     <span>🔥 れんぞく <b id="home-streak">0</b> 日</span>
     <span>⭐ <b class="pt-view">0</b> pt</span>
@@ -385,11 +395,11 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
     <button onclick="pad('1')">1</button><button onclick="pad('2')">2</button><button onclick="pad('3')">3</button>
     <button class="np-clear" onclick="padClear()">けす</button><button onclick="pad('0')">0</button><button id="np-dot" onclick="pad('.')">.</button>
   </div>
-  <div class="numpad" style="grid-template-columns:1fr; margin-top:10px;">
-    <button class="np-ok" onclick="submitAnswer()">こたえる！</button>
-  </div>
   </div>
   <div class="choice-pad" id="choice-pad"></div>
+  <div class="numpad" style="grid-template-columns:1fr; margin-top:10px;">
+    <button class="np-ok" id="np-ok" onclick="onOk()">こたえる！</button>
+  </div>
   </div>
 </div>
 
@@ -746,7 +756,8 @@ function worksheet(q){
       rows:[
         {l:"("+x+" ＋ "+o+") × 10 =", a:String(t1), ask:true,
          sp:x+"かける"+x+"を とくよ。まず "+x+"たす"+o+"を 10ばいすると？"},
-        {l:"＋　"+o+" × "+o+" =", a:String(o*o), ask:false},
+        {l:"＋　"+o+" × "+o+" =", a:String(o*o), ask:true,
+         sp:"つぎに "+o+"かける"+o+"わ？"},
         {l:"あわせて =", a:String(tot), ask:true, rule:true,
          sp:t1+"たす"+(o*o)+"わ？"}
       ],
@@ -758,7 +769,8 @@ function worksheet(q){
       rows:[
         {l:"10 × "+q.y+" =", a:String(t1), ask:true,
          sp:q.x+"かける"+q.y+"を とくよ。まず 10かける"+q.y+"わ？"},
-        {l:"＋　"+o+" × "+q.y+" =", a:String(t2), ask:false},
+        {l:"＋　"+o+" × "+q.y+" =", a:String(t2), ask:true,
+         sp:"つぎに "+o+"かける"+q.y+"わ？"},
         {l:"あわせて =", a:String(tot), ask:true, rule:true,
          sp:t1+"たす"+t2+"わ？"}
       ],
@@ -881,6 +893,7 @@ function nextQ(first){
   if(!first) quiz.idx++;
   if(quiz.idx>=quiz.total){ finishQuiz(); return; }
   quiz.input=""; quiz.hintUsed=false;
+  quiz.wrongOnce=false; quiz.tries=0; quiz.revealed=false; quiz.await=false;
   quiz.ws = useSteps(currentQ()) ? worksheet(currentQ()) : null;
   quiz.wsPos = quiz.ws ? nextAsk(quiz.ws,0) : -1;
   quiz.stepMs = 0;
@@ -908,6 +921,9 @@ function drawQ(){
     : (q.t==="pi"||q.t==="fd"||q.t==="go");
   document.getElementById("np-dot").style.visibility = needDot ? "visible" : "hidden";
   renderPad(quiz.ws ? {t:"_ws"} : q);
+  const okb=document.getElementById("np-ok");
+  okb.style.display = (!quiz.ws && q.t==="df") ? "none" : "";   /* 4たくは タップが こたえ */
+  okb.textContent="こたえる！"; okb.className="np-ok";
   document.getElementById("quiz-progress").textContent=(quiz.idx+1)+"/"+quiz.total;
   quiz.qStart=Date.now();
   if(quiz.ws) say(quiz.ws.rows[quiz.wsPos].sp);
@@ -1023,79 +1039,110 @@ function showHint(speakIt){
 }
 
 /* ===================== 採点 ===================== */
+
+/* ===== 採点：正解するまで やり直す／3回で こたえを見せる／つぎへボタンで進む ===== */
+const MAX_TRY=3;
+
+function wrongShake(){
+  const fb=document.getElementById("feedback");
+  fb.className="feedback bad shake";
+  setTimeout(function(){ fb.classList.remove("shake"); },400);
+}
+
+/* ノート式（1行ずつ） */
+function submitStep(){
+  const w=quiz.ws, r=w.rows[quiz.wsPos];
+  quiz.stepMs += (quiz.qStart ? (Date.now()-quiz.qStart) : 0);
+  const fb=document.getElementById("feedback");
+  if(parseFloat(quiz.input)===parseFloat(r.a)){ quiz.tries=0; advanceRow(); return; }
+
+  quiz.wrongOnce=true; quiz.tries=(quiz.tries||0)+1;
+  if(quiz.tries>=MAX_TRY){
+    quiz.revealed=true;
+    quiz.input=r.a; paintWS();
+    fb.innerHTML='こたえは <b>'+r.a+'</b>'; fb.className="feedback bad";
+    quiz.locked=true;
+    setTimeout(function(){ quiz.locked=false; quiz.tries=0; advanceRow(); },1400);
+    return;
+  }
+  fb.innerHTML="❌ もういちど"; wrongShake();
+  if(quiz.tries===2) showHint(false);      /* 2回目で ヒントを開く（音声なし） */
+  quiz.input=""; paintWS();
+  quiz.qStart=Date.now();
+}
+function advanceRow(){
+  const nx=nextAsk(quiz.ws,quiz.wsPos+1);
+  if(nx>=0){
+    quiz.wsPos=nx; quiz.input="";
+    const fb=document.getElementById("feedback"); fb.innerHTML=""; fb.className="feedback";
+    drawQ();
+    return;
+  }
+  quiz.wsPos=-1; paintWS();
+  finishOne();
+}
+
+/* 1問形式 */
 function submitAnswer(){
   if(quiz.locked || !quiz.input) return;
   if(quiz.ws){ submitStep(); return; }
   const q=currentQ();
-  const ms=quiz.qStart ? (Date.now()-quiz.qStart) : 0;
-  const ok=checkAns(q,quiz.input);
-  const noHint=!quiz.hintUsed;
-  const wasM=isMastered(q);
-  recordResult(q,ok,quiz.hintUsed,ms);
+  quiz.stepMs += (quiz.qStart ? (Date.now()-quiz.qStart) : 0);
   const fb=document.getElementById("feedback");
-  if(ok){
-    quiz.correct++; bumpToday(1); addPt(PT_Q);
-    let msg="⭕ せいかい！";
-    if(noHint){ addPt(PT_NOHINT); msg+=' <span class="nh">ヒントなし +'+PT_NOHINT+'pt</span>'; }
-    msg+=' <span class="rt">'+(ms/1000).toFixed(1)+'秒</span>';
-    const just=(!wasM && isMastered(q));
-    if(just) msg+=" <b>しゅうとく！</b>";
-    fb.innerHTML=msg; fb.className="feedback good";
-    if(just) say("しゅうとく！");
-    quiz.locked=true;
-    setTimeout(function(){ quiz.locked=false; nextQ(); }, just?1100:600);
-  }else{
-    quiz.miss.push(q);
-    fb.innerHTML="❌ こたえは "+qAnswerHtml(q);
-    fb.className="feedback bad";
+  if(checkAns(q,quiz.input)){ quiz.tries=0; finishOne(); return; }
+
+  quiz.wrongOnce=true; quiz.tries=(quiz.tries||0)+1;
+  if(quiz.tries>=MAX_TRY){
+    quiz.revealed=true;
     showHint(false);
-    const d=hintData(q);
-    say("こたえわ "+qAnswerSpeech(q)+"。"+d.s);
-    quiz.locked=true;
-    setTimeout(function(){ quiz.locked=false; nextQ(); }, isFrac(q)?2800:2400);
+    finishOne();
+    return;
   }
-  refreshMastBadge();
+  fb.innerHTML="❌ もういちど"; wrongShake();
+  if(quiz.tries===2) showHint(false);
+  quiz.input="";
+  document.getElementById("answer-display").innerHTML="&nbsp;";
+  quiz.qStart=Date.now();
 }
 
-/* ノート式の採点：1行ずつ。どこかで間違えたら その問題は不正解 */
-function submitStep(){
-  const q=currentQ(), w=quiz.ws, r=w.rows[quiz.wsPos];
-  quiz.stepMs += (quiz.qStart ? (Date.now()-quiz.qStart) : 0);
-  const ok = parseFloat(quiz.input)===parseFloat(r.a);
+/* 1問おわり → つぎへボタン待ち（自動では進まない・音声なし） */
+function finishOne(){
+  const q=currentQ(), clean=!quiz.wrongOnce, wasM=isMastered(q);
+  recordResult(q, clean, quiz.hintUsed, clean?quiz.stepMs:0);
   const fb=document.getElementById("feedback");
-  quiz.locked=true;
-  if(!ok){
-    recordResult(q,false,quiz.hintUsed,0);
+  if(clean){
+    quiz.correct++; bumpToday(1); addPt(PT_Q);
+    let msg="⭕ せいかい！";
+    if(!quiz.hintUsed){ addPt(PT_NOHINT); msg+=' <span class="nh">ヒントなし +'+PT_NOHINT+'pt</span>'; }
+    msg+=' <span class="rt">'+(quiz.stepMs/1000).toFixed(1)+'秒</span>';
+    if(!wasM && isMastered(q)) msg+=' <b>しゅうとく！</b>';
+    fb.innerHTML=msg; fb.className="feedback good";
+  }else{
     quiz.miss.push(q);
-    quiz.input=r.a; quiz.wsPos=-1; paintWS();   /* 正しい形を見せる */
-    fb.innerHTML="❌ "+rowLabel(r)+" <b>"+r.a+"</b>　こたえは "+qAnswerHtml(q);
+    if(quiz.revealed){
+      fb.innerHTML='こたえは '+qAnswerHtml(q)+' <span class="again">つぎは じぶんで！</span>';
+    }else{
+      fb.innerHTML='⭕ できた！ <span class="again">つぎは 1回で せいかいしよう</span>';
+    }
     fb.className="feedback bad";
-    say("こたえわ "+qAnswerSpeech(q)+"。"+hintData(q).s);
-    setTimeout(function(){ quiz.locked=false; nextQ(); }, 2800);
-    refreshMastBadge();
-    return;
   }
-  const nx=nextAsk(w,quiz.wsPos+1);
-  if(nx>=0){
-    quiz.wsPos=nx; quiz.input="";
-    fb.innerHTML="⭕"; fb.className="feedback good";
-    setTimeout(function(){ quiz.locked=false; drawQ(); }, 450);
-    return;
-  }
-  /* 最後まで正解 */
-  quiz.wsPos=-1; paintWS();
-  const noHint=!quiz.hintUsed, wasM=isMastered(q);
-  recordResult(q,true,quiz.hintUsed,quiz.stepMs);
-  quiz.correct++; bumpToday(1); addPt(PT_Q);
-  let msg="⭕ せいかい！";
-  if(noHint){ addPt(PT_NOHINT); msg+=' <span class="nh">ヒントなし +'+PT_NOHINT+'pt</span>'; }
-  msg+=' <span class="rt">'+(quiz.stepMs/1000).toFixed(1)+'秒</span>';
-  const just=(!wasM && isMastered(q));
-  if(just) msg+=" <b>しゅうとく！</b>";
-  fb.innerHTML=msg; fb.className="feedback good";
-  say(just ? w.done+"。しゅうとく！" : w.done);
-  setTimeout(function(){ quiz.locked=false; nextQ(); }, just?1600:1300);
   refreshMastBadge();
+  awaitNext();
+}
+function awaitNext(){
+  quiz.await=true; quiz.locked=true;
+  const b=document.getElementById("np-ok");
+  b.style.display=""; b.textContent="つぎへ →"; b.className="np-ok np-next";
+}
+function onOk(){
+  if(quiz.await){
+    quiz.await=false; quiz.locked=false;
+    const b=document.getElementById("np-ok");
+    b.textContent="こたえる！"; b.className="np-ok";
+    nextQ();
+    return;
+  }
+  submitAnswer();
 }
 
 /* ===================== 各モード ===================== */
