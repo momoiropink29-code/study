@@ -452,7 +452,8 @@ const TESTS=[
    n3:{name:"曲がって流れているところ",ic:"🌀",col:"#ffd9e6"},
    n4:{name:"水の量をふやすと",ic:"🚿",col:"#d8f2e6"},
    n5:{name:"書いて答える（記述）",ic:"✏️",col:"#e6e0fb"},
-   n6:{name:"思考力のとびら（三日月湖）",ic:"🌙",col:"#fff0c7"}
+   n6:{name:"思考力のとびら（三日月湖）",ic:"🌙",col:"#fff0c7"},
+   n7:{name:"川の災害を防ぐくふう",ic:"🏗️",col:"#dfe9f5"}
   },
   plan:[
    {d:"2026-10-19",us:["n1","n2"],src:"core",cap:22,paper:"P.80・81を読む、確認しよう まとめノート①②⑦〜⑪、練習しよう 1・2(1)④・2(2)"},
@@ -573,7 +574,20 @@ const POINTS={
   <li>その道すじができると、曲がった部分が <b>とり残されて</b> 三日月湖になる</li>
   <li>曲がったところの <b>内側＝たい積</b>（土やすなを積もらせる）／<b>外側＝しん食と運ぱん</b></li></ul>`+figPQ()+`<ul class="points">
   <li>まっすぐに流れる川は、<b>中央</b> の水の流れがいちばん速い</li>
-  <li>流れが速いほどしん食が大きい → 川底は <b>中央ほど深い</b>。大きな石しかしずまないので、中央の石は大きい</li></ul>`
+  <li>流れが速いほどしん食が大きい → 川底は <b>中央ほど深い</b>。大きな石しかしずまないので、中央の石は大きい</li></ul>`,
+ n7:()=>T(["くふう","何をする／何を防ぐ"],[
+   ["<b>堤防（ていぼう）</b>","川が増水したとき、水が<b>町に流れこむ</b>のを防ぎ、川岸が<b>しん食される</b>のを防ぐ"],
+   ["<b>河川敷（かせんしき）</b>","川が増水したとき、<b>川はばを広げて</b>水があふれないようにする"],
+   ["<b>ブロック</b>","<b>水の力を弱く</b>して、川岸が<b>しん食される</b>のを防ぐ"],
+   ["<b>遊水池（ゆうすいち）</b>","あふれそうなとき、<b>川の水を引きこんで一時的にためて</b>、下流に流れる水を減らす"],
+   ["<b>ダム</b>","ふだんは水をためる。大雨の前には<b>川の水の量を調節</b>し、下流のこう水を防ぐ"],
+   ["<b>砂防ダム</b>","<b>しん食された石や砂</b>が一度に流されるのを防ぎ、水のいきおいを弱くする"],
+   ["<b>地下放水路</b>","増水したとき、川の水を<b>地下にためて</b>別の川へ流し、下流の水を減らす"]])
+  +`<ul class="points">
+  <li><b>ダムの水の量</b>…ふだん＝ためてある／台風や大雨の<b>前</b>＝<b>へらしておく</b>／台風や大雨の<b>とき</b>＝<b>ためる</b></li>
+  <li><b>砂防ダムがないと</b> 石や砂が <b>全て下流に</b> 流れる。<b>あると</b> 大きい石から順にたまり、一度に流れない</li>
+  <li>「しん食を防ぐ」のは <b>堤防・ブロック</b>／「水の量を減らす」のは <b>遊水池・ダム・地下放水路</b></li>
+  <li>堤防は <b>土手を高くする</b>、河川敷は <b>川はばを広くする</b>（どちらも あふれるのを防ぐ）</li></ul>`
 
 };
 
@@ -924,6 +938,30 @@ w("n5","「水が土をこうげきする」を、理科のことばで言いか
 w("n5","「土がなくなっていく」を、理科のことばで言いかえて書きなさい。","しん食されて、土がけずられていく。",["しん食","けずられ"],"なくなる のではなく <b>けずられて運ばれる</b>。"+PR,"「しん食」を使って","",1);
 w("n5","「土がたまっていく」を、理科のことばで言いかえて書きなさい。","たい積して、土が積もっていく。",["たい積","積もる"],"たまる → <b>たい積</b>。"+PR,"「たい積」を使って","",1);
 
+/* ===== n7 川の災害を防ぐくふう（学校のプリント） ===== */
+const SB="＜学校のプリント「川の災害を防ぐためのくふう」＞";
+c("n7","川が増水したときに、水が町に流れこむのを防ぐためにつくられているものは何ですか。",["堤防（ていぼう）","河川敷","遊水池","砂防ダム"],0,"堤防は、水が町に流れこむのと、川岸がしん食されるのの<b>2つ</b>を防ぐ。"+SB);
+c("n7","堤防は、水が町に流れこむのを防ぐほかに、何を防いでいますか。",["川岸がしん食されるの","川の水がにごるの","川はばが広がるの"],0,"堤防は <b>しん食</b> も防ぐ。"+SB,"",true);
+c("n7","川が増水したときに、川はばを広げて水があふれないようにしているところを何といいますか。",["河川敷（かせんしき）","遊水池","堤防","地下放水路"],0,"ふだんは公園や野球場になっていることもある。"+SB);
+c("n7","ブロックは、何のためにおかれていますか。",["水の力を弱くして、川岸がしん食されるのを防ぐため","川の水をためるため","川はばを広げるため"],0,"ブロック＝しん食を防ぐ。"+SB,figBlock());
+c("n7","川があふれそうなときに、川の水を引きこんで一時的にためるところを何といいますか。",["遊水池（ゆうすいち）","河川敷","砂防ダム","堤防"],0,"ふだんは公園として使われている場所に、川の水を引きこむ。"+SB);
+c("n7","遊水池は、水を一時的にためることで何をしていますか。",["下流に流れる水を減らしている","川岸のしん食を防いでいる","水力発電をしている"],0,"<b>下流に流れる水を減らす</b>。"+SB,"",true);
+c("n7","ダムは、台風や大雨の<b>前</b>には、水をどうしていますか。",["へらしておく","ためておく","そのままにする"],0,"前もって<b>へらしておく</b>から、大雨のときにためられる。"+SB,T(["ダムの水","ふだん","台風や大雨の前","台風や大雨のとき"],[["どうする","ためてある","<b>へらしておく</b>","<b>ためる</b>"]]),true);
+c("n7","ダムは、台風や大雨の<b>とき</b>には、上流でふった雨をどうしますか。",["ためる","すぐに流す","へらす"],0,"ためて、下流でこう水が起こらないようにする。"+SB,"",true);
+c("n7","ダムは、川の水の何を調節していますか。",["量","色","温度","深さ"],0,"川の水の<b>量</b>を調節する。"+SB);
+c("n7","ダムは、ふだんは何のために使われていますか。",["水をためて水不足に備えたり、水力発電をする","川はばを広げる","石をためる"],0,"ふだんの役目も覚えておく。"+SB,"",true);
+c("n7","砂防ダムは、何が一度に流されるのを防いでいますか。",["しん食された石や砂","川の水だけ","船"],0,"<b>しん食された石や砂</b>。水ではなく石や砂。"+SB,"",true);
+c("n7","砂防ダムは、石や砂をためることで、水の何を弱くしていますか。",["いきおい","温度","色"],0,"水のいきおいを弱くする。"+SB,"",true);
+c("n7","砂防ダムが<b>ない</b>川では、大雨のときにけずられた石や砂はどうなりますか。",["全て下流に流れてしまう","その場に残る","上流にもどる"],0,"砂防ダムがないと、一度に全部下流へ。"+SB,"",true);
+c("n7","砂防ダムが<b>ある</b>川では、たまった石の大きさは上流に近いほうと下流に近いほうでどうちがいますか。",["上流に近いほうが大きい","下流に近いほうが大きい","どちらも同じ"],0,"大きな石ほど先にしずむので、<b>上流に近いほうが大きい</b>。下流に近いほど小さい。"+SB,"",true);
+c("n7","川が増水したときに、川の水を地下にためて別の川に流すものを何といいますか。",["地下放水路","遊水池","砂防ダム","河川敷"],0,"埼玉県の「首都圏がいかく放水路」が有名。"+SB);
+c("n7","川岸が<b>しん食される</b>のを防ぐためのくふうは、次のどれですか。",["堤防とブロック","遊水池とダム","地下放水路"],0,"しん食を防ぐ＝堤防・ブロック。水の量を減らす＝遊水池・ダム・地下放水路。"+SB,"",true);
+c("n7","<b>下流に流れる水の量を減らす</b>ためのくふうは、次のどれですか。",["遊水池・ダム・地下放水路","堤防とブロック","河川敷だけ"],0,"量を減らす3つ。"+SB,"",true);
+w("n7","堤防は、川が増水したときに何を防いでいますか。2つ書きなさい。","水が町に流れこむのを防ぎ、川岸がしん食されるのを防ぐ。",["水が町に流れこむ","川岸がしん食される"],"<b>2つとも</b>書く。プリントの空らんと同じ。"+SB,"2つ書こう");
+w("n7","遊水池は、川があふれそうなときに何をして、下流に流れる水を減らしますか。","川の水を引きこんで、一時的にためる。",["川の水を引きこんで","一時的にためて"],"プリントの空らんと同じことば。"+SB,"「〜引きこんで、〜ためて」");
+w("n7","砂防ダムは、何が一度に流されるのを防いでいますか。","しん食された石や砂。",["しん食された","石や砂"],"「しん食された」をつけて書く。"+SB,"","",1);
+w("n7","台風や大雨の前に、ダムの水をへらしておくのはなぜですか。","大雨でふった雨をためて、下流でこう水が起こらないようにするため。",["雨をためて","下流","こう水","〜ため。"],"「前にへらす → 大雨でためられる → こう水を防ぐ」の順。"+SB,"「〜ため。」で終わろう");
+
 /* ===== ここからウィンパス（2周目） ===== */
 /* n1 */
 c("n1","大雨がふると川の水の量が増え、流れる水のはたらきが大きくなります。このとき川の水がにごるのはなぜですか。",["けずられた土が水に混ざるから","水の温度が上がるから","石がとけるから"],0,"川岸などの土がけずられ、その土が水に混ざるため。"+WQ("84"),"",true);
@@ -1101,16 +1139,57 @@ function vHome(){
   h+=`<button class="link" onclick="go('parent')">おうちの人へ（書いたノート・きろく）</button>`;
   app.innerHTML=h;
 }
-function dumpLog(){
-  const d=document.getElementById("dump");if(!d)return;
-  if(d.innerHTML){d.innerHTML="";return;}
+/* クリップボードへコピー（失敗したらテキストエリア経由） */
+function copyText(t,btn,okmsg,tgt){
+  const done=()=>{if(btn){const o=btn.innerHTML;btn.innerHTML=okmsg||"✅ コピーしました";setTimeout(()=>btn.innerHTML=o,1800);}};
+  const fallback=()=>{try{const ta=document.createElement("textarea");ta.value=t;
+      ta.style.cssText="position:fixed;left:-9999px;top:0";document.body.appendChild(ta);
+      ta.focus();ta.select();ta.setSelectionRange(0,t.length);
+      const ok=document.execCommand("copy");document.body.removeChild(ta);
+      if(ok)done();else showText(t,tgt);}catch(e){showText(t,tgt);}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done).catch(fallback);
+  }else fallback();
+}
+function showText(t,tgt){const d=document.getElementById(tgt||"dump");if(!d){alert("コピーできませんでした。もう一度おしてください。");return;}
+  d.innerHTML=`<p class="muted" style="margin:8px 0 4px">自動コピーできませんでした。下を長おしして「すべてを選択」→コピーしてください。</p><textarea class="lg" readonly>${t.replace(/</g,"&lt;")}</textarea>`;
+  const ta=d.querySelector("textarea");ta.focus();ta.select();}
+
+/* ===== バックアップ（きろくのコピー／もどす） ===== */
+function backupJSON(){
+  const o={v:1,ts:new Date().toISOString(),stars:S.stars,done:S.done,stat:S.stat,wrong:S.wrong,
+    best:S.best,plog:S.plog,ptms:S.ptms,open:S.open,pick:S.pick,unlockAll:S.unlockAll};
+  return JSON.stringify(o);
+}
+function doBackup(btn){
+  const j=backupJSON();
+  const d=document.getElementById("dump2");if(d)d.innerHTML="";
+  copyText(j,btn,`✅ コピーしました（${(j.length/1024).toFixed(0)}KB）`,"dump2");
+}
+function showRestore(){
+  const d=document.getElementById("dump2");if(!d)return;
+  if(d.querySelector("#rsin")){d.innerHTML="";return;}
+  d.innerHTML=`<p class="muted" style="margin:8px 0 4px">バックアップした文字列を下に貼りつけて、「もどす」をおしてください。</p>
+   <textarea class="lg" id="rsin" placeholder='{"v":1,...}'></textarea>
+   <button class="btn pink" onclick="doRestore()">このきろくにもどす</button>`;
+}
+function doRestore(){
+  const el=document.getElementById("rsin");if(!el)return;
+  let o;try{o=JSON.parse(el.value.trim());}catch(e){alert("読みこめませんでした。文字列が途中で切れていないか確認してください。");return;}
+  if(!o||typeof o!=="object"||!o.stat){alert("バックアップの形がちがうようです。");return;}
+  if(!confirm("いまのきろくを、貼りつけたきろくで置きかえます。よろしいですか？"))return;
+  ["stars","done","stat","wrong","best","plog","ptms","open","pick","unlockAll"].forEach(k=>{if(o[k]!==undefined)S[k]=o[k];});
+  save();alert("もどしました。");location.reload();
+}
+
+function dumpLog(btn){
+  const d=document.getElementById("dump");if(d)d.innerHTML="";
   const head="ts\tid\tunit\ttype\tscore\tms\tfirst_ms\tink\tundo\tkind\tquestion";
   const rows=S.plog.map(x=>{const q=QBY(x.id);
     return [new Date(x.ts).toISOString(),x.id,x.u,x.t,x.s,x.ms,x.f==null?"":x.f,x.ink==null?"":x.ink,x.ud,x.k,
       (q?q.q.replace(/<[^>]+>/g,"").replace(/[\t\n]/g," "):"")].join("\t");});
   const tsv=[head].concat(rows).join("\n");
-  d.innerHTML=`<p class="muted" style="margin:8px 0 4px">全${rows.length}行。長押しで全選択してコピーしてください。</p><textarea class="lg" readonly>${tsv.replace(/</g,"&lt;")}</textarea>`;
-  try{const r=navigator.clipboard.writeText(tsv);if(r&&r.catch)r.catch(()=>{});}catch(e){}
+  copyText(tsv,btn,`✅ コピーしました（${rows.length}行）`,"dump");
 }
 function toggleFold(id){S.open[id]=!S.open[id];save();go("home");}
 function togglePaper(d,k){S.done[d]=S.done[d]||{};S.done[d][k]=!S.done[d][k];bonus(d);save();go("home");}
@@ -1357,7 +1436,7 @@ function vParent(){
         return [`<span${warn}>${new Date(x.ts).toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span>`,
           u.ic,{c:"えらぶ",n:"けいさん",w:"書く"}[x.t],x.s>=1?"○":x.s>0?"△":"×",
           `<span${warn}>${sec(x.ms)}</span>`,x.t==="c"?"―":sec(x.f)+(x.ud?`<br><span class="muted" style="font-size:10px">消し${x.ud}回</span>`:"")];}))}
-      <button class="btn soft" onclick="dumpLog()" style="margin-top:12px">きろくをTSVで出す（分析用）</button>
+      <button class="btn soft" onclick="dumpLog(this)" style="margin-top:12px">📋 きろくをTSVでコピー（分析用）</button>
       <div id="dump"></div></div>`;})()}
    <div class="card"><h2>📊 たんげんべつの記録</h2>
     <p class="muted" style="margin:0">出題＝これまでに答えた回数。<b>未＝1回も出題されていない問題数</b>。書く問題は本人の自己採点（◎＝正解）です。</p>
@@ -1378,6 +1457,11 @@ function vParent(){
     <button class="btn soft" onclick="pickImg('prize')">けっか画面の画像をかえる</button>
     <button class="btn soft" onclick="if(confirm('画像を初期にもどしますか？')){S.img={};save();go('parent')}">画像を初期にもどす</button>
     <button class="btn soft" onclick="if(confirm('きろくをすべて消しますか？（もとにもどせません）')){localStorage.removeItem(KEY);location.reload()}">きろくをすべて消す</button></div>
+   <div class="card"><h2>💾 バックアップ</h2>
+    <p class="muted" style="margin:0">⭐・正誤・まちがいノート・ふるまいの記録をコピーします（手書き画像と写真はふくみません）。メモ帳などに貼って保管してください。</p>
+    <button class="btn lav" onclick="doBackup(this)" style="margin-top:10px">📋 きろくをコピー（バックアップ）</button>
+    <button class="btn soft" onclick="showRestore()">バックアップからもどす</button>
+    <div id="dump2"></div></div>
    <button class="btn soft" onclick="go('home')">もどる</button>`;
 }
 
