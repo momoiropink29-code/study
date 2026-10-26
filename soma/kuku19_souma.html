@@ -337,6 +337,18 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 }
 @media (prefers-reduced-motion:reduce){ .feedback.shake{animation:none;} }
 .feedback .again{font-size:16px; color:#9a92ab;}
+
+/* ===== かみふぶき ===== */
+.conf{
+  position:fixed; top:-44px; z-index:90; pointer-events:none; user-select:none;
+  animation:conffall 1.6s cubic-bezier(.4,.1,.7,1) forwards;
+}
+@keyframes conffall{
+  0%  {transform:translateY(0) rotate(0deg) scale(.7); opacity:0;}
+  12% {opacity:1;}
+  100%{transform:translateY(96vh) rotate(420deg) scale(1.1); opacity:0;}
+}
+@media (prefers-reduced-motion:reduce){ .conf{display:none;} }
 .m-pet{background:linear-gradient(120deg,#CFF0DC,#BFE3F5); padding:18px;}
 .m-mast{background:#E7F2E2;}
 .m-backup{background:#E4EEF8; grid-column:1/-1; padding:14px;}
@@ -350,7 +362,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 <!-- ===== ホーム ===== -->
 <div class="screen active" id="scr-home">
   <h1>そうまの 19×19 マスター</h1>
-  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.4  2026-10-25</span></div>
+  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.5  2026-10-25</span></div>
   <div class="streak-box">
     <span>🔥 れんぞく <b id="home-streak">0</b> 日</span>
     <span>⭐ <b class="pt-view">0</b> pt</span>
@@ -744,7 +756,7 @@ function worksheet(q){
     return {head:q.a+"×"+q.b+" ＋ "+q.a+"×"+q.c+" = ?",
       rows:[
         {l:q.a+"が なんこ？　"+q.b+" ＋ "+q.c+" =", a:String(s), ask:true,
-         sp:q.a+"かける"+q.b+" たす "+q.a+"かける"+q.c+"を とくよ。まず "+q.b+"たす"+q.c+"わ？"},
+         sp:q.a+"かける"+q.b+" たす "+q.a+"かける"+q.c+"を とくよ。"+q.a+"が なんこ？　"+q.b+"たす"+q.c+"わ？"},
         {l:q.a+" × "+s+" =", l0:q.a+" × ⬜ =", dep:0, a:String(tot), ask:true,
          sp:q.a+"が "+s+"こ。"+q.a+"かける"+s+"わ？"}
       ],
@@ -857,6 +869,51 @@ function refreshVoiceBtn(){
   if(!b) return;
   b.textContent = voiceOn ? "🔊 よみあげ" : "🔇 よみあげ";
   b.className = "voice-tg" + (voiceOn?"":" off");
+}
+/* ===== 盛り上げ（おと・かみふぶき・かけ声）===== */
+const NOTE={lo:392.00, do:523.25, mi:659.25, so:783.99, hi:1046.50, hi2:1318.51};
+let audioCtx=null;
+function beep(notes,vol){
+  if(!voiceOn) return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return;
+    if(!audioCtx) audioCtx=new AC();
+    if(audioCtx.state==="suspended") audioCtx.resume();
+    let t=audioCtx.currentTime+0.01;
+    for(let i=0;i<notes.length;i++){
+      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type="triangle"; o.frequency.value=notes[i];
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(vol||0.16,t+0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.15);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t); o.stop(t+0.17);
+      t+=0.10;
+    }
+  }catch(e){}
+}
+const CONFETTI=["\u2b50","\u2728","\ud83c\udf89","\ud83d\udcab","\ud83c\udf1f","\ud83c\udf8a"];
+function party(n){
+  try{
+    for(let i=0;i<n;i++){
+      const el=document.createElement("div");
+      el.className="conf";
+      el.textContent=CONFETTI[Math.floor(Math.random()*CONFETTI.length)];
+      el.style.left=(4+Math.random()*92)+"%";
+      el.style.animationDelay=(Math.random()*0.4).toFixed(2)+"s";
+      el.style.fontSize=(18+Math.random()*20).toFixed(0)+"px";
+      document.body.appendChild(el);
+      (function(e){ setTimeout(function(){ if(e.parentNode) e.parentNode.removeChild(e); },2200); })(el);
+    }
+  }catch(e){}
+}
+const CHEERS=["やったー！","ナイス！","いいね！","かんぺき！","すごい！","その ちょうし！","バッチリ！"];
+let lastCheer=-1;
+function cheer(){
+  let i=0;
+  if(CHEERS.length>1){ do{ i=Math.floor(Math.random()*CHEERS.length); }while(i===lastCheer); }
+  lastCheer=i; say(CHEERS[i]);
 }
 function say(text){
   if(!voiceOn || !text) return;
@@ -1073,6 +1130,7 @@ function submitStep(){
 function advanceRow(){
   const nx=nextAsk(quiz.ws,quiz.wsPos+1);
   if(nx>=0){
+    if(!quiz.revealed) beep([NOTE.so],0.10);
     quiz.wsPos=nx; quiz.input="";
     const fb=document.getElementById("feedback"); fb.innerHTML=""; fb.className="feedback";
     drawQ();
@@ -1115,8 +1173,11 @@ function finishOne(){
     let msg="⭕ せいかい！";
     if(!quiz.hintUsed){ addPt(PT_NOHINT); msg+=' <span class="nh">ヒントなし +'+PT_NOHINT+'pt</span>'; }
     msg+=' <span class="rt">'+(quiz.stepMs/1000).toFixed(1)+'秒</span>';
-    if(!wasM && isMastered(q)) msg+=' <b>しゅうとく！</b>';
+    const just=(!wasM && isMastered(q));
+    if(just) msg+=' <b>しゅうとく！</b>';
     fb.innerHTML=msg; fb.className="feedback good";
+    if(just){ beep([NOTE.do,NOTE.mi,NOTE.so,NOTE.hi,NOTE.hi2]); party(18); say("しゅうとく！"); }
+    else    { beep([NOTE.do,NOTE.mi,NOTE.so]); party(8); cheer(); }
   }else{
     quiz.miss.push(q);
     if(quiz.revealed){
@@ -1125,6 +1186,7 @@ function finishOne(){
       fb.innerHTML='⭕ できた！ <span class="again">つぎは 1回で せいかいしよう</span>';
     }
     fb.className="feedback bad";
+    beep([NOTE.mi],0.10);
   }
   refreshMastBadge();
   awaitNext();
@@ -1192,7 +1254,8 @@ function finishQuiz(){
   document.getElementById("result-best").textContent=bonus;
   document.getElementById("result-miss").innerHTML=missHtml;
   show("scr-result");
-  if(perfect) say("ぜんもん せいかい！");
+  if(perfect){ beep([NOTE.do,NOTE.mi,NOTE.so,NOTE.hi,NOTE.so,NOTE.hi2],0.2); party(26); say("ぜんもん せいかい！"); }
+  else { beep([NOTE.do,NOTE.so],0.12); party(6); }
 }
 function perfectBonus(){ addPt(PT_PERFECT); return "🎉 ぜんもん正解ボーナス +"+PT_PERFECT+"pt！"; }
 
