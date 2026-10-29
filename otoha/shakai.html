@@ -172,8 +172,13 @@ h2.sec{margin:26px 0 2px;font-size:15.5px;color:var(--ink-soft);letter-spacing:.
 @keyframes shine{0%{left:-60%}55%{left:130%}100%{left:130%}}
 .btn.naoshi .nspark{display:inline-block;animation:twinkle 1.6s ease-in-out infinite}
 @keyframes twinkle{0%,100%{transform:scale(1) rotate(0);opacity:.95}50%{transform:scale(1.25) rotate(14deg);opacity:1}}
-.btn.naoshi:disabled{background:#EFE7EF;box-shadow:0 5px 0 #E2D6E2}
-.btn.naoshi:disabled::after,.btn.naoshi:disabled .nspark{display:none}
+/* まちがいが0件のとき：グレーにせず、やさしい色でキープ */
+.btn.naoshi.empty,.btn.naoshi.empty:disabled{
+  background:linear-gradient(118deg,#FFD9A8,#FFE9B8 48%,#FFD2B0);
+  box-shadow:0 6px 0 #EFC28E;color:#A2702C;opacity:1}
+.btn.naoshi.empty .badge{background:#fff;color:#C98C32}
+.btn.naoshi.empty .s b{background:#fff;color:#C98C32}
+.btn.naoshi.empty::after{animation-duration:5s}
 
 /* 地名ずかんボタン */
 .btn.zukan{background:linear-gradient(118deg,#9BD6F2,#B4A8F5 55%,#E29BE8);box-shadow:0 6px 0 #8E85C9}
@@ -216,17 +221,12 @@ h2.sec{margin:26px 0 2px;font-size:15.5px;color:var(--ink-soft);letter-spacing:.
 .tiplist mark.m1{background-image:linear-gradient(#FFC9DD,#FFC9DD)}
 .tiplist mark.m2{background-image:linear-gradient(#FFE199,#FFE199)}
 .tiplist mark.m3{background-image:linear-gradient(#BEE7F8,#BEE7F8)}
-.tip1{margin:0 0 10px;background:#FFF2D6;border-radius:16px;padding:11px 14px;
-  font-size:14.5px;line-height:1.7;color:#8A6A1E;font-weight:700}
-.tip1 b{font-size:16.5px;color:#C77B1A}
+.tiplist mark.m4{background-image:linear-gradient(#C8EFD6,#C8EFD6)}
 .card.stat h2{margin-bottom:9px}
 .statline{margin:9px 0 2px;font-size:17px;font-weight:800;letter-spacing:.02em}
 .statline b{font-size:26px;color:var(--pink-d);margin:0 2px}
 .statline span{font-size:14.5px;color:var(--ink-soft);font-weight:700;margin-left:4px}
 .statnote{margin:0;font-size:12.5px;color:var(--ink-soft);line-height:1.6}
-.ptsline{margin:10px 0 0;background:linear-gradient(100deg,#FFF1F7,#FFF8E8);border-radius:14px;
-  padding:9px 14px;font-size:13.5px;font-weight:700;color:#A3708B}
-.ptsline b{font-size:20px;color:var(--pink-d);margin:0 3px}
 h2.sec{position:relative}
 
 /* そのほかボタン */
@@ -1439,25 +1439,24 @@ function render(){
     const wc=wrongCount(), rem=allRemain(), tot=ITEMS.length, pct=Math.round((tot-rem)/tot*100);
 
     h+=`<div class="card tips"><h2>💡 100点へのコツ</h2>
-      <p class="tip1">△ をつけるのは はずかしくない。<br><b>△が いちばん 点につながる。</b></p>
       <ul class="tiplist">
-      <li><span class="te">🗣</span>にた2つ（過密と過疎、亜熱帯と冷帯）は <mark class="m1">かならず声に出して</mark> 区別する</li>
-      <li><span class="te">✏️</span>地名は ひらがなで言えても ×。<mark class="m2">漢字で手を動かす</mark>こと</li>
-      <li><span class="te">📝</span>記述で「気温と降水量にふれて」とあれば <mark class="m3">両方に1回ずつふれる</mark></li></ul></div>`;
+      <li><span class="te">💗</span>△ をつけるのは はずかしくない。<mark class="m1">△が いちばん 点につながる</mark></li>
+      <li><span class="te">🗣</span>にた2つ（過密と過疎、亜熱帯と冷帯）は <mark class="m2">かならず声に出して</mark> 区別する</li>
+      <li><span class="te">✏️</span>地名は ひらがなで言えても ×。<mark class="m3">漢字で手を動かす</mark>こと</li>
+      <li><span class="te">📝</span>記述で「気温と降水量にふれて」とあれば <mark class="m4">両方に1回ずつふれる</mark></li></ul></div>`;
 
     h+=`<button class="btn rainbow" onclick='start({type:"osusume",n:5})'>✍️ かきとり（5もん）
       <span class="s">まちがえたもの → まだおぼえていないもの の順に 5もん。ゆびで書いて、じぶんで丸つけ。</span></button>`;
     h+=`<button class="btn sky" onclick="startPair()">⚡ にたものチェック（10もん）
       <span class="s">「扇状地と三角州」みたいに まちがえやすい 2つを 見分ける練習。${S.pairBest?"ベスト "+fmtMs(S.pairBest):"タイムをきそおう！"}</span></button>`;
-    h+=`<button class="btn naoshi" ${wc?"":"disabled"} onclick='start({type:"review",n:5})'>
+    h+=`<button class="btn naoshi${wc?"":" empty"}" ${wc?"":"disabled"} onclick='start({type:"review",n:5})'>
       <span class="nhead"><span class="nspark">✨</span>🔁 まちがいなおし${wc?`<span class="badge">${wc}もん</span>`:""}</span>
-      <span class="s">${wc?`ここが いちばん 点がのびるところ！ ◎をつけたら そつぎょう🎓 あめも <b>🍬3こ</b> ともらえる`:"△や×をつけると ここにたまるよ。"}</span></button>`;
+      <span class="s">${wc?`ここが いちばん 点がのびるところ！ ◎をつけたら そつぎょう🎓 あめも <b>🍬3こ</b> ともらえる`:`いまは カラッポ！🎉 △や×をつけると ここに あつまって、あめが <b>🍬3こ</b> もらえるよ`}</span></button>`;
 
     h+=`<div class="card stat"><h2>⭐ 社会 おぼえたじょうきょう</h2>
       <div class="bigbar"><i style="width:${pct}%"></i></div>
       <p class="statline">おぼえた <b>${tot-rem}</b> / ${tot}もん　<span>復習まち ${wc}もん</span></p>
-      <p class="statnote">※おなじもんだいに 3回 ◎ をつけると「おぼえた」！</p>
-      <p class="ptsline">これまでに ためた 🍬あめ <b>${(S.pts||0).toLocaleString("ja-JP")}</b>こ</p></div>`;
+      <p class="statnote">※おなじもんだいに 3回 ◎ をつけると「おぼえた」！</p></div>`;
 
     h+=`<h2 class="sec">🎎 11／13のテストはんい</h2>`;
     ["bunka","jinko"].forEach(u=>h+=unitBtn(u));
