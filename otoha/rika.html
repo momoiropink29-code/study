@@ -128,9 +128,16 @@ table.t td:first-child{background:#f6fbfe;font-weight:600}
 .opt.dim{opacity:.45}
 .exp{margin-top:14px;background:#fffbea;border-radius:20px;padding:13px 15px;font-size:15px;box-shadow:0 4px 0 #f7ebc2}
 .exp b{display:block;font-size:12.5px;color:#c99a1c;margin-bottom:2px}
+.exp .ansv{display:inline-block;font-weight:800;font-size:20px;color:#c43a66;margin-left:4px;vertical-align:-2px}
 .exp.ng{background:#eef6fc;box-shadow:0 4px 0 #d3e6f3}
 .exp.ng b{color:var(--blue-d)}
-.mark{position:absolute;top:-34px;right:4px;width:82px;height:82px;pointer-events:none}
+.mark{position:absolute;top:-26px;right:-2px;width:88px;height:88px;pointer-events:none}
+.yatta{margin-top:14px;background:linear-gradient(180deg,#fff7fb,#ffe9f2);border-radius:22px;
+  padding:15px 14px 13px;text-align:center;box-shadow:0 5px 0 #ffc9dc}
+.yatta .big{font-size:30px;font-weight:800;color:var(--pink-d);line-height:1.2;letter-spacing:.03em}
+.yatta .sub{font-size:13.5px;color:#b8738e;margin-top:4px}
+.numin input.ok{color:#2f8f5b;border-color:#8fd3ab;background:#f2fbf6;font-weight:700;-webkit-text-fill-color:#2f8f5b;opacity:1}
+.numin input.ng{color:#c43a66;border-color:#f3b6c7;background:#fff3f7;font-weight:700;-webkit-text-fill-color:#c43a66;opacity:1}
 .pop{animation:pop .32s cubic-bezier(.3,1.5,.5,1)}
 @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 .sparkle{position:fixed;font-size:20px;pointer-events:none;z-index:50;animation:spk 1s ease-out forwards;color:#ffc2d8}
@@ -1881,8 +1888,8 @@ function vQuiz(){
     const ni=document.getElementById("ni"),nb=document.getElementById("nb");
     ni.oninput=mzTouch;
     const chk=()=>{mzAns();const v=ni.value.replace(/[０-９．]/g,s=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)).replace(/。/g,".").trim();if(!v)return;
-      const ok=q.a.includes(v);ni.disabled=true;nb.remove();finish(q,ok?2:0,2,ok?1:0,ni);
-      ar.insertAdjacentHTML("beforeend",expBox(q,ok,`こたえ：${q.a[0]} ${q.un}`)+nextBtn());};
+      const ok=q.a.includes(v);ni.disabled=true;ni.classList.add(ok?"ok":"ng");nb.remove();finish(q,ok?2:0,2,ok?1:0,ni);
+      ar.insertAdjacentHTML("beforeend",expBox(q,ok,ok?"":`正しいこたえ <span class="ansv">${q.a[0]} ${q.un}</span>`)+nextBtn());};
     nb.onclick=chk;ni.onkeydown=e=>{if(e.key==="Enter")chk();};
   }else{
     const H=q.lines===1?150:250;
@@ -1912,7 +1919,11 @@ function revealW(q){
     S.gal.push({id:q.id,q:q.q.replace(/<[^>]+>/g,"").slice(0,70),a:q.a,u:q.u,img,m,ts:Date.now()});if(S.gal.length>60)S.gal.shift();
     finish(q,m===2?3:m===1?1:0,3,m===2?1:m===1?.6:0,b);ar.insertAdjacentHTML("beforeend",nextBtn());});
 }
-function expBox(q,ok,extra=""){return `<div class="exp ${ok?"":"ng"} pop"><b>${ok?"せいかい！":"ざんねん… ここをおぼえよう"}</b>${extra?extra+"<br>":""}${q.e}</div>`;}
+const CHEER=["やったー！","せいかい！","すごい！","バッチリ！","いいね！","その調子！","かんぺき！"];
+function expBox(q,ok,extra=""){
+  const c=CHEER[Math.floor(Math.random()*CHEER.length)];
+  return (ok?`<div class="yatta pop"><div class="big">◎ ${c}</div><div class="sub">⭐️ ほしを ゲット！</div></div>`:"")
+   +`<div class="exp ${ok?"":"ng"} pop"><b>${ok?"おぼえるポイント":"ざんねん… ここをおぼえよう"}</b>${extra?extra+"<br>":""}${q.e}</div>`;}
 function nextBtn(){const last=sess.i>=sess.list.length-1;setTimeout(()=>{const b=document.getElementById("nx");if(b)b.scrollIntoView({behavior:"smooth",block:"center"});},60);
   return `<button class="btn ${last?"rainbow":""}" id="nx" onclick="nextQ()">${last?"けっかを見る":"つぎへ"}</button>`;}
 function finish(q,stars,maxStars,score,el){
@@ -1924,7 +1935,7 @@ function finish(q,stars,maxStars,score,el){
   save();hd();
 }
 function mark(){const qc=document.getElementById("qc");if(!qc)return;qc.insertAdjacentHTML("beforeend",
-  `<svg class="mark pop" viewBox="0 0 100 100"><circle cx="50" cy="50" r="36" fill="none" stroke="#ff8fb4" stroke-width="7"/><path d="M26 52q10-30 34-22t10 26q-6 16-30 12" fill="none" stroke="#ff8fb4" stroke-width="5" stroke-linecap="round"/></svg>`);}
+  `<svg class="mark pop" viewBox="0 0 100 100"><circle cx="50" cy="52" r="37" fill="#fff" fill-opacity=".85"/><circle cx="50" cy="52" r="37" fill="none" stroke="#ff8fb4" stroke-width="7"/><circle cx="50" cy="52" r="23" fill="none" stroke="#ff8fb4" stroke-width="6"/></svg>`);}
 function sparkle(el){const r=el.getBoundingClientRect();for(let i=0;i<7;i++){const s=document.createElement("span");s.className="sparkle";s.textContent=["✦","✧","♡"][i%3];
   s.style.left=(r.left+Math.random()*r.width)+"px";s.style.top=(r.top+Math.random()*r.height)+"px";s.style.animationDelay=(i*.06)+"s";document.body.appendChild(s);setTimeout(()=>s.remove(),1300);}}
 function nextQ(){sess.i++;if(sess.i>=sess.list.length)go("result");else go("quiz");}
