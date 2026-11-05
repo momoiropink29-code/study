@@ -1560,8 +1560,8 @@ function render(){
   if(view==="home"){
     dayCheck();
     const wc=wrongCount(), rem=allRemain(), tot=ITEMS.length, pct=Math.round((tot-rem)/tot*100);
-    h+=missionCard();
     h+=petCard();
+    h+=missionCard();
 
     h+=`<div class="card tips"><h2>💡 100点へのコツ</h2>
       <ul class="tiplist">
