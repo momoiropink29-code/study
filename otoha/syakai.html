@@ -197,6 +197,35 @@ h2.sec{margin:26px 0 2px;font-size:15.5px;color:var(--ink-soft);letter-spacing:.
 .bigbar i{display:block;height:100%;border-radius:9px;
   background:linear-gradient(90deg,#FF8FB1,#FFD766,#8FDCA6,#7FC9EC,#B4A8F5)}
 
+/* きょうのミッション */
+.card.mission{background:linear-gradient(140deg,#FFF0F7,#FFF8EC 55%,#EEF8FF);
+  box-shadow:0 7px 0 #F0DCEA;padding:18px}
+.mlabel{margin:0;font-size:14px;font-weight:800;color:#B07C9A}
+.mlabel span{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-top:1px}
+.mdots{display:flex;gap:7px;margin:11px 0 13px}
+.mdots i{flex:1;height:7px;border-radius:99px;background:#F0E2EE}
+.mdots i.on{background:linear-gradient(90deg,#FF8FB1,#FFB067)}
+.mdots i.now{background:#FFD766;animation:mpulse 1.5s ease-in-out infinite}
+@keyframes mpulse{0%,100%{opacity:1}50%{opacity:.45}}
+.mbody{display:flex;align-items:center;gap:13px}
+.mic{flex:none;width:54px;height:54px;border-radius:50%;background:#fff;display:flex;
+  align-items:center;justify-content:center;font-size:27px;box-shadow:0 3px 0 #F0DCEA}
+.mtx b{display:block;font-size:21px;line-height:1.4}
+.mtx em{font-style:normal;font-size:13px;color:var(--ink-soft);font-weight:700}
+.mdesc{margin:11px 0 0;font-size:13.5px;line-height:1.75;color:var(--ink-soft)}
+.btn.mstart{background:linear-gradient(95deg,#FF8FB1,#FFB067,#FFD766,#8FDCA6,#7FC9EC,#B4A8F5);
+  box-shadow:0 6px 0 #D9A0C6;text-align:center;font-size:19px;padding:17px;margin-top:14px}
+.btn.mstart:active{box-shadow:0 2px 0 #D9A0C6}
+.btn.mstart.more{font-size:16px;padding:14px}
+.mfoot{margin:9px 0 0;text-align:center;font-size:12px;color:var(--ink-soft);font-weight:700}
+.card.mission.fin{background:linear-gradient(140deg,#FFF6E2,#F2FBF2)}
+.mdone{margin:4px 0 0;font-size:21px;font-weight:800;line-height:1.6;text-align:center;color:#C98C32}
+
+/* じぶんで えらぶ（ふだんは たたむ） */
+details.fold.pick{background:#FFFFFFB8;padding:4px 14px}
+details.fold.pick[open]{padding-bottom:14px}
+details.fold.pick summary{color:var(--ink-soft)}
+
 /* ヘッダーの あめポイント */
 .best.pts b{background:linear-gradient(90deg,#FF8FB1,#FFB067);-webkit-background-clip:text;
   background-clip:text;color:transparent}
@@ -795,7 +824,8 @@ const LV=[0,25,65,125,200];
    2. 保存
    ========================================================= */
 const KEY="nijiiro_shakai_v3";
-let S={xp:0,pts:null,pet:0,dex:[],m:{},wrong:{},proof:[],done:0,pairBest:0,kBest:0,oya:0};
+let S={xp:0,pts:null,pet:0,dex:[],m:{},wrong:{},proof:[],done:0,pairBest:0,kBest:0,oya:0,
+       day:"",step:0,bonusDay:""};
 function load(){try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}
   /* 前バージョンからの引きつぎ：累計あめが無ければ 図かん×200＋いまのあめ で計算 */
   if(typeof S.pts!=="number")S.pts=(S.dex?S.dex.length:0)*200+(S.xp||0);
@@ -914,6 +944,67 @@ let flashMsg=null;
 /* =========================================================
    10. 画面
    ========================================================= */
+/* =========================================================
+   9-b. きょうのミッション
+   ========================================================= */
+function todayStr(){const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function dayCheck(){const t=todayStr(); if(S.day!==t){S.day=t;S.step=0;save();}}
+
+/* 11／9 学力テスト・11／13 社会科テスト に合わせて中身を切りかえる */
+const U_GAKU=["kokudo","chikei","kikou","takahiku","atatakai","todofu","sekai","ame","zukei","kijutsu","mSan","mHei","mKawa"];
+const U_SHAKAI=["bunka","jinko","kijutsu"];
+const U_ALL=Object.keys(UNITS);
+function phase(){const t=todayStr();
+  if(t<="2026-11-08")return "A";
+  if(t<="2026-11-12")return "B";
+  return "C";}
+function missions(){
+  const p=phase();
+  const pair={k:"pair",ic:"⚡",t:"にたものチェック",s:"10もん・やく2ふん",
+    d:"まちがえやすい 2つを 見分ける ウォーミングアップ。まずは これだけ！"};
+  if(p==="A")return [pair,
+    {k:"write",ic:"✍️",t:"かきとり",s:"5もん・やく5ふん",units:U_GAKU,
+      d:"11／9の 学力テストの ところから 5もん。ゆびで書いて、じぶんで丸つけ。"},
+    {k:"last",ic:"🔁",t:"しあげ",s:"5もん・やく3ふん",units:U_GAKU,
+      d:"きょう まちがえたものを もう一回。ここがいちばん 点になるよ。"}];
+  if(p==="B")return [pair,
+    {k:"write",ic:"✍️",t:"かきとり",s:"5もん・やく5ふん",units:U_SHAKAI,
+      d:"11／13の 社会科テストの ところ（文化と生活・人口）から 5もん。"},
+    {k:"kei",ic:"🧮",t:"人口みつどの計算",s:"5もん・やく3ふん",
+      d:"人口 ÷ 面積。テストに ぜったい出るところ！"}];
+  return [pair,
+    {k:"write",ic:"✍️",t:"かきとり",s:"5もん・やく5ふん",units:U_ALL,
+      d:"まだ おぼえていない ところから 5もん。"},
+    {k:"last",ic:"🔁",t:"しあげ",s:"5もん・やく3ふん",units:U_ALL,
+      d:"きょう まちがえたものを もう一回。"}];
+}
+let missionRun=-1;
+function startMission(){
+  dayCheck();
+  const ms=missions(), i=S.step;
+  if(i>=ms.length){missionRun=-1;start({type:"osusume",n:5,label:"✨ おかわり"});return;}
+  const t=ms[i]; missionRun=i;
+  if(t.k==="pair"){startPair();return;}
+  if(t.k==="kei"){startKei();return;}
+  if(t.k==="last"&&wrongCount()>0){start({type:"review",n:5,label:t.ic+" "+t.t});return;}
+  start({type:"units",units:t.units,n:5,label:t.ic+" "+t.t});
+}
+function missionDone(kind){
+  const ms=missions();
+  if(missionRun!==S.step||S.step>=ms.length){missionRun=-1;return;}
+  const want=ms[S.step].k;
+  const hit=(want==="pair"&&kind==="pair")||(want==="kei"&&kind==="kei")
+          ||((want==="write"||want==="last")&&kind==="write");
+  if(hit){
+    S.step++;
+    if(S.step>=ms.length&&S.bonusDay!==todayStr()){S.bonusDay=todayStr();addXP(15);
+      flashMsg="🎉 きょうの ミッション ぜんぶ クリア！ ボーナスで 🍬あめ 15こ ゲット！";}
+    save();
+  }
+  missionRun=-1;
+}
+
 let view="home",deck=[],idx=0,answered=false,mode=null,sess={ok:0,mid:0,ng:0},sessLog=[];
 let pair=null, kei=null, oyaOK=false, oyaQ=null;
 const app=document.getElementById("app");
@@ -925,7 +1016,9 @@ function start(m){
   if(m.type==="unit")pool=ITEMS.filter(i=>i.unit===m.unit&&lvOf(i.id)<MASTER);
   else if(m.type==="review")pool=wrongIds().map(byId);
   else if(m.type==="osusume")pool=ITEMS.filter(i=>lvOf(i.id)<MASTER);
-  if(!pool||!pool.length){flashMsg="このセットは ぜんぶ おぼえたよ！🏆 ほかのところを やってみよう。";render();return;}
+  else if(m.type==="units")pool=ITEMS.filter(i=>m.units.indexOf(i.unit)>=0&&lvOf(i.id)<MASTER);
+  if(!pool||!pool.length){missionRun=-1;
+    flashMsg="このセットは ぜんぶ おぼえたよ！🏆 ほかのところを やってみよう。";render();return;}
   mode=m; deck=pickPool(pool,m.n||5); idx=0; answered=false; strokes=[];
   sess={ok:0,mid:0,ng:0}; sessLog=[];
   go("quiz");
@@ -949,7 +1042,7 @@ function judge(k){
   sessLog.push({id:id,k:k});
   S.done++; save();
   if(idx+1<deck.length){idx++;answered=false;strokes=[];render();}
-  else go("result");
+  else{missionDone("write");go("result");}
 }
 
 /* ---- にたものチェック ---- */
@@ -969,7 +1062,7 @@ function pairPick(side){
     if(pair.i+1<pair.deck.length){pair.i++;pair.picked=null;render();}
     else{pair.ms=Date.now()-pair.t0;
       if(pair.ok===pair.deck.length){addXP(10);if(!S.pairBest||pair.ms<S.pairBest)S.pairBest=pair.ms;save();}
-      go("pairend");}
+      missionDone("pair");go("pairend");}
   }, side===h[1]?620:1500);
 }
 
@@ -993,7 +1086,7 @@ function keiCheck(){
 }
 function keiNext(){
   if(kei.i+1<kei.deck.length){kei.i++;kei.inp="";kei.res=null;render();}
-  else{if(kei.ok===kei.deck.length){addXP(10);S.kBest=Math.max(S.kBest||0,kei.ok);save();}go("keiend");}
+  else{if(kei.ok===kei.deck.length){addXP(10);S.kBest=Math.max(S.kBest||0,kei.ok);save();}missionDone("kei");go("keiend");}
 }
 
 /* ---- おうちの人チェック ---- */
@@ -1426,6 +1519,36 @@ function listTable(u){
 }
 function fmtMs(ms){return (ms/1000).toFixed(1)+"びょう";}
 
+/* きょうのミッション：いまやる 1つ だけを大きく出す */
+function missionCard(){
+  const ms=missions(), i=S.step, n=ms.length;
+  const dots=ms.map((_,k)=>`<i class="${k<i?"on":k===i?"now":""}"></i>`).join("");
+  const sub={A:"11／9（月）学力テストまで",B:"11／13（金）社会科テストまで",C:"きょうの れんしゅう"}[phase()];
+  let left="";
+  if(phase()!=="C"){
+    const goal=phase()==="A"?"2026-11-09":"2026-11-13";
+    const d=Math.round((new Date(goal)-new Date(todayStr()))/86400000);
+    left=d>0?`あと ${d}日`:"きょう 本番！";
+  }
+  if(i>=n){
+    return `<div class="card mission fin">
+      <p class="mlabel">🎯 きょうの ミッション <span>${sub}${left?"・"+left:""}</span></p>
+      <p class="mdone">ぜんぶ おわり！<br>きょうは もう だいじょうぶ 🎉</p>
+      <div class="mdots">${dots}</div>
+      <button class="btn mstart more" onclick="startMission()">✨ もっとやる（おかわり5もん）</button></div>`;
+  }
+  const t=ms[i];
+  const tt=(t.k==="last"&&wrongCount()===0)?"かきとり（しあげ）":t.t;
+  return `<div class="card mission">
+    <p class="mlabel">🎯 きょうの ミッション <span>${sub}${left?"・"+left:""}</span></p>
+    <div class="mdots">${dots}</div>
+    <div class="mbody"><span class="mic">${t.ic}</span>
+      <span class="mtx"><b>${tt}</b><em>${t.s}</em></span></div>
+    <p class="mdesc">${t.d}</p>
+    <button class="btn mstart" onclick="startMission()">▶ はじめる</button>
+    <p class="mfoot">${i===0?"これが おわったら つぎが 出ます。":"のこり "+(n-i)+"つ。1つずつ やれば OK！"}</p></div>`;
+}
+
 function render(){
   const fm=flashMsg; flashMsg=null;
   const hd=document.getElementById("hdScore");
@@ -1435,8 +1558,10 @@ function render(){
 
   /* ================= ホーム ================= */
   if(view==="home"){
-    h+=petCard();
+    dayCheck();
     const wc=wrongCount(), rem=allRemain(), tot=ITEMS.length, pct=Math.round((tot-rem)/tot*100);
+    h+=missionCard();
+    h+=petCard();
 
     h+=`<div class="card tips"><h2>💡 100点へのコツ</h2>
       <ul class="tiplist">
@@ -1445,6 +1570,12 @@ function render(){
       <li><span class="te">✏️</span>地名は ひらがなで言えても ×。<mark class="m3">漢字で手を動かす</mark>こと</li>
       <li><span class="te">📝</span>記述で「気温と降水量にふれて」とあれば <mark class="m4">両方に1回ずつふれる</mark></li></ul></div>`;
 
+    h+=`<div class="card stat"><h2>⭐ 社会 おぼえたじょうきょう</h2>
+      <div class="bigbar"><i style="width:${pct}%"></i></div>
+      <p class="statline">おぼえた <b>${tot-rem}</b> / ${tot}もん　<span>復習まち ${wc}もん</span></p>
+      <p class="statnote">※おなじもんだいに 3回 ◎ をつけると「おぼえた」！</p></div>`;
+
+    h+=`<details class="fold pick"><summary>🧺 じぶんで えらんで やる</summary>`;
     h+=`<button class="btn rainbow" onclick='start({type:"osusume",n:5})'>✍️ かきとり（5もん）
       <span class="s">まちがえたもの → まだおぼえていないもの の順に 5もん。ゆびで書いて、じぶんで丸つけ。</span></button>`;
     h+=`<button class="btn sky" onclick="startPair()">⚡ にたものチェック（10もん）
@@ -1452,11 +1583,6 @@ function render(){
     h+=`<button class="btn naoshi${wc?"":" empty"}" ${wc?"":"disabled"} onclick='start({type:"review",n:5})'>
       <span class="nhead"><span class="nspark">✨</span>🔁 まちがいなおし${wc?`<span class="badge">${wc}もん</span>`:""}</span>
       <span class="s">${wc?`ここが いちばん 点がのびるところ！ ◎をつけたら そつぎょう🎓 あめも <b>🍬3こ</b> ともらえる`:`いまは カラッポ！🎉 △や×をつけると ここに あつまって、あめが <b>🍬3こ</b> もらえるよ`}</span></button>`;
-
-    h+=`<div class="card stat"><h2>⭐ 社会 おぼえたじょうきょう</h2>
-      <div class="bigbar"><i style="width:${pct}%"></i></div>
-      <p class="statline">おぼえた <b>${tot-rem}</b> / ${tot}もん　<span>復習まち ${wc}もん</span></p>
-      <p class="statnote">※おなじもんだいに 3回 ◎ をつけると「おぼえた」！</p></div>`;
 
     h+=`<h2 class="sec">🎎 11／13のテストはんい</h2>`;
     ["bunka","jinko"].forEach(u=>h+=unitBtn(u));
@@ -1476,6 +1602,7 @@ function render(){
     ["mSan","mHei","mKawa"].forEach(u=>h+=unitBtn(u));
     h+=`<button class="btn zukan" onclick="go('list')">📖 地名の一らんを 見ておぼえる
       <span class="s">名前をおすと、日本地図の どこにあるかが ★で出るよ 🗾✨</span></button>`;
+    h+=`</details>`;
 
     h+=`<div class="card"><h2>🏅 そだてた図かん（${S.dex.length}／${PETS.length}）</h2><div class="dex">`;
     PETS.forEach((p,i)=>{const got=S.dex.includes(p.name);
@@ -1516,7 +1643,7 @@ function render(){
   /* ================= かきとり ================= */
   if(view==="quiz"){
     const it=deck[idx],U=UNITS[it.unit];
-    const label=mode.type==="review"?"🔁 まちがいなおし":mode.type==="osusume"?"✍️ かきとり":U.ic+" "+U.name;
+    const label=mode.label||(mode.type==="review"?"🔁 まちがいなおし":mode.type==="osusume"?"✍️ かきとり":U.ic+" "+U.name);
     h+=`<div class="prog"><span>${label}</span><span>${idx+1} / ${deck.length}　🌸 ${sess.ok}</span></div>
         <div class="pbar"><i style="width:${(idx+(answered?1:0))/deck.length*100}%"></i></div>`;
     h+=`<div class="qcard"><span class="tag" style="background:${U.col}">${U.name}</span>
