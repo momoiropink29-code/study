@@ -98,6 +98,8 @@ ruby rt{font-size:.5em;font-weight:normal}
 .flab{display:block;font-size:15px;margin-top:2px}
 .fop{display:inline-block;vertical-align:top;font-size:26px;font-weight:bold;line-height:52px;margin:0 6px}
 .cap{font-size:18px;font-weight:bold;margin-top:4px}
+.wait .opts button,.wait .opts .pick,.wait #vis [data-t],.wait #vis [data-i],.wait #cr button{opacity:.45;pointer-events:none}
+.wait .opts::before{content:"⏳ よく 見て かんがえよう";display:block;font-size:14px;opacity:.75;margin-bottom:2px}
 .chant{font-size:23px;font-weight:bold;line-height:2;margin:12px 0;padding:12px 14px;border-radius:16px;background:#fff3cf;border:3px dashed #e0b25c}
 .chant b{color:#e07408}
 .chb{display:inline-block;min-width:70px;border-bottom:4px solid #e07408;color:#e07408;text-align:center}
@@ -125,7 +127,7 @@ table.stb tr.v td{background:#fff}
 <script>
 (function(){
 "use strict";
-var VERSION="v6 (2026-10-19)";
+var VERSION="v7 (2026-11-06)";
 var KEY="bunsu_kaseki_v1";
 var COST=30;
 var C_TAKE="#f28c1e", C_BASE="#fff4dc", C_LINE="#6d4a28";
@@ -133,7 +135,8 @@ var PCOL=["#f28c1e","#3aa66f","#8e6bd8"];
 
 /* ---------- save ---------- */
 var S={pt:0,clear:{},fos:{},voice:true,unit:"b",weak:[],log:[]};
-function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);S.pt=o.pt||0;S.clear=o.clear||{};S.fos=o.fos||{};S.voice=(o.voice!==false);S.unit=o.unit||"b";S.weak=o.weak||[];S.lastBk=o.lastBk||"";S.log=o.log||[];}}catch(e){}}
+function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);S.pt=o.pt||0;S.clear=o.clear||{};S.fos=o.fos||{};S.voice=(o.voice!==false);S.unit=o.unit||"b";S.weak=o.weak||[];S.lastBk=o.lastBk||"";S.log=o.log||[];S.mig1=!!o.mig1;}}catch(e){}/*MIG*/migrate();/*/MIG*/}
+/*MIG*/function migrate(){if(!S.mig1){delete S.clear.k8;delete S.clear.k9;delete S.clear.k10;S.mig1=true;save();}}/*/MIG*/
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 
 /* ---------- fossils ---------- */
@@ -348,8 +351,8 @@ function backupScr(){
     if(!d||typeof d.pt!=="number"||typeof d.fos!=="object"){$("rmsg").textContent="このアプリの バックアップでは ないようです。";return;}
     if(o.app&&o.app!==KEY&&!confirm("べつの アプリ（"+o.app+"）の バックアップです。それでも もどしますか？"))return;
     if(!confirm("いまの データを 上書きして、"+(o.date?o.date.slice(0,10)+" の ":"")+"バックアップに もどしますか？"))return;
-    var bd=o.date?new Date(o.date):null;S={pt:d.pt,clear:d.clear||{},fos:d.fos||{},voice:d.voice!==false,unit:d.unit||"b",weak:d.weak||[],log:d.log||[],lastBk:bd&&!isNaN(bd)?(bd.getMonth()+1)+"/"+bd.getDate():(d.lastBk||"")};
-    save();alert("もどしました！ ポイント："+S.pt);home();
+    var bd=o.date?new Date(o.date):null;S={pt:d.pt,clear:d.clear||{},fos:d.fos||{},voice:d.voice!==false,unit:d.unit||"b",weak:d.weak||[],log:d.log||[],mig1:!!d.mig1,lastBk:bd&&!isNaN(bd)?(bd.getMonth()+1)+"/"+bd.getDate():(d.lastBk||"")};
+    /*MIG*/migrate();/*/MIG*/save();alert("もどしました！ ポイント："+S.pt);home();
   };
 }
 function dig(){
@@ -395,7 +398,7 @@ function play(si){
   if(CHANT[st.id]&&!P0skip){return chantScr(si);}
   P0skip=false;
   var qs=st.gen();if(CHANT[st.id])qs.push(CHQ(st.id,ri(0,CHANT[st.id].k.length-1)));
-  P={si:si,st:st,qs:qs,i:0,gain:0,miss:0,requeued:0,mult:S.clear[st.id]?1:2};
+  P={si:si,st:st,qs:qs,n0:qs.length,first:0,i:0,gain:0,miss:0,requeued:0,mult:S.clear[st.id]?1:2};
   nextQ();
 }
 function nextQ(){
@@ -407,6 +410,7 @@ function nextQ(){
   stopSay();
   q.mount($("qa"),ctl(q));
   var qt=$("qa").querySelector(".qtext"); if(qt){qt.insertAdjacentHTML("afterend",'<div class="center">'+sayBtn("q")+'</div>');say(qt);}
+  lockQ();
 }
 function ctl(q){
   return {
@@ -414,8 +418,8 @@ function ctl(q){
       if(P.done)return;
       var fb=$("fb");if(!P.t1)P.t1=Date.now()-P.t0;
       if(ok){
-        P.done=true; var g=(P.tries===0?10:3)*(P.mult||1); P.gain+=g; logQ(q,P.tries,true);
-        fb.className="feed ok"; fb.innerHTML='<div class="hd">⭕ せいかい！ +'+g+'</div><div class="say">'+(q.explain?q.explain():'')+'</div>'+chLine(q)+'<div>'+sayBtn("fb")+'<button class="btn go" id="nx">つぎへ</button></div>';
+        P.done=true; var g=(P.tries===0?10:0)*(P.mult||1); P.gain+=g; if(P.tries===0&&!q.re)P.first=(P.first||0)+1; logQ(q,P.tries,true);
+        fb.className="feed ok"; fb.innerHTML='<div class="hd">⭕ せいかい！ '+(g>0?'+'+g:'<span style="font-size:15px">（2回目は ポイントなし）</span>')+'</div><div class="say">'+(q.explain?q.explain():'')+'</div>'+chLine(q)+'<div>'+sayBtn("fb")+'<button class="btn go" id="nx">つぎへ</button></div>';
         $("nx").onclick=function(){P.i++;nextQ();};
         if(P.tries>0)addWeak(q);else if(P.weak)weakOk(q);
         if(q.onOk)q.onOk();
@@ -441,8 +445,10 @@ function ctl(q){
 }
 function result(){
   var st=P.st, perfect=(P.miss===0), bonus=perfect?30*(P.mult||1):0;
-  S.pt+=P.gain+bonus; if(!P.weak)S.clear[st.id]=true; save();
-  var h='<div class="slab center" style="margin-top:30px"><div style="font-size:26px;font-weight:bold">'+(P.weak?'にがて ふくしゅう おわり！':'クリア！')+'</div>';
+  var ok7=P.weak||((P.first||0)>=Math.ceil((P.n0||1)*0.7)), was=!!S.clear[st.id];
+  S.pt+=P.gain+bonus; if(!P.weak&&ok7)S.clear[st.id]=true; save();
+  var h='<div class="slab center" style="margin-top:30px"><div style="font-size:26px;font-weight:bold">'+(P.weak?'にがて ふくしゅう おわり！':(ok7?'クリア！':'あと少し！'))+'</div>';
+  if(!P.weak)h+='<div style="font-size:17px">1回目で せいかい：'+(P.first||0)+' / '+P.n0+(ok7?'':'<br>7わり（'+Math.ceil(P.n0*0.7)+'もん）で '+(was?'':'クリア！ ')+'もう1回 やってみよう')+'</div>';
   if(P.weak)h+='<div style="font-size:17px">のこり '+weakDue().length+'もん（あしたも やると 卒業できるよ）</div>';
   h+='<div style="font-size:20px;margin:10px 0">🦴 +'+P.gain+' ポイント'+((P.mult||1)>1?'<span class="x2">2ばい</span>':'')+'</div>';
   if(perfect)h+='<div style="font-size:20px;color:#3aa66f;font-weight:bold">ぜんぶ 1回で せいかい！ ボーナス +'+bonus+'</div>';
@@ -451,10 +457,17 @@ function result(){
   app.innerHTML=h; $("hm").onclick=home; $("again").onclick=function(){if(P.weak)playWeak();else play(P.si);};
 }
 // multiple-choice helper
+var LKT=null;
+function lockQ(){
+  var qa=$("qa");if(!qa)return;qa.classList.add("wait");var t0=Date.now();if(LKT)clearInterval(LKT);
+  LKT=setInterval(function(){var el=Date.now()-t0,sp=false;try{sp=!!(TTS&&S.voice&&TTS.speaking);}catch(e){}
+    if((el>=3000&&!sp)||el>=12000){clearInterval(LKT);LKT=null;var q2=$("qa");if(q2)q2.classList.remove("wait");}},150);
+}
 function choices(qa,opts,correctIdx,ctlr){
   var box=qa.querySelector(".opts"), h='';
   for(var i=0;i<opts.length;i++)h+='<button class="btn mid" data-o="'+i+'">'+opts[i]+'</button>';
   box.innerHTML=h;
+  lockQ();
   var bs=box.querySelectorAll("button");
   for(var j=0;j<bs.length;j++){bs[j].onclick=function(){if(P.done)return;var o=+this.getAttribute("data-o");ctlr.judge(o===correctIdx,this);};}
 }

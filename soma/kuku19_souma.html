@@ -364,6 +364,25 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
   .ws-sub{font-size:15px; margin:-6px 0 10px;}
   .sum-q3{font-size:22px !important;}
 }
+
+
+/* ===== 面積のヒント（大きさの絵） ===== */
+.area-fig{display:flex; align-items:center; gap:16px; flex-wrap:wrap; justify-content:center;}
+.area-svg{flex:none;}
+.area-txt{font-size:17px; font-weight:900; line-height:1.95; text-align:left; letter-spacing:0;}
+.area-txt b{color:#2F7FB5;}
+.area-key{
+  display:inline-block; width:14px; height:14px; background:#FFCF8F;
+  border:2px solid #E09A4A; border-radius:3px; vertical-align:-2px; margin-right:5px;
+}
+@media (orientation:landscape) and (min-width:820px){
+  #scr-quiz .area-svg{width:64px; height:64px;}
+  #scr-quiz .area-txt{font-size:14px; line-height:1.7;}
+}
+@media (max-height:700px){
+  .area-svg{width:64px; height:64px;}
+  .area-txt{font-size:14px; line-height:1.7;}
+}
 .m-pet{background:linear-gradient(120deg,#CFF0DC,#BFE3F5); padding:18px;}
 .m-mast{background:#E7F2E2;}
 .m-backup{background:#E4EEF8; grid-column:1/-1; padding:14px;}
@@ -377,7 +396,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 <!-- ===== ホーム ===== -->
 <div class="screen active" id="scr-home">
   <h1>そうまの 19×19 マスター</h1>
-  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.7  2026-11-06</span></div>
+  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.8  2026-11-06</span></div>
   <div class="streak-box">
     <span>🔥 れんぞく <b id="home-streak">0</b> 日</span>
     <span>⭐ <b class="pt-view">0</b> pt</span>
@@ -1151,6 +1170,20 @@ function padClear(){
 }
 
 /* ===================== ヒント ===================== */
+/* 面積のヒント用：10×10 のマス（左上の1マスだけ色をつける） */
+function areaGridSVG(){
+  let g="";
+  for(let i=1;i<10;i++){
+    g+='<line x1="'+(i*10)+'" y1="0" x2="'+(i*10)+'" y2="100"/>'
+      +'<line x1="0" y1="'+(i*10)+'" x2="100" y2="'+(i*10)+'"/>';
+  }
+  return '<svg class="area-svg" viewBox="-2 -2 104 104" width="88" height="88">'
+   + '<rect x="0" y="0" width="100" height="100" fill="#F4FAFF"/>'
+   + '<g stroke="#C5DCEC" stroke-width="1.2">'+g+'</g>'
+   + '<rect x="0" y="0" width="10" height="10" fill="#FFCF8F" stroke="#E09A4A" stroke-width="2"/>'
+   + '<rect x="0" y="0" width="100" height="100" fill="none" stroke="#5A8FB5" stroke-width="3"/>'
+   + '</svg>';
+}
 function hintData(q){
   if(isSquare(q)){
     const a=q.x, o=a%10;
@@ -1190,9 +1223,27 @@ function hintData(q){
   }
   if(isUnit(q)){
     const u=UNITS[q.i];
-    return {h:'<span class="block10">1'+u.b+' ＝ '+u.k+u.s+'</span> '
-             +'<span class="block1">'+(q.t==="u"?"×":"÷")+u.k+'</span>',
-            s:"1"+u.bk+"わ "+u.k+u.sk};
+    const base='<span class="block10">1'+u.b+' ＝ '+u.k+u.s+'</span> '
+             +'<span class="block1">'+(q.t==="u"?"×":"÷")+u.k+'</span>';
+    /* 面積は 大きさの絵を つける（数字だけだと 入らないため） */
+    if(u.g==="面積"){
+      const key=u.b+"_"+u.s;
+      let txt, sp;
+      if(key==="a_㎡"){
+        txt='1a は <b>10m × 10m</b><br><i class="area-key"></i>1㎡ が <b>100こ</b>';
+        sp="1アールわ たてよこ 10メートルの ましかく。1へいほうメートルが 100こ";
+      }else if(key==="ha_a"){
+        txt='1ha は <b>100m × 100m</b><br><i class="area-key"></i>1a が <b>100こ</b>';
+        sp="1ヘクタールわ たてよこ 100メートルの ましかく。1アールが 100こ";
+      }else{
+        txt='1ha ＝ 1a が <b>100こ</b><br>1a ＝ 1㎡ が <b>100こ</b><br>100 × 100 ＝ <b>10000㎡</b>';
+        sp="1ヘクタールわ 1アールが 100こ。1アールわ 1へいほうメートルが 100こ。100かける100で 10000";
+      }
+      return {h:'<span class="area-fig">'+areaGridSVG()
+               +'<span class="area-txt">'+txt+'</span></span>',
+              s:sp};
+    }
+    return {h:base, s:"1"+u.bk+"わ "+u.k+u.sk};
   }
   if(!isFrac(q)) return {h:"",s:""};
   const f=FRAC[q.i];
