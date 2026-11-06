@@ -349,6 +349,21 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
   100%{transform:translateY(96vh) rotate(420deg) scale(1.1); opacity:0;}
 }
 @media (prefers-reduced-motion:reduce){ .conf{display:none;} }
+
+/* ===== まとめるワザ（そろえる段） ===== */
+.ws-row{grid-template-columns:1fr 112px auto;}
+.ws-s{font-size:.8em; padding-left:4px; min-width:14px; text-align:left;}
+.ws-sub{font-size:19px; font-weight:900; color:#9a92ab; letter-spacing:0; margin:-8px 0 14px;}
+.sum-q3{font-size:30px !important;}
+@media (orientation:landscape) and (min-width:820px){
+  #scr-quiz .ws-row{grid-template-columns:1fr 92px auto;}
+  #scr-quiz .ws-sub{font-size:15px; margin:-6px 0 10px;}
+  #scr-quiz .sum-q3{font-size:22px !important;}
+}
+@media (max-height:700px){
+  .ws-sub{font-size:15px; margin:-6px 0 10px;}
+  .sum-q3{font-size:22px !important;}
+}
 .m-pet{background:linear-gradient(120deg,#CFF0DC,#BFE3F5); padding:18px;}
 .m-mast{background:#E7F2E2;}
 .m-backup{background:#E4EEF8; grid-column:1/-1; padding:14px;}
@@ -362,7 +377,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
 <!-- ===== ホーム ===== -->
 <div class="screen active" id="scr-home">
   <h1>そうまの 19×19 マスター</h1>
-  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.5  2026-10-25</span></div>
+  <div class="subtitle">10のかけ算 ＋ 九九 でとく！<span class="ver">v3.7  2026-11-06</span></div>
   <div class="streak-box">
     <span>🔥 れんぞく <b id="home-streak">0</b> 日</span>
     <span>⭐ <b class="pt-view">0</b> pt</span>
@@ -427,7 +442,7 @@ h1{font-size:34px; font-weight:900; text-align:center; margin:8px 0 2px; letter-
     <div class="best" id="result-best"></div>
     <div class="miss-list" id="result-miss"></div>
   </div>
-  <button class="start-btn" onclick="retry()">もういちど！</button>
+  <button class="start-btn" id="retry-btn" onclick="retry()">もういちど！</button>
 </div>
 
 <!-- ===== しゅうとく ===== -->
@@ -511,8 +526,56 @@ const PI_TABLE = [[1,"3.14"],[2,"6.28"],[3,"9.42"],[4,"12.56"],[5,"15.70"],
                   [6,"18.84"],[7,"21.98"],[8,"25.12"],[9,"28.26"]];
 
 /* まとめるワザ：a×b ＋ a×c （b＋c＝10） */
-const SUMS=[[33,8,2],[25,7,3],[48,6,4],[17,9,1],[64,3,7],[12,6,4],
-            [29,2,8],[56,9,1],[83,4,6],[45,5,5],[72,7,3],[19,8,2]];
+/* まとめるワザ
+   lv : 1=そろっている / 2=×2でそろえる / 3=×10でそろえる / 4=3つやさしい / 5=3つむずかしい
+   a  : そろえる きじゅんの数
+   t  : 項 [かける数, こ数] （3つめが1なら「1900」のように そのまま出す）
+   id : きろく用（Lv1は これまでと同じ）                                   */
+const SUM_LEVELS=["そろっている","×2でそろえる","×10でそろえる","3つ・やさしい","3つ・むずかしい"];
+const SUMS=[
+ {lv:1,id:"33_8",a:33,t:[[33,8],[33,2]]},
+ {lv:1,id:"25_7",a:25,t:[[25,7],[25,3]]},
+ {lv:1,id:"48_6",a:48,t:[[48,6],[48,4]]},
+ {lv:1,id:"17_9",a:17,t:[[17,9],[17,1]]},
+ {lv:1,id:"64_3",a:64,t:[[64,3],[64,7]]},
+ {lv:1,id:"12_6",a:12,t:[[12,6],[12,4]]},
+ {lv:1,id:"29_2",a:29,t:[[29,2],[29,8]]},
+ {lv:1,id:"56_9",a:56,t:[[56,9],[56,1]]},
+ {lv:1,id:"83_4",a:83,t:[[83,4],[83,6]]},
+ {lv:1,id:"45_5",a:45,t:[[45,5],[45,5]]},
+ {lv:1,id:"72_7",a:72,t:[[72,7],[72,3]]},
+ {lv:1,id:"19_8",a:19,t:[[19,8],[19,2]]},
+ {lv:2,id:"z01",a:12,t:[[12,6],[24,2]]},
+ {lv:2,id:"z02",a:15,t:[[15,4],[30,3]]},
+ {lv:2,id:"z03",a:13,t:[[13,8],[26,1]]},
+ {lv:2,id:"z04",a:25,t:[[25,6],[50,2]]},
+ {lv:2,id:"z05",a:18,t:[[18,4],[36,3]]},
+ {lv:2,id:"z06",a:14,t:[[14,2],[28,4]]},
+ {lv:2,id:"z07",a:16,t:[[16,8],[32,1]]},
+ {lv:2,id:"z08",a:35,t:[[35,2],[70,4]]},
+ {lv:2,id:"z09",a:45,t:[[45,6],[90,2]]},
+ {lv:2,id:"z10",a:12,t:[[12,12],[24,4]]},
+ {lv:3,id:"t01",a:17,t:[[17,60],[170,4]]},
+ {lv:3,id:"t02",a:13,t:[[13,70],[130,3]]},
+ {lv:3,id:"t03",a:24,t:[[24,50],[240,5]]},
+ {lv:3,id:"t04",a:16,t:[[16,30],[160,7]]},
+ {lv:3,id:"t05",a:25,t:[[25,80],[250,2]]},
+ {lv:3,id:"t06",a:18,t:[[18,40],[180,6]]},
+ {lv:3,id:"t07",a:12,t:[[12,90],[120,1]]},
+ {lv:3,id:"t08",a:15,t:[[15,20],[150,8]]},
+ {lv:4,id:"m01",a:12,t:[[12,30],[24,20],[36,10]]},
+ {lv:4,id:"m02",a:15,t:[[15,200],[150,30],[1500,1,1]]},
+ {lv:4,id:"m03",a:14,t:[[14,50],[28,10],[42,10]]},
+ {lv:4,id:"m04",a:13,t:[[13,20],[26,25],[39,10]]},
+ {lv:5,id:"h01",a:11,t:[[11,17],[22,13],[33,19]]},
+ {lv:5,id:"h02",a:19,t:[[19,400],[190,50],[1900,1,1]]},
+ {lv:5,id:"h03",a:17,t:[[17,300],[170,40],[1700,1,1]]}
+];
+function sumTermText(tm){ return tm[2] ? String(tm[0]) : (tm[0]+"×"+tm[1]); }
+function sumTermSay(tm){ return tm[2] ? String(tm[0]) : (tm[0]+"かける"+tm[1]); }
+function sumUnits(S,i){ return (S.t[i][0]/S.a)*S.t[i][1]; }   /* その項は a が なんこ分か */
+function sumTotal(S){ let n=0; for(let i=0;i<S.t.length;i++) n+=sumUnits(S,i); return n; }
+function sumLv(q){ return q.t==="sum" ? SUMS[q.i].lv : 0; }
 
 /* 単位：1 b ＝ k s。f=大きい単位の出題値 / r=小さい単位の出題値 */
 const UNITS=[
@@ -563,7 +626,7 @@ const RING_START={1:0, 3:1, 2:2, 6:3, 4:4, 5:5};
 
 function poolK19(){ const a=[]; for(let x=11;x<=19;x++)for(let y=2;y<=9;y++)a.push({t:"k",x:x,y:y}); return a; }
 function poolSq(){ const a=[]; for(let x=11;x<=19;x++)a.push({t:"k",x:x,y:x}); return a; }
-function poolSum(){ return SUMS.map(function(s){ return {t:"sum",a:s[0],b:s[1],c:s[2]}; }); }
+function poolSum(){ return SUMS.map(function(s,i){ return {t:"sum",i:i}; }); }
 function poolPi(){ const a=[]; PI_TABLE.forEach(function(p){ a.push({t:"pi",n:p[0],v:p[1]}); a.push({t:"pirev",n:p[0],v:p[1]}); }); return a; }
 function poolFrac(){
   const a=[];
@@ -589,7 +652,11 @@ function fracHtml(n,d){ return '<span class="frac"><i>'+n+'</i><b>'+d+'</b></spa
 /* ===================== 出題文・こたえ ===================== */
 function qText(q){
   if(q.t==="k")   return q.x+" × "+q.y+" = ";
-  if(q.t==="sum") return '<span class="sum-q">'+q.a+"×"+q.b+" ＋ "+q.a+"×"+q.c+" = </span>";
+  if(q.t==="sum"){
+    const S=SUMS[q.i];
+    const cls = S.t.length>=3 ? "sum-q sum-q3" : "sum-q";
+    return '<span class="'+cls+'">'+S.t.map(sumTermText).join(" ＋ ")+" = </span>";
+  }
   if(q.t==="pi")  return q.n+"π = ";
   if(q.t==="pirev") return q.v+" は 何π？ ";
   if(q.t==="u"){  const u=UNITS[q.i]; return '<span class="unit-q">'+u.f+u.b+' ＝ <span class="ans">?</span> '+u.s+'</span>'; }
@@ -601,7 +668,7 @@ function qText(q){
 }
 function qAnswer(q){
   if(q.t==="k")   return String(q.x*q.y);
-  if(q.t==="sum") return String(q.a*10);
+  if(q.t==="sum"){ const S=SUMS[q.i]; return String(S.a*sumTotal(S)); }
   if(q.t==="pi")  return q.v;
   if(q.t==="pirev") return String(q.n);
   if(q.t==="u")   { const u=UNITS[q.i]; return String(u.f*u.k); }
@@ -623,7 +690,7 @@ function qAnswerSpeech(q){
 }
 function qShort(q){
   if(q.t==="k")   return q.x+"×"+q.y;
-  if(q.t==="sum") return q.a+"×"+q.b+"+"+q.a+"×"+q.c;
+  if(q.t==="sum"){ const S=SUMS[q.i]; return S.t.map(sumTermText).join("+"); }
   if(q.t==="pi")  return q.n+"π";
   if(q.t==="pirev") return q.v+"→π";
   if(q.t==="u")   { const u=UNITS[q.i]; return u.f+u.b+"→"+u.s; }
@@ -682,7 +749,7 @@ function saveMast(){ try{ localStorage.setItem(MKEY,JSON.stringify(mast)); }catc
 
 function qid(q){
   if(q.t==="k")   return "k_"+q.x+"_"+q.y;
-  if(q.t==="sum") return "s_"+q.a+"_"+q.b;
+  if(q.t==="sum") return "s_"+SUMS[q.i].id;
   if(q.t==="pi")  return "pi_"+q.n;
   if(q.t==="pirev") return "pr_"+q.n;
   if(isUnit(q)) { const u=UNITS[q.i]; return q.t+"_"+u.b+"_"+u.s; }
@@ -752,15 +819,44 @@ function hasSteps(q){
    done : 完走したときの よみあげ                                        */
 function worksheet(q){
   if(q.t==="sum"){
-    const s=q.b+q.c, tot=q.a*10;
-    return {head:q.a+"×"+q.b+" ＋ "+q.a+"×"+q.c+" = ?",
-      rows:[
-        {l:q.a+"が なんこ？　"+q.b+" ＋ "+q.c+" =", a:String(s), ask:true,
-         sp:q.a+"かける"+q.b+" たす "+q.a+"かける"+q.c+"を とくよ。"+q.a+"が なんこ？　"+q.b+"たす"+q.c+"わ？"},
-        {l:q.a+" × "+s+" =", l0:q.a+" × ⬜ =", dep:0, a:String(tot), ask:true,
-         sp:q.a+"が "+s+"こ。"+q.a+"かける"+s+"わ？"}
-      ],
-      done:q.a+"かける"+s+"で "+tot};
+    const S=SUMS[q.i], a=S.a, n=sumTotal(S), ans=a*n;
+    const head=S.t.map(sumTermText).join(" ＋ ")+" = ?";
+    const allSay=S.t.map(sumTermSay).join(" たす ")+"を とくよ。";
+    /* Lv1：もう そろっている（2行） */
+    if(S.lv===1){
+      const c0=S.t[0][1], c1=S.t[1][1];
+      return {head:head, rows:[
+        {l:a+"が なんこ？　"+c0+" ＋ "+c1+" =", a:String(n), ask:true,
+         sp:allSay+a+"が なんこ？　"+c0+"たす"+c1+"わ？"},
+        {l:a+" × "+n+" =", l0:a+" × ⬜ =", dep:0, a:String(ans), ask:true,
+         sp:a+"が "+n+"こ。"+a+"かける"+n+"わ？"}
+      ], done:a+"かける"+n+"で "+ans};
+    }
+    /* Lv2・Lv3：そろえる → かえる → たす → こたえ（4行） */
+    if(S.t.length===2){
+      const c0=S.t[0][1], m1=S.t[1][0], c1=S.t[1][1], k=m1/a, u1=k*c1;
+      return {head:head, rows:[
+        {l:m1+" は "+a+"が", sfx:"こ", a:String(k), ask:true,
+         sp:allSay+m1+"は "+a+"が なんこ？"},
+        {l:m1+"×"+c1+" は "+a+"が", sfx:"こ", a:String(u1), ask:true,
+         sp:m1+"が "+c1+"こ ぶん だから、"+a+"が なんこ？"},
+        {l:a+"が ぜんぶで", sfx:"こ", a:String(n), ask:true, rule:true,
+         sp:c0+"こ と あわせて "+a+"が なんこ？"},
+        {l:a+" × "+n+" =", l0:a+" × ⬜ =", dep:2, a:String(ans), ask:true,
+         sp:a+"かける"+n+"わ？"}
+      ], done:a+"かける"+n+"で "+ans};
+    }
+    /* Lv4・Lv5：1行＝1つの項（5行） */
+    const rows=[];
+    for(let i=0;i<S.t.length;i++){
+      rows.push({l:sumTermText(S.t[i])+" は "+a+"が", sfx:"こ", a:String(sumUnits(S,i)), ask:true,
+        sp:(i===0?allSay:"")+sumTermSay(S.t[i])+"は "+a+"が なんこ？"});
+    }
+    rows.push({l:a+"が ぜんぶで", sfx:"こ", a:String(n), ask:true, rule:true,
+      sp:a+"が ぜんぶで なんこ？"});
+    rows.push({l:a+" × "+n+" =", l0:a+" × ⬜ =", dep:S.t.length, a:String(ans), ask:true,
+      sp:a+"かける"+n+"わ？"});
+    return {head:head, sub:"ぜんぶ "+a+"が なんこ？", rows:rows, done:a+"かける"+n+"で "+ans};
   }
   if(isSquare(q)){
     const x=q.x, o=x%10, t1=(x+o)*10, tot=x*x;
@@ -807,11 +903,14 @@ function nextAsk(ws,from){
   return -1;
 }
 function rowLabel(r){
-  return (r.l0 && quiz.wsPos<=r.dep) ? r.l0 : r.l;
+  /* ぜんぶ終わった（wsPos<0）ときは ⬜ でなく 数字を出す */
+  return (r.l0 && quiz.wsPos>=0 && quiz.wsPos<=r.dep) ? r.l0 : r.l;
 }
 function paintWS(){
   const w=quiz.ws;
-  let h='<div class="ws-head">'+w.head+'</div><div class="ws">';
+  let h='<div class="ws-head">'+w.head+'</div>'
+       + (w.sub?'<div class="ws-sub">'+w.sub+'</div>':'')
+       + '<div class="ws">';
   for(let i=0;i<w.rows.length;i++){
     const r=w.rows[i];
     let v="", cls="ws-row";
@@ -820,7 +919,8 @@ function paintWS(){
     else if(quiz.wsPos<0 || i<quiz.wsPos){ v=r.a; cls+=" done"; }
     else if(i===quiz.wsPos){ v=quiz.input||""; cls+=" active"; }
     h+='<div class="'+cls+'"><span class="ws-l">'+rowLabel(r)+'</span>'
-     + '<span class="ws-v">'+v+'</span></div>';
+     + '<span class="ws-v">'+v+'</span>'
+     + (r.sfx?'<span class="ws-s">'+r.sfx+'</span>':'<span class="ws-s"></span>')+'</div>';
   }
   document.getElementById("q-formula").innerHTML=h+'</div>';
 }
@@ -842,6 +942,20 @@ function dueIn(pool){ return pool.filter(isDue); }
 /* ===================== 出題セット作り ===================== */
 /* 弱点＋ふくしゅう期限を先に最大 INJECT 問、のこりは未しゅうとく優先 */
 const INJECT=3;
+/* まとめるワザだけ、自分たちの枠の中で やさしい順に ならべかえる。
+   （19×19 など ほかの問題の ならび順は いじらない）           */
+function orderSumsByLevel(arr){
+  const pos=[], items=[];
+  for(let i=0;i<arr.length;i++) if(arr[i].t==="sum"){ pos.push(i); items.push(arr[i]); }
+  if(items.length<2) return arr;
+  items.sort(function(a,b){
+    const ma=isMastered(a)?1:0, mb=isMastered(b)?1:0;
+    if(ma!==mb) return ma-mb;
+    return sumLv(a)-sumLv(b);
+  });
+  for(let i=0;i<pos.length;i++) arr[pos[i]]=items[i];
+  return arr;
+}
 function buildSession(pool,total){
   const cand=shuffle(weakIn(pool).concat(dueIn(pool)));
   const seen={}, q=[];
@@ -851,6 +965,7 @@ function buildSession(pool,total){
   }
   const rest=shuffle(pool.filter(function(x){ return !seen[qid(x)]; }));
   rest.sort(function(a,b){ return (isMastered(a)?1:0)-(isMastered(b)?1:0); });
+  orderSumsByLevel(rest);
   for(let i=0;i<rest.length && q.length<total;i++) q.push(rest[i]);
   return shuffle(q);
 }
@@ -971,7 +1086,8 @@ function drawQ(){
   const fb=document.getElementById("feedback"); fb.innerHTML=""; fb.className="feedback";
   document.getElementById("bunkai-visual").style.visibility="hidden";
   const hb=document.getElementById("hint-btn");
-  hb.style.visibility="visible";
+  /* ノート式は ノート自体が ワザの案内なので ヒントボタンは出さない */
+  hb.style.visibility = quiz.ws ? "hidden" : "visible";
   hb.textContent=(q.t==="k" && !isSquare(q)) ? "💡 ヒント（分解）" : "💡 ヒント";
   const needDot = quiz.ws
     ? (quiz.ws.rows[quiz.wsPos].a.indexOf(".")>=0)
@@ -1049,9 +1165,18 @@ function hintData(q){
             s:tens+"かける"+q.y+"わ"+(tens*q.y)+"。"+ones+"かける"+q.y+"わ"+(ones*q.y)};
   }
   if(q.t==="sum"){
-    return {h:'<span class="block10">'+q.b+'＋'+q.c+'＝10</span> → '
-             +'<span class="block1">'+q.a+'×10＝'+(q.a*10)+'</span>',
-            s:q.b+"たす"+q.c+"わ10。"+q.a+"かける10わ"+(q.a*10)};
+    const S=SUMS[q.i], n=sumTotal(S);
+    if(S.lv===1){
+      return {h:'<span class="block10">'+S.t[0][1]+'＋'+S.t[1][1]+'＝'+n+'</span> → '
+               +'<span class="block1">'+S.a+'×'+n+'＝'+(S.a*n)+'</span>',
+              s:S.t[0][1]+"たす"+S.t[1][1]+"わ"+n+"。"+S.a+"かける"+n+"わ"+(S.a*n)};
+    }
+    const conv=[];
+    for(let i=0;i<S.t.length;i++) if(S.t[i][0]!==S.a) conv.push(S.t[i][0]+"＝"+S.a+"×"+(S.t[i][0]/S.a));
+    return {h:'<span class="block10">'+conv.join("　")+'</span> → '
+             +'<span class="block1">'+S.a+'が ぜんぶで '+n+'こ</span>',
+            s:conv.map(function(x){return x.replace("＝","わ").replace("×","かける");}).join("。")
+              +"。"+S.a+"が ぜんぶで "+n+"こ"};
   }
   if(q.t==="pi"){
     const n=q.n, d=(Math.round(0.14*n*100)/100).toFixed(2);
@@ -1123,7 +1248,7 @@ function submitStep(){
     return;
   }
   fb.innerHTML="❌ もういちど"; wrongShake();
-  if(quiz.tries===2) showHint(false);      /* 2回目で ヒントを開く（音声なし） */
+  /* ノート式は 行ラベル自体が案内なので ヒント枠は出さない */
   quiz.input=""; paintWS();
   quiz.qStart=Date.now();
 }
@@ -1210,22 +1335,22 @@ function onOk(){
 /* ===================== 各モード ===================== */
 function startBunkai(){
   const pool=poolK19().concat(poolSum());
-  startQuiz({kind:"b", title:"🧩 分解・まとめ", queue:buildSession(pool,10), total:10});
+  startQuiz({kind:"b", title:"🧩 分解・まとめ", queue:buildSession(pool,10), total:10, again:startBunkai});
 }
 function startUnit(){
-  startQuiz({kind:"b", title:"📏 単位", queue:buildSession(poolUnit(),10), total:10});
+  startQuiz({kind:"b", title:"📏 単位", queue:buildSession(poolUnit(),10), total:10, again:startUnit});
 }
 function startFrac(){
-  startQuiz({kind:"b", title:"🍰 分数⇔小数", queue:buildSession(poolFrac(),10), total:10});
+  startQuiz({kind:"b", title:"🍰 分数⇔小数", queue:buildSession(poolFrac(),10), total:10, again:startFrac});
 }
 function startPi(){
-  startQuiz({kind:"b", title:"🥧 πのばいすう", queue:buildSession(poolPi(),12), total:12});
+  startQuiz({kind:"b", title:"🥧 πのばいすう", queue:buildSession(poolPi(),12), total:12, again:startPi});
 }
 function startSq(){
-  startQuiz({kind:"b", title:"🔲 平方数", queue:buildSession(poolSq(),9), total:9});
+  startQuiz({kind:"b", title:"🔲 平方数", queue:buildSession(poolSq(),9), total:9, again:startSq});
 }
 function startMix(){
-  startQuiz({kind:"b", title:"🎲 ミックス", queue:buildSession(poolAll(),10), total:10});
+  startQuiz({kind:"b", title:"🎲 ミックス", queue:buildSession(poolAll(),10), total:10, again:startMix});
 }
 function startReview(){
   const all=poolAll();
@@ -1235,11 +1360,18 @@ function startReview(){
     return;
   }
   const n=Math.min(10,p.length);
-  startQuiz({kind:"b", title:"❌ まちがい直し", queue:p.slice(0,n), total:n});
+  startQuiz({kind:"b", title:"❌ まちがい直し", queue:p.slice(0,n), total:n, again:startReview});
 }
+let lastMiss=[], lastAgain=null;
 function retry(){
-  if(!lastMode){ goHome(); return; }
-  startQuiz(Object.assign({},lastMode,{queue:shuffle(lastMode.queue.slice())}));
+  if(lastMiss.length){
+    const q=shuffle(lastMiss.slice());
+    lastMiss=[];
+    startQuiz({kind:"b", title:"❌ まちがい直し", queue:q, total:q.length, again:lastAgain});
+    return;
+  }
+  if(lastAgain){ lastAgain(); return; }
+  goHome();
 }
 
 function finishQuiz(){
@@ -1253,6 +1385,13 @@ function finishQuiz(){
     '<div>せいかい</div><div class="big">'+quiz.correct+' / '+quiz.total+'</div>';
   document.getElementById("result-best").textContent=bonus;
   document.getElementById("result-miss").innerHTML=missHtml;
+  /* まちがえた問題だけ やり直す。ぜんぶ正解なら つぎの10問へ */
+  lastMiss = quiz.miss.slice();
+  lastAgain = quiz.again || null;
+  const rb=document.getElementById("retry-btn");
+  rb.textContent = lastMiss.length
+    ? ("❌ まちがいだけ もういちど（"+lastMiss.length+"問）")
+    : (lastAgain ? "つぎの もんだいへ" : "ホームへ");
   show("scr-result");
   if(perfect){ beep([NOTE.do,NOTE.mi,NOTE.so,NOTE.hi,NOTE.so,NOTE.hi2],0.2); party(26); say("ぜんもん せいかい！"); }
   else { beep([NOTE.do,NOTE.so],0.12); party(6); }
@@ -1312,6 +1451,13 @@ function showMastery(){
         h+='<div class="mh mast-sub" style="margin:8px 0 0"><span>'+g+'</span><em>'
          + countMastered(sub)+'/'+sub.length+'</em></div>';
       });
+    }
+    if(c.name==="まとめるワザ"){
+      for(let L=1;L<=5;L++){
+        const sub=poolSum().filter(function(q){ return SUMS[q.i].lv===L; });
+        h+='<div class="mh mast-sub" style="margin:8px 0 0"><span>'+SUM_LEVELS[L-1]+'</span><em>'
+         + countMastered(sub)+'/'+sub.length+'</em></div>';
+      }
     }
     if(c.name==="単位"){
       UNIT_GROUPS.forEach(function(g){
