@@ -100,6 +100,13 @@ ruby rt{font-size:.5em;font-weight:normal}
 .cap{font-size:18px;font-weight:bold;margin-top:4px}
 .wait .opts button,.wait .opts .pick,.wait #vis [data-t],.wait #vis [data-i],.wait #cr button{opacity:.45;pointer-events:none}
 .wait .opts::before{content:"⏳ よく 見て かんがえよう";display:block;font-size:14px;opacity:.75;margin-bottom:2px}
+.dg{display:inline-block;white-space:nowrap;vertical-align:middle;margin:4px 0}
+.dgc{display:inline-block;vertical-align:middle;width:40px;margin:0 2px;border:2px solid #6d4a28;border-radius:8px;background:#fff8e8;text-align:center;line-height:1.2}
+.dgc b{display:block;font-size:26px;color:#4a3322}
+.dgc small{display:block;font-size:11px;color:#2f86d6}
+.dgc.gone{background:#eee}.dgc.gone b{color:#aaa}
+.dgcut{display:inline-block;vertical-align:middle;width:5px;height:44px;background:#e0503a;border-radius:3px;margin:0 3px}
+.tabs{flex-wrap:wrap}.tabs .tab{flex:1 1 40%;margin:4px;font-size:16px}
 .chant{font-size:23px;font-weight:bold;line-height:2;margin:12px 0;padding:12px 14px;border-radius:16px;background:#fff3cf;border:3px dashed #e0b25c}
 .chant b{color:#e07408}
 .chb{display:inline-block;min-width:70px;border-bottom:4px solid #e07408;color:#e07408;text-align:center}
@@ -127,7 +134,7 @@ table.stb tr.v td{background:#fff}
 <script>
 (function(){
 "use strict";
-var VERSION="v7 (2026-11-06)";
+var VERSION="v8 (2026-11-08)";
 var KEY="bunsu_kaseki_v1";
 var COST=30;
 var C_TAKE="#f28c1e", C_BASE="#fff4dc", C_LINE="#6d4a28";
@@ -286,7 +293,7 @@ function home(){
     h+='<button class="btn dig'+(S.pt<COST?' off':'')+'" id="dig">⛏️ ほる（'+COST+'ポイント）</button></div></div>';
   }
   h+='</div>';
-  h+='<div class="tabs"><button class="tab'+(S.unit==="b"?' on':'')+'" data-u="b">🍡 ぶんすう・わりあい</button><button class="tab'+(S.unit==="k"?' on':'')+'" data-u="k">🔢 きそく（'+RB('数列','すうれつ')+'）</button></div>';
+  var UN=[["b","🍡 ぶんすう・わりあい"],["k","🔢 きそく（"+RB('数列','すうれつ')+"）"],["g","📏 がい数"],["d","🎲 サイコロ"]];h+='<div class="tabs">';for(var u0=0;u0<UN.length;u0++)h+='<button class="tab'+(S.unit===UN[u0][0]?' on':'')+'" data-u="'+UN[u0][0]+'">'+UN[u0][1]+'</button>';h+='</div>';
   var wd=weakDue().length,rec=[];
   for(var r0=0;r0<STAGES.length&&rec.length<2;r0++){if((STAGES[r0].u||"b")===S.unit&&!S.clear[STAGES[r0].id])rec.push(r0);}
   if(wd>0||rec.length){
@@ -835,6 +842,213 @@ function s13f(a,d,u){
 }
 
 // clone fix: rebuild from data
+/* ===================== がい数 ===================== */
+var PLN={1:"一",10:"十",100:"百",1000:"千",10000:"一万"};
+function digitsHtml(n,cut,lab){
+  var s=String(n),h='<span class="dg">';
+  for(var i=0;i<s.length;i++){
+    if(cut!==null&&cut!==undefined&&i===cut)h+='<span class="dgcut"></span>';
+    var keep=(cut===null||cut===undefined||i<cut),pv=Math.pow(10,s.length-1-i);
+    h+='<span class="dgc'+(keep?'':' gone')+'"><b>'+s[i]+'</b>'+(lab?'<small>'+PLN[pv]+'</small>':'')+'</span>';
+  }
+  return h+'</span>';
+}
+function rdN(n,p,m){return m==="f"?Math.floor(n/p)*p:(m==="c"?Math.ceil(n/p)*p:Math.floor((n+p/2)/p)*p)}
+var MNAME={f:"切り捨て",c:"切り上げ",r:"四捨五入"};
+function cutOf(n,p){return String(n).length-String(p).length+1}
+function phr(kind,n,p){if(kind===2)return '上から '+cutOf(n,p)+'けたの がい数';if(kind===1)return PLN[p/10]+'の位を 四捨五入';return PLN[p]+'の位までの がい数'}
+function nlSvg(lo,hi,o){
+  o=o||{};var W=580,x0=34,x1=546,y=o.y||64,H=o.h||118,s='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="display:block;margin:0 auto;max-width:100%;height:auto">';
+  function X(v){return x0+(v-lo)/(hi-lo)*(x1-x0)}
+  if(o.band){var a=X(o.band[0]),b=X(o.band[1]);s+='<rect x="'+a+'" y="'+(y-9)+'" width="'+(b-a)+'" height="18" fill="#ffe2b8"/><line x1="'+a+'" y1="'+y+'" x2="'+b+'" y2="'+y+'" stroke="#e07408" stroke-width="7"/>';}
+  s+='<line x1="'+(x0-12)+'" y1="'+y+'" x2="'+(x1+14)+'" y2="'+y+'" stroke="#4a3322" stroke-width="3"/>';
+  var tk=o.ticks||[];for(var i=0;i<tk.length;i++){var t=tk[i],x=X(t[0]);s+='<line x1="'+x+'" y1="'+(y-(t[1]?13:8))+'" x2="'+x+'" y2="'+(y+(t[1]?13:8))+'" stroke="#4a3322" stroke-width="'+(t[1]?3:1.6)+'"/>';
+    if(t[1])s+='<text x="'+x+'" y="'+(y+34)+'" text-anchor="middle" font-size="'+(String(t[0]).length>4?15:18)+'" font-weight="bold" fill="'+(t[2]||"#4a3322")+'">'+t[0]+'</text>';}
+  if(o.band){var e=[[o.band[0],o.band[2]],[o.band[1],o.band[3]]];for(var j=0;j<2;j++)s+='<circle cx="'+X(e[j][0])+'" cy="'+y+'" r="9" fill="'+(e[j][1]?'#e0503a':'#fff')+'" stroke="#e0503a" stroke-width="3"/>';}
+  var mk=o.marks||[];for(var k=0;k<mk.length;k++){var m=mk[k],xm=X(m[0]);s+='<path d="M'+(xm-9)+' '+(y-30)+' L'+(xm+9)+' '+(y-30)+' L'+xm+' '+(y-14)+' Z" fill="'+(m[2]||"#2f86d6")+'"/><text x="'+xm+'" y="'+(y-36)+'" text-anchor="middle" font-size="18" font-weight="bold" fill="'+(m[2]||"#2f86d6")+'">'+m[1]+'</text>';}
+  return s+'</svg>';
+}
+function tick10(lo,hi,lab){var t=[],st=(hi-lo)/10;for(var i=0;i<=10;i++){var v=lo+st*i;t.push([v,i===0||i===10||i===5||(lab&&lab.indexOf(v)>=0),i===5?"#e0503a":null]);}return t}
+// G1 どこで 区切る
+function gs1(n,kind,p){
+  var q={},c=cutOf(n,p),L=String(n).length,cs=[c];if(c-1>=1)cs.push(c-1);if(c+1<=L-1)cs.push(c+1);if(cs.length<3&&c-2>=1)cs.push(c-2);if(cs.length<3&&c+2<=L-1)cs.push(c+2);
+  q.mount=function(qa,ctl){frame(qa,F(n)+' を「'+phr(kind,n,p)+'」に するとき、どこで 区切る？',digitsHtml(n,null,true));
+    var o=shuf(cs);choices(qa,o.map(function(x){return digitsHtml(n,x,false)}),o.indexOf(c),ctl);};
+  q.hint=function(){return kind===2?'上から '+c+'けたを のこすよ':(kind===1?PLN[p/10]+'の位から 右を 消すよ':PLN[p]+'の位までを のこすよ')};
+  q.explain=function(){return '<div>'+digitsHtml(n,c,true)+'</div>'+(kind===2?'上から '+c+'けたを のこす → その 右で 区切る':(kind===1?PLN[p/10]+'の位から 右が 消す ところ':PLN[p]+'の位までが のこる ところ'))+'<br>赤い線の 右が 消す ところ'};
+  return q;
+}
+// G2 0 か p か
+function gs2(n,p,m){
+  var q={},r=n%p,keep=n-r,c=cutOf(n,p),up=(m==="f")?false:(m==="c"?r>0:r>=p/2),res=keep+(up?p:0);
+  q.mount=function(qa,ctl){frame(qa,F(n)+' を '+PLN[p]+'の位までに '+MNAME[m]+'。<br>消す ところ '+F(r)+' は、0 と '+F(p)+' の どっちに なる？',digitsHtml(n,c,true)+(m==="r"?nlSvg(0,p,{ticks:tick10(0,p),marks:[[r,r]]}):''));
+    var o=['0（すてる）',p+'（くりあげ）'];choices(qa,o,up?1:0,ctl);};
+  q.hint=function(){return m==="f"?'切り捨ては いつも 0':(m==="c"?'切り上げは 0 より 大きければ '+p:'まんなかの '+(p/2)+' より 前？ うしろ？（'+(p/2)+'は くりあげ）')};
+  q.explain=function(){return (m==="r"?nlSvg(0,p,{ticks:tick10(0,p),marks:[[r,r,up?"#e0503a":"#2f86d6"]]}):'')+'消す ところ '+r+' → '+(up?p:0)+'<div class="mid">'+F(keep)+' ＋ '+F(up?p:0)+' ＝ '+F(res)+'</div>'};
+  return q;
+}
+// G3 3通り
+function gs3(n,p,m){
+  var q={},ans=rdN(n,p,m),f=rdN(n,p,"f"),cc=rdN(n,p,"c"),r=rdN(n,p,"r");
+  q.mount=function(qa,ctl){frame(qa,F(n)+' を '+MNAME[m]+'して、'+PLN[p]+'の位までの がい数に すると？',digitsHtml(n,cutOf(n,p),true));
+    var o=numOpts(ans,shuf([f,cc,r,rdN(n,p*10,m),rdN(n,p/10>=1?p/10:p*10,m),ans+p]));choices(qa,o.v.map(function(x){return F(x)}),o.ci,ctl);};
+  q.hint=function(){return '赤い線の 右を 見よう。'+(m==="r"?'4までは すてる、5からは くりあげ':(m==="f"?'切り捨ては ぜんぶ すてる':'切り上げは 0でなければ くりあげ'))};
+  q.explain=function(){return '<table class="stb"><tr><th></th><th>'+n+'</th></tr><tr'+(m==="f"?' class="v"':'')+'><th>切り捨て</th><td>'+f+'</td></tr><tr'+(m==="c"?' class="v"':'')+'><th>切り上げ</th><td>'+cc+'</td></tr><tr'+(m==="r"?' class="v"':'')+'><th>四捨五入</th><td>'+r+'</td></tr></table>'+MNAME[m]+' → <b>'+ans+'</b>'};
+  return q;
+}
+// G4 上から kけた
+function gs4(n,k){
+  var q={},L=String(n).length,p=Math.pow(10,L-k),ans=rdN(n,p,"r"),r=n%p;
+  q.mount=function(qa,ctl){frame(qa,F(n)+' を 四捨五入して、上から '+k+'けたの がい数に すると？',digitsHtml(n,null,true));
+    var o=numOpts(ans,shuf([rdN(n,p,"f"),rdN(n,p,"c"),rdN(n,p*10,"r"),rdN(n,Math.max(1,p/10),"r"),ans+p]));choices(qa,o.v.map(function(x){return F(x)}),o.ci,ctl);};
+  q.hint=function(){return '上から '+k+'けたを のこして、その 右で 区切ろう'};
+  q.explain=function(){return digitsHtml(n,k,true)+'<br>消す ところ '+r+' → '+(r>=p/2?p:0)+'<div class="mid">'+F(n-r)+' ＋ '+F(r>=p/2?p:0)+' ＝ '+F(ans)+'</div>'};
+  return q;
+}
+// G5 はんい
+function gs5(c,p,m){
+  var q={},h=p/2,ans,ds,band;
+  if(m==="r"){ans=(c-h)+' 以上 '+(c+h)+' 未満';ds=[(c-h)+' 以上 '+(c+h)+' 以下',(c-p)+' 以上 '+c+' 未満',c+' 以上 '+(c+p)+' 未満'];band=[c-h,c+h,1,0];}
+  else if(m==="f"){ans=c+' 以上 '+(c+p)+' 未満';ds=[(c-h)+' 以上 '+(c+h)+' 未満',c+' 以上 '+(c+p)+' 以下',(c-p)+' 以上 '+c+' 未満'];band=[c,c+p,1,0];}
+  else{ans=(c-p)+' より 大きく '+c+' 以下';ds=[(c-p)+' 以上 '+c+' 未満',(c-h)+' 以上 '+(c+h)+' 未満',c+' 以上 '+(c+p)+' 未満'];band=[c-p,c,0,1];}
+  function vis(b){return nlSvg(c-p,c+p,{ticks:[[c-p,1],[c-h,1],[c,1,"#e0503a"],[c+h,1],[c+p,1]],band:b?band:null})}
+  q.mount=function(qa,ctl){frame(qa,MNAME[m]+'して '+PLN[p]+'の位までの がい数に すると '+F(c)+' に なる 数の はんいは？',vis(false));
+    var o=shuf([ans].concat(ds));choices(qa,o,o.indexOf(ans),ctl);q.onOk=q.onReveal=function(){$("vis").innerHTML=vis(true);};};
+  q.hint=function(){return m==="r"?F(c)+' の 左右に '+h+'ずつ。はじめは 以上、おわりは 未満':(m==="f"?F(c)+' から 1つ上の '+(c+p)+' の 手前まで':(c-p)+' より 大きくて '+F(c)+' まで')};
+  q.explain=function(){return vis(true)+'<b>'+ans+'</b><br>●は ふくむ（以上・以下）、○は ふくまない（未満・より大きい）'};
+  return q;
+}
+// G6 いちばん小さい・大きい・何こ
+function gs6(c,p,ask){
+  var q={},h=p/2,mn=c-h,mx=c+h-1,ans=[mn,mx,p][ask],T=['いちばん 小さい 数は？','いちばん 大きい 数は？','全部で 何こ？'][ask];
+  function vis(b){return nlSvg(c-p,c+p,{ticks:[[c-p,1],[c-h,1],[c,1,"#e0503a"],[c+h,1],[c+p,1]],band:b?[c-h,c+h,1,0]:null})}
+  q.mount=function(qa,ctl){frame(qa,PLN[p/10]+'の位を 四捨五入して '+F(c)+' に なる 整数。<br>'+T,vis(false));
+    var cd=[[mn-1,c-p,mn+1,mx],[mx+1,c+h,c+p-1,mn],[p-1,p+1,h,p*2]][ask];var o=numOpts(ans,shuf(cd));choices(qa,o.v.map(function(x){return F(x)+(ask===2?'こ':'')}),o.ci,ctl);
+    q.onOk=q.onReveal=function(){$("vis").innerHTML=vis(true);};};
+  q.hint=function(){return '整数の はんいは '+mn+' から '+(c+h)+' の 手前まで'};
+  q.explain=function(){return vis(true)+(c-h)+' 以上 '+(c+h)+' 未満 → 整数は '+mn+' から '+mx+' まで'+(ask===2?'<div class="mid">'+mx+' − '+mn+' ＋ 1 ＝ '+p+'</div>':'<div class="mid">'+F(ans)+'</div>')};
+  return q;
+}
+/* ===================== サイコロ ===================== */
+function droll(o,d){var t=o.t,b=o.b,n=o.n,s=o.s,e=o.e,w=o.w;
+  if(d==="E")return {t:w,e:t,b:e,w:b,n:n,s:s};if(d==="W")return {t:e,w:t,b:w,e:b,n:n,s:s};
+  if(d==="N")return {t:s,n:t,b:n,s:b,e:e,w:w};if(d==="S")return {t:n,s:t,b:s,n:b,e:e,w:w};
+  return {t:t,b:b,e:s,n:e,w:n,s:w};}
+var DORI=(function(){var base={t:1,s:2,e:3,b:6,n:5,w:4},seen={},list=[],q=[base];while(q.length){var o=q.pop(),k=o.t+"_"+o.s+"_"+o.e;if(seen[k])continue;seen[k]=1;list.push(o);q.push(droll(o,"E"),droll(o,"N"),droll(o,"R"));}return list})();
+function dget(t,s,e){for(var i=0;i<DORI.length;i++){var o=DORI[i];if(o.t===t&&o.s===s&&o.e===e)return o;}return null}
+function drand(){var o=pick(DORI);return [o.t,o.s,o.e]}
+var PIPS={1:[[.5,.5]],2:[[.27,.27],[.73,.73]],3:[[.27,.27],[.5,.5],[.73,.73]],4:[[.27,.27],[.73,.27],[.27,.73],[.73,.73]],5:[[.27,.27],[.73,.27],[.5,.5],[.27,.73],[.73,.73]],6:[[.27,.22],[.27,.5],[.27,.78],[.73,.22],[.73,.5],[.73,.78]]};
+function cubeG(ox,oy,sz,f){
+  var dx=sz*.42,dy=sz*.32,s='',ST='stroke="#4a3322" stroke-width="2.5" stroke-linejoin="round"';
+  function P(a,b){return a.toFixed(1)+' '+b.toFixed(1)}
+  var FTL=[ox,oy],FTR=[ox+sz,oy],FBR=[ox+sz,oy+sz],FBL=[ox,oy+sz];
+  var faces={s:{o:FTL,u:[sz,0],v:[0,sz],rx:1,ry:1},t:{o:[ox+dx,oy-dy],u:[sz,0],v:[-dx,dy],rx:1,ry:.55},e:{o:FTR,u:[dx,-dy],v:[0,sz],rx:.55,ry:1}};
+  s+='<path d="M'+P(FTL[0],FTL[1])+' L'+P(FTR[0],FTR[1])+' L'+P(FBR[0],FBR[1])+' L'+P(FBL[0],FBL[1])+' Z" fill="#fff" '+ST+'/>';
+  if(f.t!==undefined)s+='<path d="M'+P(FTL[0],FTL[1])+' L'+P(FTR[0],FTR[1])+' L'+P(FTR[0]+dx,FTR[1]-dy)+' L'+P(FTL[0]+dx,FTL[1]-dy)+' Z" fill="#fff" '+ST+'/>';
+  if(f.e!==undefined)s+='<path d="M'+P(FTR[0],FTR[1])+' L'+P(FBR[0],FBR[1])+' L'+P(FBR[0]+dx,FBR[1]-dy)+' L'+P(FTR[0]+dx,FTR[1]-dy)+' Z" fill="#fff" '+ST+'/>';
+  for(var k in faces){if(f[k]===undefined||f[k]===null)continue;var F0=faces[k],v=f[k];
+    function at(a,b){return [F0.o[0]+a*F0.u[0]+b*F0.v[0],F0.o[1]+a*F0.u[1]+b*F0.v[1]]}
+    if(v==="?"){var c=at(.5,.5);s+='<text x="'+c[0].toFixed(1)+'" y="'+(c[1]+sz*.14).toFixed(1)+'" text-anchor="middle" font-size="'+(sz*.42).toFixed(0)+'" font-weight="bold" fill="#e07408">？</text>';continue;}
+    if(typeof v==="string"&&v.charAt(0)==="#"){var c2=at(.5,.5);s+='<text x="'+c2[0].toFixed(1)+'" y="'+(c2[1]+sz*.14).toFixed(1)+'" text-anchor="middle" font-size="'+(sz*.4).toFixed(0)+'" font-weight="bold" fill="#2f86d6">'+v.slice(1)+'</text>';continue;}
+    var pp=PIPS[v],r=sz*(v===1?.13:.085);for(var i=0;i<pp.length;i++){var q2=at(pp[i][0],pp[i][1]);s+='<ellipse cx="'+q2[0].toFixed(1)+'" cy="'+q2[1].toFixed(1)+'" rx="'+(r*F0.rx).toFixed(1)+'" ry="'+(r*F0.ry).toFixed(1)+'" fill="'+(v===1?"#d23b3b":"#2b2b2b")+'"/>';}}
+  return s;
+}
+function svgWrap(w,h,inner){return '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="display:block;margin:0 auto;max-width:100%;height:auto">'+inner+'</svg>'}
+function dieSvg(f,sz){sz=sz||120;return svgWrap(sz*1.42+16,sz*1.32+16,cubeG(8,sz*.32+8,sz,f))}
+function crossSvg(o,hide,arrow){
+  var c=44,s='',pos={t:[1,1],n:[1,0],s:[1,2],w:[0,1],e:[2,1]},lab={t:"上",n:"おく",s:"手前",w:"左",e:"右"};
+  for(var k in pos){var x=pos[k][0]*c+4,y=pos[k][1]*c+4,v=(hide&&hide.indexOf(k)>=0)?"？":o[k];
+    s+='<rect x="'+x+'" y="'+y+'" width="'+c+'" height="'+c+'" fill="'+(k==="t"?"#ffe2b8":"#fff")+'" stroke="#4a3322" stroke-width="2"/>';
+    s+='<text x="'+(x+c/2)+'" y="'+(y+c/2+9)+'" text-anchor="middle" font-size="'+(k==="t"?26:22)+'" font-weight="bold" fill="'+(v==="？"?"#e07408":"#4a3322")+'">'+v+'</text>';
+    if(k!=="t")s+='<text x="'+(x+c/2)+'" y="'+(y+12)+'" text-anchor="middle" font-size="9" fill="#8a6a4a">'+lab[k]+'</text>';}
+  if(arrow){var A={E:[3*c+10,1.5*c+4,"→"],W:[-2,1.5*c+4,"←"],N:[1.5*c+4,-2,"↑"],S:[1.5*c+4,3*c+14,"↓"]}[arrow];s+='<text x="'+A[0]+'" y="'+(A[1]+10)+'" text-anchor="middle" font-size="30" font-weight="bold" fill="#e0503a">'+A[2]+'</text>';}
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+(3*c+40)+'" height="'+(3*c+40)+'" viewBox="-14 -18 '+(3*c+40)+' '+(3*c+40)+'">'+s+'</svg>';
+}
+var DLB={t:"上",b:"下",n:"おく",s:"前",e:"右",w:"左"};
+// D1 むかいあう目は7
+function sd1(t,s,e,ask){
+  var q={},o=dget(t,s,e),ans=o[ask],op={b:"t",n:"s",w:"e"}[ask];
+  q.mount=function(qa,ctl){frame(qa,'この サイコロの '+DLB[ask]+'の 目は？',dieSvg({t:t,s:s,e:e}));
+    var cd=[1,2,3,4,5,6].filter(function(x){return x!==ans&&x!==o[op]});var o2=numOpts(ans,shuf(cd));choices(qa,o2.v.map(function(x){return F(x)}),o2.ci,ctl);};
+  q.hint=function(){return DLB[ask]+'の むかいは '+DLB[op]+'。むかいあう 目を たすと 7'};
+  q.explain=function(){return DLB[op]+'が '+o[op]+' → '+DLB[ask]+'は<div class="mid">7 − '+o[op]+' ＝ '+ans+'</div>'};
+  return q;
+}
+// D2 つみかさね
+function sd2(list){
+  var q={},n=list.length,top=list[n-1][0],ans=14*n+top,vis=0;
+  for(var i=0;i<n;i++){vis+=list[i][1]+list[i][2];}vis+=top;
+  function pic(){var sz=90,inner='';for(var i=0;i<n;i++){var d=list[i],f={s:d[1],e:d[2]};if(i===n-1)f.t=d[0];inner=cubeG(8,sz*.32+8+(n-1-i)*sz,sz,f)+inner;}return svgWrap(sz*1.42+16,sz*.32+16+n*sz,inner)}
+  q.mount=function(qa,ctl){frame(qa,'サイコロを '+n+'こ つみかさねました。<br>まわりから 見える 目の 合計は？（つくえに ついている 面と、かさなった 面は 見えない）',pic());
+    var o=numOpts(ans,shuf([vis,14*n,ans+7-2*top,21*n,ans+1,ans-1]));choices(qa,o.v.map(function(x){return F(x)}),o.ci,ctl);};
+  q.hint=function(){return '1こ の まわり 4つの 面は、7＋7 で いくつ？'};
+  q.explain=function(){return '1こ の まわり4面 ＝ 7 ＋ 7 ＝ 14<br>'+n+'こ で 14 × '+n+' ＝ '+(14*n)+'<br>いちばん上の 目 '+top+' を たす<div class="mid">'+(14*n)+' ＋ '+top+' ＝ '+ans+'</div>'};
+  return q;
+}
+// D3 2面から 3面目
+var CCW=[[1,2,3],[1,3,5],[4,5,6],[2,4,6]];
+function isCCWset(a){var s=a.slice().sort();for(var i=0;i<4;i++)if(CCW[i].join()===s.join())return CCW[i];return null}
+function sd3(t,s,e,hide){
+  var q={},o=dget(t,s,e),ans=o[hide],f={t:t,s:s,e:e};f[hide]="?";
+  var shown=["t","s","e"].filter(function(k){return k!==hide}),a=o[shown[0]],b=o[shown[1]];
+  var cand=[1,2,3,4,5,6].filter(function(x){return x!==a&&x!==b&&x!==7-a&&x!==7-b});
+  q.mount=function(qa,ctl){frame(qa,DLB[shown[0]]+'が '+a+'、'+DLB[shown[1]]+'が '+b+'。<br>'+DLB[hide]+'の 目は？',dieSvg(f));
+    var o2=numOpts(ans,shuf(cand.concat([7-a,7-b])));choices(qa,o2.v.map(function(x){return F(x)}),o2.ci,ctl);};
+  q.hint=function(){return '7の ペアに なる 目は 来ない → '+cand.join(' か ')+'。上→前→右 の じゅんは 反時計回り'};
+  q.explain=function(){var g=isCCWset([t,s,e]);return dieSvg({t:t,s:s,e:e},90)+'<br>上→前→右 ＝ '+t+'→'+s+'→'+e+'<br>'+[t,s,e].slice().sort().join('・')+' は '+(g?'<b>反時計</b>の 組（1・2・3、1・3・5、4・5・6、2・4・6）':'<b>時計回り</b>の 組（反時計の 4組 いがい）')};
+  return q;
+}
+// D4 よこに ならべる
+function sd4(L,R){
+  var q={},oL=dget(L[0],L[1],L[2]),oR=dget(R[0],R[1],R[2]),x=oL.e,ans=(14+oL.t-x)+(14+oR.t-x),seen=oL.t+oL.s+oR.t+oR.s+oR.e;
+  function pic(){var sz=86;return svgWrap(2*sz+sz*.42+16,sz*1.32+16,cubeG(8,sz*.32+8,sz,{t:oL.t,s:oL.s})+cubeG(8+sz,sz*.32+8,sz,{t:oR.t,s:oR.s,e:oR.e}))}
+  q.mount=function(qa,ctl){frame(qa,'同じ 目どうしを くっつけて ならべました。<br>まわりから 見える 目の 合計は？',pic());
+    var o=numOpts(ans,shuf([seen,ans+2,ans-2,28+oL.t+oR.t,ans+1]));choices(qa,o.v.map(function(x){return F(x)}),o.ci,ctl);};
+  q.hint=function(){return 'まず、左の サイコロの 右の 面（くっつく 面）は？ 上 '+oL.t+'・前 '+oL.s+' から 考えよう'};
+  q.explain=function(){return '① くっつく 面：左の 右の面 ＝ '+x+'（右の 左の面も '+x+'）<br>② 1こ ずつ：21 − 下 − くっつく 面<br>左：21 − '+oL.b+' − '+x+' ＝ '+(14+oL.t-x)+'　右：21 − '+oR.b+' − '+x+' ＝ '+(14+oR.t-x)+'<div class="mid">'+(14+oL.t-x)+' ＋ '+(14+oR.t-x)+' ＝ '+ans+'</div>'};
+  return q;
+}
+// D5 1回 ころがす
+var DARR={E:"右",W:"左",N:"おく",S:"手前"},DBACK={E:"w",W:"e",N:"s",S:"n"};
+function sd5(t,s,e,dir){
+  var q={},o=dget(t,s,e),o2=droll(o,dir),ans=o2.t;
+  q.mount=function(qa,ctl){frame(qa,DARR[dir]+'へ 1回 ころがすと、上の 目は？',dieSvg({t:t,s:s,e:e},100)+crossSvg(o,["n","w"],dir));
+    qa.querySelector(".opts").innerHTML='<button class="btn dig" id="sk">✏️ 十字を うめる</button>';
+    $("sk").onclick=function(){$("vis").innerHTML=dieSvg({t:t,s:s,e:e},100)+crossSvg(o,null,dir);var c=[1,2,3,4,5,6].filter(function(x){return x!==ans});var o3=numOpts(ans,shuf(c));choices(qa,o3.v.map(function(x){return F(x)}),o3.ci,ctl);};
+    q.onOk=q.onReveal=function(){$("vis").innerHTML=crossSvg(o,null,dir)+' <span style="font-size:30px">⇒</span> '+crossSvg(o2,null,null);};
+  };
+  q.hint=function(){return DARR[dir]+'へ ころがすと、うしろがわの '+DLB[DBACK[dir]]+'の 面が 上に くる'};
+  q.explain=function(){return DARR[dir]+'へ ころがす → '+DLB[DBACK[dir]]+'の 面（'+o[DBACK[dir]]+'）が 上に くる<div class="mid">上 ＝ '+ans+'</div>'};
+  return q;
+}
+// D6 コースを ころがす
+function pathCells(dirs){var x=0,y=0,c=[[0,0]],D={E:[1,0],W:[-1,0],N:[0,-1],S:[0,1]};for(var i=0;i<dirs.length;i++){x+=D[dirs[i]][0];y+=D[dirs[i]][1];c.push([x,y]);}
+  var mx=0,my=0;for(var j=0;j<c.length;j++){mx=Math.min(mx,c[j][0]);my=Math.min(my,c[j][1]);}return c.map(function(p){return [p[0]-mx,p[1]-my]})}
+function courseSvg(cells,tops,cur){var g=44,W=0,H=0,s='';for(var i=0;i<cells.length;i++){W=Math.max(W,cells[i][0]);H=Math.max(H,cells[i][1]);}
+  for(var k=0;k<cells.length;k++){var x=cells[k][0]*g+4,y=cells[k][1]*g+4;s+='<rect x="'+x+'" y="'+y+'" width="'+g+'" height="'+g+'" fill="'+(k===cur?"#ffe2b8":(k===0?"#fff3cf":"#fff"))+'" stroke="#4a3322" stroke-width="2"/>';
+    if(k<tops.length)s+='<text x="'+(x+g/2)+'" y="'+(y+g/2+9)+'" text-anchor="middle" font-size="24" font-weight="bold" fill="#4a3322">'+tops[k]+'</text>';
+    else if(k===0)s+='<text x="'+(x+g/2)+'" y="'+(y+g/2+6)+'" text-anchor="middle" font-size="12" fill="#8a6a4a">スタート</text>';}
+  return svgWrap((W+1)*g+8,(H+1)*g+8,s)}
+function sd6(t,s,e,dirs){
+  var q={},cells=pathCells(dirs),o=dget(t,s,e),seq=[o],tops=[o.t];for(var i=0;i<dirs.length;i++){var nx=droll(seq[i],dirs.charAt(i));seq.push(nx);tops.push(nx.t);}
+  var ans=tops.reduce(function(a,b){return a+b},0);
+  q.mount=function(qa,ctl){var k=0;
+    function draw(){$("vis").innerHTML='<div>'+courseSvg(cells,tops.slice(0,k+1),k)+'</div><div>'+crossSvg(seq[k],null,k<dirs.length?dirs.charAt(k):null)+'</div><div class="cap">上の 目：'+tops.slice(0,k+1).join(' ＋ ')+'</div>';}
+    frame(qa,'コースに そって '+dirs.length+'回 ころがします（上は おく）。<br>上に なる 目の 合計は？（スタートも 入れる）',dieSvg({t:t,s:s,e:e},90)+'<div>'+courseSvg(cells,[],0)+'</div>');
+    qa.querySelector(".opts").innerHTML='<button class="btn dig" id="sk">✏️ スタートの 十字を 書く</button>';
+    $("sk").onclick=function(){if(P.done)return;if(this.getAttribute("data-st")){k++;}else this.setAttribute("data-st","1");draw();
+      if(k>=dirs.length){var o2=numOpts(ans,shuf([ans-tops[0],ans+tops[tops.length-1],ans+7,ans-1,ans+1]));choices(qa,o2.v.map(function(x){return F(x)}),o2.ci,ctl);}
+      else this.textContent='▶ '+DARR[dirs.charAt(k)]+'へ ころがす（'+(k+1)+'/'+dirs.length+'）';};
+  };
+  q.hint=function(){return '1回 ころがす たびに、十字の 上を 書きかえよう'};
+  q.explain=function(){return courseSvg(cells,tops,-1)+'<div class="mid">'+tops.join(' ＋ ')+' ＝ '+ans+'</div>'};
+  return q;
+}
+function rdirs(n){var D="ENSW",best=null;for(var tr=0;tr<50;tr++){var d=pick(["E","S","W","N"]),out="",x=0,y=0,vis={"0,0":1},ok=true;
+  for(var i=0;i<n;i++){if(i>0&&Math.random()<0.3){var turns={E:"NS",W:"NS",N:"EW",S:"EW"}[d];d=turns.charAt(ri(0,1));}
+    var M={E:[1,0],W:[-1,0],N:[0,-1],S:[0,1]}[d];x+=M[0];y+=M[1];if(vis[x+","+y]){ok=false;break;}vis[x+","+y]=1;out+=d;}
+  if(ok)return out;}return "EEE"}
+
 /* ===================== きそく（数列） ===================== */
 function RB(k,y){return '<ruby>'+k+'<rt>'+y+'</rt></ruby>'}
 var T_TOUSA=RB('等差','とうさ')+RB('数列','すうれつ'), T_SHO=RB('初項','しょこう'), T_KOU=RB('公差','こうさ'), T_MAK=RB('末項','まっこう'), T_KSU=RB('項数','こうすう');
@@ -842,7 +1056,7 @@ var GCOL=["#ffe2b8","#d6f0dd","#e2dcfa","#fde0ec","#d6e8fa"];
 function seqSvg(nums,o){
   o=o||{}; var n=nums.length,cw=58,gp=16,W=gp+n*(cw+gp),ch=48,y0=8;
   var H=y0+ch+(o.arcs?50:8)+(o.arcs2?34:0)+(o.under?30:0)+4;
-  var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="max-width:100%;height:auto">';
+  var s='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="display:block;margin:0 auto;max-width:100%;height:auto">';
   function cx(i){return gp+i*(cw+gp)+cw/2}
   if(o.sep)for(var j=0;j<o.sep.length;j++){var xs=gp+(o.sep[j]+1)*(cw+gp)-gp/2;s+='<line x1="'+xs+'" y1="1" x2="'+xs+'" y2="'+(y0+ch+7)+'" stroke="#e0503a" stroke-width="4"/>';}
   for(var i=0;i<n;i++){var v=nums[i],x=gp+i*(cw+gp);
@@ -1023,7 +1237,7 @@ function k11(a0,d,N,mode){
 }
 // K12 和
 function pairSvg(top,bot,S){
-  var n=top.length,cw=58,gp=12,ox=26,W=ox+n*(cw+gp),H=170,s='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="max-width:100%;height:auto">';
+  var n=top.length,cw=58,gp=12,ox=26,W=ox+n*(cw+gp),H=170,s='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="display:block;margin:0 auto;max-width:100%;height:auto">';
   for(var i=0;i<n;i++){var x=ox+i*(cw+gp),cx=x+cw/2;
     var rows=[[top[i],8,'#fff8e8'],[bot===null?null:bot[i],62,'#d6e8fa']];
     for(var r=0;r<2;r++){var v=rows[r][0];if(v===null)continue;if(v==='…'){s+='<text x="'+cx+'" y="'+(rows[r][1]+32)+'" text-anchor="middle" font-size="24" fill="#4a3322">…</text>';continue;}
@@ -1132,7 +1346,7 @@ function b16(i){
 var REG={};
 function rebuild(fn,name){var w=function(){var args=Array.prototype.slice.call(arguments);var mk=function(){var q=fn.apply(null,args);q._k=[name,args];q.clone=mk;return q;};return mk();};REG[name]=w;return w;}
 var S9A=rebuild(s9a,"S9A"),S9B=rebuild(s9b,"S9B"),S9C=rebuild(s9c,"S9C"),S10=rebuild(s10,"S10"),S11=rebuild(s11,"S11"),S12=rebuild(s12,"S12"),S13F=rebuild(s13f,"S13F"),S8=rebuild(s8,"S8"),S1W=rebuild(s1whole,"S1W"),S1C=rebuild(s1cut,"S1C"),S2M=rebuild(s2make,"S2M"),S2R=rebuild(s2read,"S2R"),S3=rebuild(s3,"S3"),S4=rebuild(s4,"S4"),S5=rebuild(s5,"S5"),S6=rebuild(s6,"S6"),S7=rebuild(s7,"S7");
-var K1=rebuild(k1,"K1"),K2=rebuild(k2,"K2"),K3=rebuild(k3,"K3"),K4=rebuild(k4,"K4"),K4N=rebuild(k4n,"K4N"),K5=rebuild(k5,"K5"),K6R=rebuild(k6r,"K6R"),K6G=rebuild(k6g,"K6G"),K6N=rebuild(k6n,"K6N"),K7=rebuild(k7,"K7"),K9=rebuild(k9,"K9"),K10=rebuild(k10,"K10"),K11=rebuild(k11,"K11"),K12=rebuild(k12,"K12"),B14=rebuild(b14,"B14"),B15R=rebuild(b15r,"B15R"),B15C=rebuild(b15c,"B15C"),B16Q=rebuild(b16,"B16Q");
+var K1=rebuild(k1,"K1"),K2=rebuild(k2,"K2"),K3=rebuild(k3,"K3"),K4=rebuild(k4,"K4"),K4N=rebuild(k4n,"K4N"),K5=rebuild(k5,"K5"),K6R=rebuild(k6r,"K6R"),K6G=rebuild(k6g,"K6G"),K6N=rebuild(k6n,"K6N"),K7=rebuild(k7,"K7"),K9=rebuild(k9,"K9"),K10=rebuild(k10,"K10"),K11=rebuild(k11,"K11"),K12=rebuild(k12,"K12"),B14=rebuild(b14,"B14"),B15R=rebuild(b15r,"B15R"),B15C=rebuild(b15c,"B15C"),B16Q=rebuild(b16,"B16Q"),G1=rebuild(gs1,"G1"),G2=rebuild(gs2,"G2"),G3=rebuild(gs3,"G3"),G4=rebuild(gs4,"G4"),G5=rebuild(gs5,"G5"),G6=rebuild(gs6,"G6"),D1=rebuild(sd1,"D1"),D2=rebuild(sd2,"D2"),D3=rebuild(sd3,"D3"),D4=rebuild(sd4,"D4"),D5=rebuild(sd5,"D5"),D6=rebuild(sd6,"D6");
 function rk1(){return Math.random()<0.2?K1(ri(40,70),-ri(2,6),ri(3,5)):K1(ri(1,9),ri(2,9),ri(3,5))}
 function rk2(){var r=Math.random()<0.6?2:3;return K2(r===2?ri(1,3):ri(1,2),r,ri(3,r===2?6:4))}
 function rk3(){return K3(ri(1,5),ri(1,3),pick([1,1,2]),ri(3,6))}
@@ -1178,10 +1392,22 @@ var CHANT={
  k9:{t:"はじめが "+T_SHO+"、さいごが "+T_MAK+"、となりの 差が {0}",k:[[T_KOU,T_SHO,T_MAK]]},
  k10:{t:"{0}、差を たして できあがり",k:[[T_KOU+" かける 番目",T_SHO+" かける 番目",T_KOU+" たす 番目"]]},
  k11:{t:"差を もどして {0}",k:[[T_KOU+"で わる",T_SHO+"で わる",T_KOU+"を かける"]]},
- k12:{t:T_SHO+" たす "+T_MAK+"、かける "+T_KSU+"、{0}",k:[["わる 2","かける 2","わる "+T_KSU]]}
+ k12:{t:T_SHO+" たす "+T_MAK+"、かける "+T_KSU+"、{0}",k:[["わる 2","かける 2","わる "+T_KSU]]},
+ g1:{t:"のこす ところと 消す ところを {0}で 区切る",k:[["赤い線","まる","かっこ"]]},
+ g2:{t:"消す ところは 0 か {0}",k:[["くりあげ","半分","そのまま"]]},
+ g3:{t:"4までは すてる、{0}からは くりあげ",k:[["5","6","1"]]},
+ g4:{t:"上から 2けたなら、{0}けた目で 四捨五入",k:[["3","2","1"]]},
+ g5:{t:"まんなかから まんなかまで、はじめは {0}、おわりは 未満",k:[["以上","以下","未満"]]},
+ g6:{t:"百の位までなら 整数は {0}こ",k:[["100","50","99"]]},
+ d1:{t:"むかいあう 目を たすと {0}",k:[["7","6","12"]]},
+ d2:{t:"まわりの 4つは いつも {0}",k:[["14","7","21"]]},
+ d3:{t:"1・2・3、1・3・5、4・5・6、2・4・6 は {0}",k:[["反時計","時計回り","ばらばら"]]},
+ d4:{t:"くっつく 面は {0}の 目",k:[["同じ","7の","となり"]]},
+ d5:{t:"ころがす むきの {0}の 目が 上に くる",k:[["うしろ","まえ","となり"]]},
+ d6:{t:"1回ずつ 十字を 書いて、上の目を {0}",k:[["たしていく","かけていく","わすれる"]]}
 };
-var CHMAP={S1W:"s1",S1C:"s1",S2M:"s2",S2R:"s2",S3:"s3",S4:"s4",S5:"s5",S6:"s6",S7:"s7",S8:"s8",S9A:"s9",S9B:"s9",S9C:"s9",S10:"s10",S11:"s11",S12:"s12",S13F:"s13",B14:"s14",B15R:"s15",B15C:"s15",B16Q:"s16",K1:"k1",K2:"k2",K3:"k3",K4:"k4",K4N:"k4",K5:"k5",K6R:"k6",K6G:"k6",K6N:"k6",K7:"k7",K9:"k9",K10:"k10",K11:"k11",K12:"k12"};
-var WLBL={k1:"等差",k2:"等比",k3:"階差",k4:"平方",k5:"フィボナッチ",k6:"区切る",k7:"飛び石",k9:"ことば",k10:"□番目",k11:"何番目",k12:"和",s1:"1こ",s2:"切ってとる",s3:"1こと くらべる",s4:"すう直線",s5:"同じりょう",s6:"わけっこ",s7:"いくつ入る",s8:"かぶんすう",s9:"3＝3/1",s10:"何倍",s11:"比べる量",s12:"元",s13:"まぜこぜ",s14:"小数⇄分数",s15:"まじった計算",s16:"テスト"};
+var CHMAP={S1W:"s1",S1C:"s1",S2M:"s2",S2R:"s2",S3:"s3",S4:"s4",S5:"s5",S6:"s6",S7:"s7",S8:"s8",S9A:"s9",S9B:"s9",S9C:"s9",S10:"s10",S11:"s11",S12:"s12",S13F:"s13",B14:"s14",B15R:"s15",B15C:"s15",B16Q:"s16",K1:"k1",K2:"k2",K3:"k3",K4:"k4",K4N:"k4",K5:"k5",K6R:"k6",K6G:"k6",K6N:"k6",K7:"k7",K9:"k9",K10:"k10",K11:"k11",K12:"k12",G1:"g1",G2:"g2",G3:"g3",G4:"g4",G5:"g5",G6:"g6",D1:"d1",D2:"d2",D3:"d3",D4:"d4",D5:"d5",D6:"d6"};
+var WLBL={k1:"等差",k2:"等比",k3:"階差",k4:"平方",k5:"フィボナッチ",k6:"区切る",k7:"飛び石",k9:"ことば",k10:"□番目",k11:"何番目",k12:"和",s1:"1こ",s2:"切ってとる",s3:"1こと くらべる",s4:"すう直線",s5:"同じりょう",s6:"わけっこ",s7:"いくつ入る",s8:"かぶんすう",s9:"3＝3/1",s10:"何倍",s11:"比べる量",s12:"元",s13:"まぜこぜ",s14:"小数⇄分数",s15:"まじった計算",s16:"テスト",g1:"区切る",g2:"0か100か",g3:"3通り",g4:"上から○けた",g5:"はんい",g6:"小さい・大きい・何こ",d1:"むかいあう7",d2:"つみかさね",d3:"2面から3面目",d4:"よこにならべる",d5:"1回ころがす",d6:"コース"};
 function chFull(c){return c.t.replace(/\{(\d)\}/g,function(m,i){return '<b>'+c.k[+i][0]+'</b>'})}
 function chOf(q){var n=q&&q._k?q._k[0]:null;if(n==="CHQ")return null;var id=n&&CHMAP[n]?CHMAP[n]:(P&&P.st?P.st.id:null);return id&&CHANT[id]?CHANT[id]:null}
 function chLine(q){var c=chOf(q);return c?'<div class="small" style="margin-top:6px">🎵 '+chFull(c)+'</div>':''}
@@ -1280,7 +1506,19 @@ var STAGES=[
  {id:"k9",u:"k",t:T_SHO+"・"+T_KOU+"・"+T_MAK,d:"ことばを おぼえる",gen:function(){var l=[];for(var i=0;i<8;i++){var x=rad();l.push(K9(x[0],x[1],ri(20,60),i%4));}return shuf(l);}},
  {id:"k10",u:"k",t:"□番目の 数",d:RB("公差","こうさ")+"×番目 と 差",gen:function(){return [K10(5,4,10),rk10(),rk10(),rk10(),K10(3,6,20),rk10(),rk10()];}},
  {id:"k11",u:"k",t:"何番目？・"+T_KSU,d:"差を もどして ÷"+RB("公差","こうさ"),gen:function(){return [K11(5,4,50,0),rk11(0),rk11(0),rk11(0),rk11(1),rk11(1),rk11(0)];}},
- {id:"k12",u:"k",t:T_TOUSA+"の "+RB("和","わ"),d:"さかさまに ならべて たす",gen:function(){return [K12(ri(1,5),ri(2,5),pick([5,6,7])),K12(ri(1,5),ri(2,5),pick([5,6,7])),K12(3,4,20),K12(ri(1,5),ri(2,5),ri(10,20)),K12(ri(1,5),ri(2,5),ri(10,30)),K12(1,3,17)];}}
+ {id:"k12",u:"k",t:T_TOUSA+"の "+RB("和","わ"),d:"さかさまに ならべて たす",gen:function(){return [K12(ri(1,5),ri(2,5),pick([5,6,7])),K12(ri(1,5),ri(2,5),pick([5,6,7])),K12(3,4,20),K12(ri(1,5),ri(2,5),ri(10,20)),K12(ri(1,5),ri(2,5),ri(10,30)),K12(1,3,17)];}},
+ {id:"g1",u:"g",t:"どこで 区切る？",d:"のこす ところ｜消す ところ",gen:function(){var l=[];for(var i=0;i<8;i++){var L=ri(3,5),n=ri(Math.pow(10,L-1)+1,Math.pow(10,L)-1),kind=i%3,p;if(kind===2)p=Math.pow(10,L-ri(1,2));else if(kind===1)p=Math.pow(10,ri(2,L-1));else p=Math.pow(10,ri(1,L-2));l.push(G1(n,kind,p));}return l;}},
+ {id:"g2",u:"g",t:"0 か 100 か",d:"消す ところだけ 見る",gen:function(){var l=[G2(2649,100,"r"),G2(2650,100,"r"),G2(1283,1000,"r")];for(var i=0;i<6;i++){var p=pick([10,100,100,1000]),n=ri(p*2,p*60)+ (i===0?p/2:ri(1,p-1));l.push(G2(n,p,i<4?"r":pick(["f","c"])));}return l;}},
+ {id:"g3",u:"g",t:"切り捨て・切り上げ・四捨五入",d:"同じ数で 3通り",gen:function(){var l=[G3(182,10,"f"),G3(504,10,"c"),G3(349,10,"r")];for(var i=0;i<5;i++){var p=pick([10,100,100,1000]),n=ri(p*2,p*90)+ri(1,p-1);l.push(G3(n,p,pick(["f","c","r","r"])));}return l;}},
+ {id:"g4",u:"g",t:"上から ○けた",d:"○けたを のこして 四捨五入",gen:function(){var l=[G4(1283,1),G4(1283,2)];for(var i=0;i<6;i++)l.push(G4(ri(1000,99999),ri(1,2)));return l;}},
+ {id:"g5",u:"g",t:"はんい（以上・未満）",d:"まんなかから まんなかまで",gen:function(){var l=[G5(2700,100,"r"),G5(5400,100,"r"),G5(17000,1000,"r")];for(var i=0;i<4;i++){var p=pick([10,100,1000]);l.push(G5(p*ri(3,60),p,pick(["r","r","f","c"])));}return l;}},
+ {id:"g6",u:"g",t:"いちばん 小さい・大きい・何こ",d:"整数の はんいを 数える",gen:function(){var l=[G6(2000,100,2),G6(2300,100,0),G6(2300,100,1),G6(567000,1000,2)];for(var i=0;i<4;i++){var p=pick([100,1000]);l.push(G6(p*ri(3,90),p,ri(0,2)));}return l;}},
+ {id:"d1",u:"d",t:"むかいあう 目は 7",d:"見えない 面を 当てる",gen:function(){var l=[];for(var i=0;i<6;i++){var o=drand();l.push(D1(o[0],o[1],o[2],["b","n","w"][i%3]));}return l;}},
+ {id:"d2",u:"d",t:"つみかさね",d:"まわり4面は 14",gen:function(){var l=[];for(var i=0;i<6;i++){var n=i<4?2:3,a=[];for(var j=0;j<n;j++)a.push(drand());l.push(D2(a));}return l;}},
+ {id:"d3",u:"d",t:"2面から 3面目",d:"反時計の 組を つかう",gen:function(){var l=[D3(1,5,4,"e"),D3(1,2,3,"e")];for(var i=0;i<6;i++){var o=drand();l.push(D3(o[0],o[1],o[2],["e","e","s","t"][i%4]));}return l;}},
+ {id:"d4",u:"d",t:"よこに ならべる",d:"くっつく 面は 同じ目",gen:function(){var l=[D4([3,6,5],[3,1,2]),D4([3,2,6],[5,4,1])];for(var i=0;i<4;i++){var L=pick(DORI),Rs=DORI.filter(function(o){return o.w===L.e}),R=pick(Rs);l.push(D4([L.t,L.s,L.e],[R.t,R.s,R.e]));}return l;}},
+ {id:"d5",u:"d",t:"1回 ころがす",d:"うしろの 目が 上に くる",gen:function(){var l=[];for(var i=0;i<8;i++){var o=drand();l.push(D5(o[0],o[1],o[2],["E","S","W","N"][i%4]));}return l;}},
+ {id:"d6",u:"d",t:"コースを ころがす",d:"十字を 書きかえて たす",gen:function(){var l=[D6(3,1,2,"SSS")];for(var i=0;i<3;i++){var o=drand();l.push(D6(o[0],o[1],o[2],rdirs(ri(3,6))));}l.push(D6(3,1,2,"SSSSEEEENNNWWS"));return l;}}
 ];
 
 load(); home();
