@@ -219,6 +219,11 @@ h2.sec{margin:26px 0 2px;font-size:15.5px;color:var(--ink-soft);letter-spacing:.
 .btn.mstart.more{font-size:16px;padding:14px}
 .mfoot{margin:9px 0 0;text-align:center;font-size:12px;color:var(--ink-soft);font-weight:700}
 .card.mission.fin{background:linear-gradient(140deg,#FFF6E2,#F2FBF2)}
+.card.mission.fin.urgent{background:linear-gradient(140deg,#FFF0E2,#FFF7EC)}
+.mdone .urg{display:block;font-size:16px;color:#D9663C;margin-top:6px;line-height:1.7}
+.exline{margin:0 0 10px;text-align:center;font-size:12.5px;font-weight:800;color:#C98C32}
+.btn.soft.wide.pickone{text-align:center;font-size:16px;margin-top:10px}
+.btn.soft.wide.pickone .badge2{float:none;margin-left:8px}
 .mdone{margin:4px 0 0;font-size:21px;font-weight:800;line-height:1.6;text-align:center;color:#C98C32}
 
 /* じぶんで えらぶ（ふだんは たたむ） */
@@ -949,15 +954,15 @@ let flashMsg=null;
    ========================================================= */
 function todayStr(){const d=new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
-function dayCheck(){const t=todayStr(); if(S.day!==t){S.day=t;S.step=0;save();}}
+function dayCheck(){const t=todayStr(); if(S.day!==t){S.day=t;S.step=0;S.extra=0;save();}}
 
 /* 11／9 学力テスト・11／13 社会科テスト に合わせて中身を切りかえる */
 const U_GAKU=["kokudo","chikei","kikou","takahiku","atatakai","todofu","sekai","ame","zukei","kijutsu","mSan","mHei","mKawa"];
 const U_SHAKAI=["bunka","jinko","kijutsu"];
 const U_ALL=Object.keys(UNITS);
 function phase(){const t=todayStr();
-  if(t<="2026-11-08")return "A";
-  if(t<="2026-11-12")return "B";
+  if(t<="2026-11-09")return "A";   /* 学力テスト当日の朝まで */
+  if(t<="2026-11-13")return "B";   /* 社会科テスト当日の朝まで */
   return "C";}
 function missions(){
   const p=phase();
@@ -979,11 +984,28 @@ function missions(){
     {k:"last",ic:"🔁",t:"しあげ",s:"5もん・やく3ふん",units:U_ALL,
       d:"きょう まちがえたものを もう一回。"}];
 }
+const untouchedIn=u=>ITEMS.filter(i=>i.unit===u&&!(S.m[i.id]>0)).length;
+function weakestUnit(){
+  const p=phase(), list=(p==="B"?U_SHAKAI:p==="A"?U_GAKU:U_ALL);
+  let best=null;
+  list.forEach(u=>{ if(!UNITS[u])return;
+    const n=untouchedIn(u); if(remainIn(u)>0&&(!best||n>best.n))best={u:u,n:n,r:remainIn(u)};});
+  return best;
+}
+/* テスト前日・当日は「おわり」で止めない */
+function daysLeft(){
+  const p=phase(); if(p==="C")return null;
+  const goal=p==="A"?"2026-11-09":"2026-11-13";
+  return Math.round((new Date(goal)-new Date(todayStr()))/86400000);
+}
 let missionRun=-1;
 function startMission(){
   dayCheck();
   const ms=missions(), i=S.step;
-  if(i>=ms.length){missionRun=-1;start({type:"osusume",n:5,label:"✨ おかわり"});return;}
+  if(i>=ms.length){missionRun=-1;
+    const u=(ms[1]&&ms[1].units)||U_ALL;
+    S.extra=(S.extra||0)+1; save();
+    start({type:"units",units:u,n:5,label:"🔥 おかわり"});return;}
   const t=ms[i]; missionRun=i;
   if(t.k==="pair"){startPair();return;}
   if(t.k==="kei"){startKei();return;}
@@ -1531,11 +1553,20 @@ function missionCard(){
     left=d>0?`あと ${d}日`:"きょう 本番！";
   }
   if(i>=n){
-    return `<div class="card mission fin">
+    const d=daysLeft(), urgent=(d!==null&&d<=1), w=weakestUnit(), ex=S.extra||0;
+    const head = urgent
+      ? `3つ クリア！🎉<br><span class="urg">${d<=0?"テストは きょう。":"テストは あした。"}もう1セット やっておこう！</span>`
+      : `ぜんぶ おわり！<br>きょうは もう だいじょうぶ 🎉`;
+    let more=`<button class="btn mstart more" onclick="startMission()">${urgent?"🔥 もう5もん やる（テストに出るところ）":"✨ もっとやる（おかわり5もん）"}</button>`;
+    if(w)more+=`<button class="btn soft wide pickone" onclick='start({type:"unit",unit:"${w.u}",n:5})'>
+        ${UNITS[w.u].ic} ${UNITS[w.u].name}<span class="badge2">のこり ${w.r}</span></button>
+      <p class="mfoot">いま いちばん のこっているのは ここ。まよったら これ！</p>`;
+    return `<div class="card mission fin${urgent?" urgent":""}">
       <p class="mlabel">🎯 きょうの ミッション <span>${sub}${left?"・"+left:""}</span></p>
-      <p class="mdone">ぜんぶ おわり！<br>きょうは もう だいじょうぶ 🎉</p>
+      <p class="mdone">${head}</p>
       <div class="mdots">${dots}</div>
-      <button class="btn mstart more" onclick="startMission()">✨ もっとやる（おかわり5もん）</button></div>`;
+      ${ex?`<p class="exline">きょうの おかわり ${ex}セット 🔥</p>`:""}
+      ${more}</div>`;
   }
   const t=ms[i];
   const tt=(t.k==="last"&&wrongCount()===0)?"かきとり（しあげ）":t.t;
