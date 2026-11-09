@@ -183,6 +183,9 @@ table.t td:first-child{background:#f6fbfe;font-weight:600}
 .score span{font-size:22px}
 .center{text-align:center}
 .link{background:none;border:none;color:var(--sub);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer;display:block;margin:22px auto 0}
+.link.oya{font-size:14px;padding:13px 18px;border-radius:16px;background:#fff;
+  box-shadow:0 3px 0 var(--line);text-decoration:none;color:#7b93a4;min-height:46px}
+.link.oya b{color:#d2566a}
 .points{margin:0;padding-left:1.1em;font-size:15px}
 .points li{margin-top:6px}
 .points b{color:#d56d93;font-weight:600}
@@ -1737,7 +1740,7 @@ function vHome(){
     h+=unitCards(test);
     h+=pastCards(test);
     const unN0=unchecked().length;
-    h+=`<button class="link" onclick="go('parent')">おうちの人へ（書いたノート・きろく）${unN0?`　🔴 親チェック ${unN0}件`:""}</button>`;
+    h+=`<button class="link oya" onclick="go('parent')">👪 おうちの人へ（親チェック・バックアップ）${unN0?`　<b>🔴 ${unN0}件</b>`:""}</button>`;
     app.innerHTML=h;return;
   }
   // やりのこし：学校の問題集（core）を先に、ウィンパスはあと
@@ -1758,7 +1761,7 @@ function vHome(){
   h+=unitCards(test);
   h+=pastCards(test);
   const unN=unchecked().length;
-  h+=`<button class="link" onclick="go('parent')">おうちの人へ（書いたノート・きろく）${unN?`　🔴 親チェック ${unN}件`:""}</button>`;
+  h+=`<button class="link oya" onclick="go('parent')">👪 おうちの人へ（親チェック・バックアップ）${unN?`　<b>🔴 ${unN}件</b>`:""}</button>`;
   app.innerHTML=h;
 }
 /* クリップボードへコピー（失敗したらテキストエリア経由） */
@@ -2118,6 +2121,12 @@ function vParent(){
     ${un.length>12?`<p class="muted center" style="margin:10px 0 0">のこり ${un.length-12}件。12件ずつ出ます。</p>`:""}`
    :`<p class="muted" style="margin:0">未チェックはありません。乙葉さんが書く問題を解くと、ここに手書きが並びます。</p>`}</div>
 
+   <div class="card"><h2>💾 バックアップ</h2>
+    <p class="muted" style="margin:0">⭐・正誤・まちがいノート・ふるまいの記録をコピーします（手書き画像と写真はふくみません）。メモ帳などに貼って保管してください。</p>
+    <button class="btn lav" onclick="doBackup(this)" style="margin-top:10px">📋 きろくをコピー（バックアップ）</button>
+    <button class="btn soft" onclick="showRestore()">バックアップからもどす</button>
+    <div id="dump2"></div></div>
+
    <div class="card"><h2>👪 書いたノート（ぜんぶ）</h2>
    <p class="muted" style="margin:0">新しい順・最大60件。<b>本人／親</b>の順に採点を表示しています。</p>
    <div class="gal">${g.length?g.map(x=>`<div><img src="${x.img}" alt=""><b style="color:${x.m===2?"#e886a8":x.m===1?"#c99a1c":"#58a3cc"}">${M[x.m]}</b>${x.pm===undefined?`<span class="muted"> / 未</span>`:x.pm===9?`<span class="muted"> / －</span>`:` / <b style="color:${x.pm===2?"#e886a8":x.pm===1?"#c99a1c":"#58a3cc"}">${M[x.pm]}</b>`} ${x.q}…<br><span class="muted" style="font-size:10.5px">${new Date(x.ts).toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span></div>`).join(""):`<p class="muted">まだ書いた答えはありません。</p>`}</div></div>
@@ -2156,7 +2165,7 @@ function vParent(){
      return top.length?`<div class="card"><h2>⚠️ にがてTOP10<span class="muted" style="margin-left:auto;font-size:12px">ぜんぶのテストから</span></h2>
       <p class="muted" style="margin:0">まちがいが多く、正解が少ない順です。</p>
       ${top.map(q=>{const x=S.stat[q.id],u=ALLUNITS[q.u]||{ic:""};return `<div class="wl"><span class="rec">○${x.ok} ×${x.ng}</span>${u.ic} ${q.q.replace(/<[^>]+>/g,"").slice(0,54)}…</div>`;}).join("")}</div>`:"";})()}
-   <div class="card"><h2>📅 がくしゅうプラン</h2>${test.plan.map(p=>{const d=S.done[p.d]||{},N={"pt": "ポイント", "app": "アプリ", "paper": "学校", "wp": "ウィンパス", "ever": "ぜんぶ見直し", "test": "まとめテスト"};return `<div class="wl">${md(p.d)}${p.camp?" 🏕":""} ${p.src==="core"?p.us.map(u=>test.units[u].name).join("・"):p.src==="wp"?"ウィンパス（2周目）":"総ざらい"}<br>${tasksOf(p).map(k=>N[k]+(d[k]?"✓":"・")).join(" ")}</div>`;}).join("")}</div>
+   <div class="card"><h2>📅 がくしゅうプラン</h2>${test.plan.map(p=>{const d=S.done[p.d]||{},N={"pt": "ポイント", "app": "アプリ", "paper": "学校", "wp": "ウィンパス", "ever": "ぜんぶ見直し", "test": "まとめテスト"};return `<div class="wl">${md(p.d)}${p.camp?" 🏕":""} ${p.src==="core"?p.us.map(u=>(ALLUNITS[u]||{name:u}).name).join("・"):p.src==="wp"?"ウィンパス（2周目）":"総ざらい"}<br>${tasksOf(p).map(k=>N[k]+(d[k]?"✓":"・")).join(" ")}</div>`;}).join("")}</div>
    <div class="card"><h2>⚙️ せってい</h2>
     <button class="btn soft" onclick="S.unlockAll=!S.unlockAll;save();go('parent')">先の単元を ${S.unlockAll?"日付どおりにもどす":"ぜんぶひらく"}</button>
     <button class="btn soft" onclick="if(confirm('いまの記録をもとに、コア問題を選びなおしますか？')){buildCore();go('parent')}">コア問題を選びなおす（いま${(S.core||[]).length}問）</button>
@@ -2164,11 +2173,6 @@ function vParent(){
     <button class="btn soft" onclick="pickImg('prize')">けっか画面の画像をかえる</button>
     <button class="btn soft" onclick="if(confirm('画像を初期にもどしますか？')){S.img={};save();go('parent')}">画像を初期にもどす</button>
     <button class="btn soft" onclick="if(confirm('きろくをすべて消しますか？（もとにもどせません）')){localStorage.removeItem(KEY);location.reload()}">きろくをすべて消す</button></div>
-   <div class="card"><h2>💾 バックアップ</h2>
-    <p class="muted" style="margin:0">⭐・正誤・まちがいノート・ふるまいの記録をコピーします（手書き画像と写真はふくみません）。メモ帳などに貼って保管してください。</p>
-    <button class="btn lav" onclick="doBackup(this)" style="margin-top:10px">📋 きろくをコピー（バックアップ）</button>
-    <button class="btn soft" onclick="showRestore()">バックアップからもどす</button>
-    <div id="dump2"></div></div>
    <button class="btn soft" onclick="go('home')">もどる</button>`;
 }
 
