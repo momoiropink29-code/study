@@ -134,7 +134,7 @@ table.stb tr.v td{background:#fff}
 <script>
 (function(){
 "use strict";
-var VERSION="v8 (2026-11-08)";
+var VERSION="v9 (2026-11-10)";
 var KEY="bunsu_kaseki_v1";
 var COST=30;
 var C_TAKE="#f28c1e", C_BASE="#fff4dc", C_LINE="#6d4a28";
@@ -465,7 +465,7 @@ function result(){
 }
 // multiple-choice helper
 var LKT=null;
-function lockQ(){
+function lockQ(){return;/*v9: 待ちなし*/
   var qa=$("qa");if(!qa)return;qa.classList.add("wait");var t0=Date.now();if(LKT)clearInterval(LKT);
   LKT=setInterval(function(){var el=Date.now()-t0,sp=false;try{sp=!!(TTS&&S.voice&&TTS.speaking);}catch(e){}
     if((el>=3000&&!sp)||el>=12000){clearInterval(LKT);LKT=null;var q2=$("qa");if(q2)q2.classList.remove("wait");}},150);
