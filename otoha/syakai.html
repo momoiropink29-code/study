@@ -197,6 +197,13 @@ h2.sec{margin:26px 0 2px;font-size:15.5px;color:var(--ink-soft);letter-spacing:.
 .bigbar i{display:block;height:100%;border-radius:9px;
   background:linear-gradient(90deg,#FF8FB1,#FFD766,#8FDCA6,#7FC9EC,#B4A8F5)}
 
+/* バックアップのコピー */
+.btn.mint.copybtn{text-align:center;font-size:17px;margin:0 0 4px}
+.copymsg{margin:10px 0 0;border-radius:14px;padding:10px 13px;font-size:13.5px;
+  font-weight:700;line-height:1.7}
+.copymsg.ok{background:#E6F6EC;color:#3F7F5B}
+.copymsg.ng{background:#FFF1E4;color:#B5692F}
+
 /* きょうのミッション */
 .card.mission{background:linear-gradient(140deg,#FFF0F7,#FFF8EC 55%,#EEF8FF);
   box-shadow:0 7px 0 #F0DCEA;padding:18px}
@@ -1655,9 +1662,14 @@ function render(){
 
   /* ================= バックアップ ================= */
   if(view==="backup"){
+    const bk=JSON.stringify(Object.assign({},S,{proof:[]}))
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     h+=`<div class="card"><h2>💾 バックアップ</h2>
-      <p class="muted" style="margin:0 0 6px">きろくは自動でほぞんされます。ほかのタブレットにうつすときは下をコピーしてね。</p>
-      <textarea readonly>${JSON.stringify(Object.assign({},S,{proof:[]}))}</textarea>
+      <p class="muted" style="margin:0 0 10px">きろくは じどうで ほぞんされます。<br>
+      ほかのタブレットに うつすときや、ようすを 見てもらうときは コピーしてね。</p>
+      <button class="btn mint copybtn" onclick="copyBackup()">📋 コピーする</button>
+      ${copyMsg?`<p class="copymsg ${copyOK?"ok":"ng"}">${copyMsg}</p>`:""}
+      <textarea id="bkText" readonly>${bk}</textarea>
       <button class="btn soft" onclick="restore()">はりつけて ふくげんする</button></div>`;
     h+=`<button class="homebtn" onclick="go('home')">🏠 ホームにもどる</button>`;
   }
@@ -1817,6 +1829,32 @@ function render(){
   app.innerHTML=h;
   if(view==="quiz")setupPad();
 }
+/* バックアップをクリップボードにコピー（iPad Safari の file:// でも動くように2段構え） */
+let copyMsg="", copyOK=false;
+function copyBackup(){
+  const el=document.getElementById("bkText"); if(!el)return;
+  const txt=el.value;
+  const done=ok=>{
+    copyOK=ok;
+    copyMsg=ok?"✅ コピーしました！ メモやLINEに はりつけてね。"
+              :"⚠️ コピーできませんでした。下の文字を 長おしして「すべてを選択」→「コピー」してね。";
+    render();
+    setTimeout(()=>{copyMsg="";if(view==="backup")render();},5000);
+  };
+  let ok=false;
+  try{
+    el.readOnly=false;                 /* iOS は readonly だと選択できないことがある */
+    el.focus();
+    el.setSelectionRange(0,txt.length);
+    ok=document.execCommand("copy");
+  }catch(e){ok=false;}
+  try{el.readOnly=true;el.blur();}catch(e){}
+  if(ok){done(true);return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>done(true),()=>done(false));
+  }else done(false);
+}
+
 function restore(){
   const t=prompt("バックアップの文字をはりつけて OK をおしてね。");
   if(!t)return;
